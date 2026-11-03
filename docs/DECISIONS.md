@@ -5,6 +5,8 @@ Newest first. Never delete an old decision; mark it "superseded by #N" instead.
 
 | # | Date | Topic | Decision | Reason |
 |---|---|---|---|---|
+| 19 | 2026-11-03 | TypeScript version | Pin TypeScript `~6.0.3` in `apps/web` (create-vite 9.3.3 template defaulted to 7.0.2). `"strict": true` set explicitly in both tsconfig files. Move to TS 7 when typescript-eslint supports it. | typescript-eslint 8.72.1 (latest) supports TypeScript `>=4.8.4 <6.1.0` only; TS 7 broke `npm install`. |
+| 18 | 2026-11-03 | Frontend stack | Vite + React + TypeScript (strict), Tailwind CSS + shadcn/ui (components copied into `apps/web/src/components/ui/`, add only what a screen needs), lucide-react icons, React Router. npm workspaces for the monorepo. PWA and React Three Fiber added later when needed. | shadcn/ui = copy free (MIT) code into our repo and adapt it; themes map to CSS variables matching the Figma tokens. |
 | 17 | 2026-11-03 | Node.js version | Node.js 26 LTS (installed 26.13.0 via nvm-windows 1.1.12). `.nvmrc` = 26. Fallback: Node 24 LTS if a library does not support 26 yet. | Newest LTS, supported until Apr 2029. Node 22 ends Apr 2027. |
 | 16 | 2026-11-03 | Figma | Figma = rough mockups only (file "Thongyod — UI v0"). Source of truth for UI = React components in code. | Figma free plan: variables limited to 1 mode, MCP tool calls limited per month. One source avoids drift. |
 | 15 | 2026-11-03 | Component reuse | All components live in `apps/web/src/components/`. Registry in `docs/COMPONENTS.md`. Before creating a component, check the registry; if a similar one exists, extend it with props instead. Use a free-licensed (MIT or similar) UI library as base (to be chosen). Record the source and license of any copied code. | Avoid duplicate components that look slightly different. |
@@ -24,6 +26,5 @@ Newest first. Never delete an old decision; mark it "superseded by #N" instead.
 | 1 | 2026-11-03 | Project folder | `C:\Users\Earth\Desktop\BUU\Playground\thongyod` | No spaces/Thai characters in path. |
 
 ## Open questions
-- Which free UI component library to use (compare and check licenses at project setup).
 - Let users hide/reorder home cards in v1.5? (proposed)
 - Final app name, pet character, no in-app chat (from original spec).
