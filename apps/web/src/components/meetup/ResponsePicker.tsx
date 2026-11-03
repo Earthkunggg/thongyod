@@ -7,16 +7,19 @@ type ResponsePickerProps = {
   onChange: (value: MeetupResponse) => void
   /** Meetup title, used in the accessible group label. */
   label: string
+  /** e.g. answers are locked (10 min after start). */
+  disabled?: boolean
 }
 
 // ไป / อาจจะ / ไม่ไป for a meetup. Use everywhere a meetup can be answered.
-export function ResponsePicker({ value, onChange, label }: ResponsePickerProps) {
+export function ResponsePicker({ value, onChange, label, disabled }: ResponsePickerProps) {
   const { t } = useTranslation()
   return (
     <SegmentedChoice<MeetupResponse>
       label={t('meetup.respondTo', { title: label })}
       value={value}
       onChange={onChange}
+      disabled={disabled}
       options={[
         { value: 'going', label: t('meetup.going') },
         { value: 'maybe', label: t('meetup.maybe') },

@@ -1,12 +1,11 @@
 // API CONTRACT — shared by frontend and backend.
 // Status: DRAFT from the frontend (mock data). Proposed endpoint: GET /home
+// Meetups are NOT part of /home; the calendar uses the meetup list endpoint.
 // Rules:
 // - Money is always an integer number of satang (1 baht = 100 satang). Never floats.
 // - The API sends DATA, not UI sentences. The frontend builds the text in the user's
 //   language from `kind` + fields. Only user-written content (names, titles) is sent as text.
 // - Dates are ISO 8601 strings in UTC.
-
-import type { MeetupSummary } from './meetup'
 
 export type PendingKind = 'vote_time' | 'vote_restaurant' | 'pay_bill' | 'confirm_payment'
 
@@ -50,12 +49,9 @@ export interface PetSummary {
 export type LuckyColorKey = 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purple' | 'pink' | 'black' | 'white' | 'gray'
 
 export interface HomeSummary {
-  /** Meetups in the current week (Mon-Sun) that the user can see. */
-  weekMeetups: MeetupSummary[]
-  /** The next upcoming meetup the user has not declined, if any. */
-  nextMeetup: MeetupSummary | null
   pending: PendingItem[]
-  pet: PetSummary
+  /** null = the user has not activated a pet yet (no blind box opened). */
+  pet: PetSummary | null
   /** null = feature off or birthday not set. */
   luckyColor: LuckyColorKey | null
   feed: FeedItem[]

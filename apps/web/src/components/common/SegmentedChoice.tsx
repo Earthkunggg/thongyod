@@ -9,11 +9,12 @@ type SegmentedChoiceProps<T extends string> = {
   onChange: (value: T) => void
   /** Accessible name of the group, e.g. "เลือกธีม". */
   label: string
+  disabled?: boolean
 }
 
 // Row of equal-width buttons where one option is chosen (filled).
 // Used for: meetup responses, theme, language. Reuse it for any "pick one of 2-4" control.
-export function SegmentedChoice<T extends string>({ options, value, onChange, label }: SegmentedChoiceProps<T>) {
+export function SegmentedChoice<T extends string>({ options, value, onChange, label, disabled }: SegmentedChoiceProps<T>) {
   return (
     <div className="flex gap-2" role="group" aria-label={label}>
       {options.map((option) => (
@@ -22,6 +23,7 @@ export function SegmentedChoice<T extends string>({ options, value, onChange, la
           className="flex-1"
           variant={value === option.value ? 'default' : 'outline'}
           aria-pressed={value === option.value}
+          disabled={disabled}
           onClick={() => onChange(option.value)}
         >
           {option.label}

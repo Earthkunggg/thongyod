@@ -5,6 +5,7 @@ import { TOOLS } from '@/config/tools'
 import { ExplorePage } from '@/pages/ExplorePage'
 import { GangsPage } from '@/pages/GangsPage'
 import { HomePage } from '@/pages/HomePage'
+import { MeetupDetailPage } from '@/pages/MeetupDetailPage'
 import { MePage } from '@/pages/MePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { PetPage } from '@/pages/PetPage'
@@ -40,6 +41,7 @@ export const router = createBrowserRouter([
     element: <SubPageShell />,
     children: [
       { path: 'quick-vote', element: <QuickVotePage /> },
+      { path: 'meetups/:id', element: <MeetupDetailPage /> },
       ...placeholderToolRoutes,
       { path: '*', element: <NotFoundPage /> },
     ],
