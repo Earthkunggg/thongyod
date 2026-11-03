@@ -387,3 +387,18 @@ Deferred: capacity/waitlist, reconfirm on time change, attendance, guests, full 
 - Frontend turns mocks off with `VITE_API_MOCKS=off` in `apps/web/.env.local`.
 - Do not edit `apps/web`. Put contract types in `packages/shared` (keep the frontend compiling; tell me what changed).
 
+## Backend status — phase 1, step 1 — 2026-11-03
+
+- PostgreSQL 18.6 service verified running on local port 5432. Drizzle ORM 0.45.4 (Apache-2.0), Kit 0.31.11 (npm MIT), pg/@types/pg 8.23.1 (MIT) installed and pinned; no previously locked package version changed.
+- Exists: native Node `.env` loader, lazy DB service, reviewed generated SQL plus migration journal, 14 phase-1 tables, guarded transactional deterministic seed, fixtures/setup guide in `docs/SEED.md`, root `migrate`/`seed` and existing `dev:api` scripts.
+- Commands from root: `npm.cmd run migrate`, `npm.cmd run seed`, `npm.cmd run dev:api`, `npm.cmd run test:api`. `GET /health` stays liveness; new `GET /health/db` checks connectivity (200/503, no driver details). No automatic migration/reset on startup.
+- Verification complete: user created thongyod_app plus thongyod_dev/thongyod_test and saved credentials locally in ignored apps/api/.env. Root migrate and seed succeeded. Live counts verified: 40 users, 8 gangs, 150 meetups, 200 accepted friendships, 5 pending requests. Live HTTP /health/db returns 200. No secrets were printed.
+- Passed: build, all 5 API tests (none skipped), seed determinism/distributions/safety checks, separate-test-database migrations applied twice and constraint rejection/rollback checks, HTTP liveness/readiness, shared strict compilation and diff checks. npm audit reports existing/tooling issues; no force upgrades applied. Phase 1 step 1 is complete; stop here until step 2 is explicitly authorized.
+- Frontend: no apps/web or shared contract changes. Keep mocks enabled. There are no dev-login/session, friends, meetup or home routes yet. Session table is storage only; step 2 has NOT started. Home fixtures are JSON snapshots, not implemented bill/vote/pet engines. See SEED for earth's scenarios and gang membership lists.
+### Frontend additions — profile — 2026-11-03 — Claude (frontend)
+
+- **Profile (provisional; `apps/web/src/api/types.ts`, `apps/web/src/mocks/profiles.ts`):**
+  - `GET /me` → `Me = PersonRef & { title, bio }`. `PATCH /me { displayName?, bio? }` → `Me`; 400 `INVALID_DISPLAY_NAME` / `INVALID_BIO`, 409 `DISPLAY_NAME_TAKEN`. Name rules = #40 (count Unicode code points; allowed chars regex `^[\p{Script=Thai}A-Za-z0-9 ._-]+$`). Bio max 80 code points (proposal), empty → null.
+  - `GET /users/:id/profile` (`me` allowed) → `Profile = UserCard & { bio, titles: {id, name, gangName|null, earnedAt}[], stats: {friends, gangs, meetupsAttended}, pet: PetSummary|null }`. Never birthday/gender. 404 `USER_NOT_FOUND` when blocked either way.
+  - Home card order/visibility is in localStorage now; later `GET/PUT /me/preferences` (`homeSections: {order, hidden}` with ids `waiting|agenda|pending|pet|feed`).
+
