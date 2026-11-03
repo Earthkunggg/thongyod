@@ -1,13 +1,24 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import "@fontsource-variable/anuphan";
+@import "@fontsource/mali/500.css";
 
-@custom-variant dark (&:is(.dark *));
+/*
+ * THEMES
+ * Two attributes on <html> (set by the script in index.html):
+ *   data-theme = "default" | "cute"   (user choice, saved in localStorage)
+ *   data-mode  = "light" | "dark"     (follows the phone/computer setting)
+ * Components only use the shadcn variables below (--primary, --card, ...).
+ * Never hard-code colors in components.
+ */
+
+/* Tailwind `dark:` classes follow data-mode, not the .dark class. */
+@custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
 
 @theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
+    --font-sans: var(--app-font-sans);
+    --font-heading: var(--app-font-heading);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,83 +59,156 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-:root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+/* Thai text needs taller lines than Latin text (spec: ~1.6-1.7). */
+@theme {
+    --text-xs--line-height: 1.6;
+    --text-sm--line-height: 1.6;
+    --text-base--line-height: 1.65;
+    --text-lg--line-height: 1.6;
+    --text-xl--line-height: 1.5;
+    --text-2xl--line-height: 1.4;
 }
 
-.dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+/* ---------- Theme "ค่าเริ่มต้น" (default): light ---------- */
+:root {
+    --app-font-sans: "Anuphan Variable", "Noto Sans Thai", system-ui, sans-serif;
+    --app-font-heading: var(--app-font-sans);
+    --radius: 0.5rem; /* buttons 8px, cards ~12px */
+
+    --background: #f7f6f3;
+    --foreground: #2c2c2a;
+    --card: #ffffff;
+    --card-foreground: #2c2c2a;
+    --popover: #ffffff;
+    --popover-foreground: #2c2c2a;
+    --primary: #ef9f27;            /* gold */
+    --primary-foreground: #412402;
+    --secondary: #f1efe8;
+    --secondary-foreground: #2c2c2a;
+    --muted: #f1efe8;
+    --muted-foreground: #5f5e5a;
+    --accent: #faeeda;
+    --accent-foreground: #854f0b;
+    --destructive: #c93a39;
+    --border: #e4e2da;
+    --input: #e4e2da;
+    --ring: #ef9f27;
+    --chart-1: #ef9f27;
+    --chart-2: #1d9e75;
+    --chart-3: #7f77dd;
+    --chart-4: #d4537e;
+    --chart-5: #888780;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #2c2c2a;
+    --sidebar-primary: #ef9f27;
+    --sidebar-primary-foreground: #412402;
+    --sidebar-accent: #faeeda;
+    --sidebar-accent-foreground: #854f0b;
+    --sidebar-border: #e4e2da;
+    --sidebar-ring: #ef9f27;
+    color-scheme: light;
+}
+
+/* ---------- Theme "ค่าเริ่มต้น" (default): dark ---------- */
+[data-mode="dark"] {
+    --background: #1a1917;
+    --foreground: #edebe4;
+    --card: #24231f;
+    --card-foreground: #edebe4;
+    --popover: #2b2a26;
+    --popover-foreground: #edebe4;
+    --primary: #ef9f27;
+    --primary-foreground: #412402;
+    --secondary: #2f2e2a;
+    --secondary-foreground: #edebe4;
+    --muted: #2f2e2a;
+    --muted-foreground: #a8a69e;
+    --accent: #3a2a10;
+    --accent-foreground: #fac775;
+    --destructive: #f09595;
+    --border: #34332e;
+    --input: #3a3934;
+    --ring: #ef9f27;
+    --sidebar: #24231f;
+    --sidebar-foreground: #edebe4;
+    --sidebar-accent: #3a2a10;
+    --sidebar-accent-foreground: #fac775;
+    --sidebar-border: #34332e;
+    color-scheme: dark;
+}
+
+/* ---------- Theme "น่ารัก" (cute): light ---------- */
+[data-theme="cute"] {
+    --app-font-heading: "Mali", var(--app-font-sans); /* rounded Thai font for headings */
+    --radius: 1rem; /* rounder: buttons 16px, cards ~22px */
+
+    --background: #fff5f8;         /* pastel pink */
+    --foreground: #4b1528;         /* deep plum */
+    --card: #ffffff;
+    --card-foreground: #4b1528;
+    --popover: #ffffff;
+    --popover-foreground: #4b1528;
+    --primary: #ed93b1;            /* pink */
+    --primary-foreground: #4b1528;
+    --secondary: #fbeaf0;
+    --secondary-foreground: #72243e;
+    --muted: #fbeaf0;
+    --muted-foreground: #993556;
+    --accent: #ffefd6;             /* soft gold, keeps the "Thongyod" link */
+    --accent-foreground: #854f0b;
+    --destructive: #c93a39;
+    --border: #f6d5e0;
+    --input: #f6d5e0;
+    --ring: #ed93b1;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #4b1528;
+    --sidebar-primary: #ed93b1;
+    --sidebar-primary-foreground: #4b1528;
+    --sidebar-accent: #fbeaf0;
+    --sidebar-accent-foreground: #72243e;
+    --sidebar-border: #f6d5e0;
+    --sidebar-ring: #ed93b1;
+}
+
+/* ---------- Theme "น่ารัก" (cute): dark ---------- */
+[data-theme="cute"][data-mode="dark"] {
+    --background: #22121a;
+    --foreground: #fbeaf0;
+    --card: #2e1823;
+    --card-foreground: #fbeaf0;
+    --popover: #36202b;
+    --popover-foreground: #fbeaf0;
+    --primary: #ed93b1;
+    --primary-foreground: #4b1528;
+    --secondary: #3d2130;
+    --secondary-foreground: #fbeaf0;
+    --muted: #3d2130;
+    --muted-foreground: #e4a9bf;
+    --accent: #3f2c12;
+    --accent-foreground: #fac775;
+    --destructive: #f09595;
+    --border: #4a2a3a;
+    --input: #523042;
+    --ring: #ed93b1;
+    --sidebar: #2e1823;
+    --sidebar-foreground: #fbeaf0;
+    --sidebar-accent: #3d2130;
+    --sidebar-accent-foreground: #fbeaf0;
+    --sidebar-border: #4a2a3a;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
   body {
     @apply bg-background text-foreground;
-    }
+    -webkit-tap-highlight-color: transparent;
+  }
   html {
     @apply font-sans;
-    }
+  }
+  h1, h2, h3 {
+    @apply font-heading;
+  }
 }

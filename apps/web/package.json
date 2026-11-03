@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
-    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/anuphan": "^5.3.0",
+    "@fontsource/mali": "^5.3.0",
     "@tailwindcss/vite": "^4.3.4",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.2",
