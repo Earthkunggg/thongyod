@@ -17,6 +17,7 @@ export type {
   ListMeetupsRequest,
   ListMeetupsResponse,
   MeetupAttendanceEntry,
+  MeetupAccountRef,
   MeetupAttendanceStatus,
   MeetupAttendanceSummary,
   MeetupDetailV1,

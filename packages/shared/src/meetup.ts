@@ -32,7 +32,6 @@ export interface CreateMeetupRequest {
 export interface MeetupDetail extends MeetupSummary {
   createdAt: string
   /** Compatibility fields; new API responses use MeetupDetailV1. */
-  members?: MeetupMember[]
   responseLocksAt?: string
   minPeople?: number | null
   maxPeople?: number | null
@@ -86,6 +85,12 @@ export interface MeetupGoingAvatar {
   avatarUrl: string | null
 }
 
+export interface MeetupAccountRef {
+  userId: string
+  displayName: string
+  avatarUrl: string | null
+}
+
 interface MeetupParticipantBase {
   participantId: string
   displayName: string
@@ -103,13 +108,15 @@ export type MeetupMember = MeetupParticipantBase & (
 
 /** Complete new API shape. Legacy exports remain usable while mocks migrate. */
 export interface MeetupSummaryV1 extends MeetupSummary {
+  createdBy: MeetupAccountRef
   myState: MeetupViewerState
   goingAvatars: MeetupGoingAvatar[]
   responseLocksAt: string
   scheduleVersion: number
 }
 
-export interface MeetupDetailV1 extends MeetupDetail, MeetupSummaryV1 {
+export interface MeetupDetailV1 extends MeetupSummaryV1 {
+  createdAt: string
   members: MeetupMember[]
   minPeople: number | null
   maxPeople: number | null

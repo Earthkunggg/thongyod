@@ -1,80 +1,146 @@
-# ERD — accounts, gangs, and meetups
+﻿# ERD — accounts, gangs, and meetups
 
-Design only. No tables, migrations, authentication, uploads, or endpoints have been created by this document. Approved product rules are recorded in DECISIONS #26–#28; implementation details below remain subject to schema review.
+Design only, updated for DECISIONS #29–#36; #37 controls frontend migration to these contracts. Later decisions override #26–#28 where they conflict. No migrations, database changes, or endpoint implementation in this round. Details explicitly marked proposed/question are not new approved decisions.
 
 ## Relationships
 
 ```mermaid
 erDiagram
-    USERS ||--o{ AUTH_IDENTITIES : links
-    USERS ||--o| EMAIL_CREDENTIALS : owns
-    USERS ||--o{ MEDIA_ASSETS : uploads
-    MEDIA_ASSETS o|--o{ USERS : selected_avatar
+    USERS ||--o| AUTH_IDENTITIES : authenticates
+    USERS ||--o{ AUTH_SESSIONS : uses
+    USERS ||--o| USER_PREFERENCES : configures
+    USERS ||--o{ FRIEND_LINK_TOKENS : regenerates
     USERS ||--o{ FRIENDSHIPS : requester
     USERS ||--o{ FRIENDSHIPS : recipient
-    USERS ||--o{ GANGS : owns
-    USERS ||--o{ GANG_MEMBERS : joins
+    USERS ||--o{ USER_BLOCKS : blocks
+    USERS ||--o{ USER_BLOCKS : blocked
+    GANGS ||--|| GANG_SETTINGS : configures
     GANGS ||--o{ GANG_MEMBERS : contains
+    USERS ||--o{ GANG_MEMBERS : joins
+    GANGS ||--o{ GANG_SETTING_CHANGES : records
+    USERS ||--o{ GANG_SETTING_CHANGES : proposes
+    GANG_SETTING_CHANGES ||--o{ SETTING_OBJECTIONS : receives
+    USERS ||--o{ SETTING_OBJECTIONS : objects
+    GANGS ||--o{ GANG_EVENTS : displays
+    GANG_EVENTS ||--o{ EVENT_RECIPIENTS : notifies
+    USERS ||--o{ EVENT_RECIPIENTS : receives
     GANGS ||--o{ GANG_JOIN_LINKS : offers
-    USERS ||--o{ GANG_JOIN_LINKS : issues
-    GANGS ||--o{ ADMISSION_REQUESTS : reviews
-    USERS ||--o{ ADMISSION_REQUESTS : candidate
-    USERS ||--o{ ADMISSION_REQUESTS : proposes
-    GANG_JOIN_LINKS o|--o{ ADMISSION_REQUESTS : source
-    ADMISSION_REQUESTS ||--|{ ADMISSION_ELECTORS : snapshots
-    USERS ||--o{ ADMISSION_ELECTORS : eligible
-    ADMISSION_ELECTORS ||--o| ADMISSION_VOTES : casts
+    GANGS ||--o{ MEMBERSHIP_REQUESTS : reviews
+    USERS ||--o{ MEMBERSHIP_REQUESTS : target
+    GANG_JOIN_LINKS o|--o{ MEMBERSHIP_REQUESTS : source
+    MEMBERSHIP_REQUESTS ||--|{ MEMBERSHIP_ELECTORS : snapshots
+    USERS ||--o{ MEMBERSHIP_ELECTORS : eligible
+    MEMBERSHIP_ELECTORS ||--o| MEMBERSHIP_BALLOTS : votes
+    MEMBERSHIP_ELECTORS ||--o| MEMBERSHIP_OBJECTIONS : objects
     GANGS ||--o{ MEETUPS : contains
     USERS ||--o{ MEETUPS : creates
-    MEETUPS ||--o{ MEETUP_RESPONSES : receives
-    USERS ||--o{ MEETUP_RESPONSES : answers
+    MEETUPS ||--o{ MEETUP_GUEST_LINKS : invites
+    MEETUPS ||--o{ MEETUP_PARTICIPANTS : includes
+    USERS o|--o{ MEETUP_PARTICIPANTS : participates
+    MEETUP_PARTICIPANTS ||--o| MEETUP_ATTENDANCE : records
+    USERS ||--o{ USER_TITLES : earns
 
     USERS {
         uuid id PK
         text display_name
         text display_name_key UK
-        date birth_date "nullable, private"
+        date birth_date "nullable private"
         enum gender "male female other unspecified"
-        uuid avatar_asset_id FK "nullable"
-        uuid avatar_identity_id FK "nullable"
+        text bio "short nullable"
+        text main_title_key "nullable"
         timestamptz created_at
     }
     AUTH_IDENTITIES {
         uuid id PK
-        uuid user_id FK
-        enum provider "google or line"
-        text provider_subject
+        uuid user_id FK,UK
+        enum provider "line only in v1"
+        text provider_subject UK
         text provider_name "nullable"
         text provider_avatar_url "nullable"
-        timestamptz linked_at
     }
-    EMAIL_CREDENTIALS {
-        uuid user_id PK,FK
-        text email_key UK
-        text password_hash
-        timestamptz verified_at "nullable"
-    }
-    MEDIA_ASSETS {
+    AUTH_SESSIONS {
         uuid id PK
-        uuid owner_user_id FK
-        text storage_key UK
-        text mime_type
-        bigint byte_size
+        uuid user_id FK
+        text token_hash UK
+        enum source "line or local_dev"
+        timestamptz expires_at
+        timestamptz revoked_at "nullable"
+    }
+    USER_PREFERENCES {
+        uuid user_id PK,FK
+        enum theme "default cute"
+        enum language "th en"
+        jsonb home_cards "ordered key and visible pairs"
+        jsonb notifications "schema pending"
+        jsonb privacy "schema pending"
+        timestamptz updated_at
+    }
+    FRIEND_LINK_TOKENS {
+        uuid id PK
+        uuid user_id FK
+        text token_hash UK
         timestamptz created_at
+        timestamptz revoked_at "nullable"
     }
     FRIENDSHIPS {
         uuid id PK
         uuid requester_id FK
         uuid recipient_id FK
-        enum status "pending accepted declined"
+        enum status "pending accepted declined ended"
         timestamptz created_at
         timestamptz responded_at "nullable"
     }
+    USER_BLOCKS {
+        uuid blocker_id PK,FK
+        uuid blocked_id PK,FK
+        timestamptz created_at
+    }
     GANGS {
         uuid id PK
-        uuid owner_user_id FK
-        text name
+        uuid created_by FK "audit only no powers"
         timestamptz created_at
+    }
+    GANG_SETTINGS {
+        uuid gang_id PK,FK
+        text name
+        text picture_url "nullable"
+        boolean harsh_titles_enabled
+        enum admission_rule "majority_48h or auto_unless_objection_24h"
+        int version
+        timestamptz updated_at
+    }
+    GANG_SETTING_CHANGES {
+        uuid id PK
+        uuid gang_id FK
+        uuid proposed_by FK
+        int base_version
+        jsonb before_values
+        jsonb after_values
+        enum effect "easier stricter general"
+        enum status "pending applied cancelled superseded"
+        timestamptz created_at
+        timestamptz apply_after
+        timestamptz applied_at "nullable"
+    }
+    SETTING_OBJECTIONS {
+        uuid change_id PK,FK
+        uuid user_id PK,FK
+        timestamptz created_at
+    }
+    GANG_EVENTS {
+        uuid id PK
+        uuid gang_id FK
+        uuid actor_id FK "nullable system"
+        uuid setting_change_id FK "nullable"
+        text kind
+        jsonb data "structured not UI sentences"
+        timestamptz created_at
+    }
+    EVENT_RECIPIENTS {
+        uuid event_id PK,FK
+        uuid user_id PK,FK
+        timestamptz notified_at "nullable"
+        timestamptz banner_seen_at "nullable"
     }
     GANG_MEMBERS {
         uuid id PK
@@ -92,29 +158,36 @@ erDiagram
         timestamptz expires_at
         timestamptz revoked_at "nullable"
     }
-    ADMISSION_REQUESTS {
+    MEMBERSHIP_REQUESTS {
         uuid id PK
         uuid gang_id FK
-        uuid candidate_id FK
-        uuid proposed_by FK "nullable for self-request"
+        uuid target_user_id FK
+        uuid proposed_by FK "nullable self-request"
         uuid source_link_id FK "nullable"
-        enum status "voting approved accepted declined expired"
+        enum kind "admission removal"
+        enum rule "majority_48h auto_unless_objection_24h"
+        enum status "open approved accepted rejected expired executed"
         int electorate_count
-        int required_yes_votes
+        int required_yes_votes "nullable auto rule"
         timestamptz created_at
-        timestamptz vote_expires_at
+        timestamptz closes_at
+        timestamptz consented_at "nullable admissions only"
         timestamptz resolved_at "nullable"
-        timestamptz accepted_at "nullable"
     }
-    ADMISSION_ELECTORS {
+    MEMBERSHIP_ELECTORS {
         uuid request_id PK,FK
         uuid user_id PK,FK
     }
-    ADMISSION_VOTES {
+    MEMBERSHIP_BALLOTS {
         uuid request_id PK,FK
         uuid user_id PK,FK
         boolean approve
         timestamptz cast_at
+    }
+    MEMBERSHIP_OBJECTIONS {
+        uuid request_id PK,FK
+        uuid user_id PK,FK
+        timestamptz created_at
     }
     MEETUPS {
         uuid id PK
@@ -122,75 +195,123 @@ erDiagram
         uuid created_by FK
         varchar title "1 to 100 characters"
         timestamptz starts_at
+        text timezone "proposed Asia/Bangkok"
+        int schedule_version
+        int min_people "nullable"
+        int max_people "nullable"
         timestamptz created_at
     }
-    MEETUP_RESPONSES {
-        uuid meetup_id PK,FK
+    MEETUP_GUEST_LINKS {
+        uuid id PK
+        uuid meetup_id FK
+        uuid created_by FK
+        text token_hash UK
+        timestamptz expires_at
+        timestamptz revoked_at "nullable"
+    }
+    MEETUP_PARTICIPANTS {
+        uuid id PK
+        uuid meetup_id FK
+        uuid user_id FK "nullable guest"
+        text guest_nickname "guest only"
+        text guest_token_hash "guest only nullable"
+        enum response "going maybe not_going nullable"
+        timestamptz hidden_at "private nullable"
+        int confirmed_schedule_version "nullable"
+        timestamptz queue_entered_at "nullable"
+        boolean seat_allocated
+        timestamptz answered_at "nullable"
+    }
+    MEETUP_ATTENDANCE {
+        uuid participant_id PK,FK
+        enum status "pending attended absent"
+        enum source "creator automatic nullable"
+        uuid confirmed_by FK "nullable"
+        timestamptz eligible_at
+        timestamptz due_at
+        timestamptz finalized_at "nullable"
+    }
+    USER_TITLES {
         uuid user_id PK,FK
-        enum response "going maybe not_going"
-        timestamptz updated_at
+        text title_key PK
+        timestamptz earned_at
     }
 ```
 
-`USERS.avatar_identity_id` also references `AUTH_IDENTITIES.id`; this relationship is omitted from the diagram edges to keep it readable. PK = primary key, FK = foreign key, UK = unique key. All timestamps represent instants; API timestamps use ISO 8601 UTC. Birthday is a calendar date, not an instant.
+PK = primary key, FK = foreign key, UK = unique key. Additional FKs: `GANGS.created_by`, link issuers, request proposers, guest-link issuers, attendance confirmers, and settings/event users reference `USERS`; main title references an earned `USER_TITLES(user_id, title_key)`. Ballot/objection `(request_id, user_id)` references the corresponding electorate row. Relationship edges omit some audit FKs for readability.
 
-## Accounts, profile, and privacy
+## Accounts, profile, friends, and preferences (#29, #30, #34–#36)
 
-- Google, LINE, and email/password can belong to one user. Enforce unique `(provider, provider_subject)` across external identities. Never merge accounts solely because provider emails match; linking requires an authenticated user and verification of the added method.
-- Signup can prefill a provider name, but must obtain a unique app name before completion. `display_name` is the visible name; `display_name_key` is its normalized uniqueness key, not a second username. Proposed normalization: trim, Unicode NFC, and case folding. Exact length and allowed characters remain open.
-- Birthday is optional. Gender defaults to `unspecified`; choices are `male`, `female`, `other`, `unspecified`, with localized UI labels. No free-text gender field is required. Birthday and gender are owner-only fields; public/member profile responses must omit them.
-- Passwords are hashes only. Email verification and password recovery are required. Session storage, verification/reset token tables, hashing algorithm, and email delivery are a follow-up authentication design, not covered by this ERD.
-- Avatar selection is either a linked provider identity or an owned uploaded asset, not both. No selection means a placeholder avatar. At signup a provider photo may be selected; uploading a photo selects that asset instead. Enforce that the selected identity/asset belongs to the same user. Do not return credential data or storage keys in public profiles.
-- Upload storage backend, MIME allowlist, file size limits, and processing/cleanup policy must be specified before implementing uploads. A media row is metadata, not the image bytes.
+- LINE Login only in v1. Remove Google, email credentials, passwords, verification/reset, and account-linking flows. Retain `AUTH_IDENTITIES` with provider fixed to `line`; future providers require a new decision/migration. Sessions are app sessions, not LINE access tokens. Dev fixture users may have no LINE identity.
+- App name is unique. LINE name can prefill signup but conflicts require another name. Proposed normalization remains trim + Unicode NFC + case folding; exact character/length policy is open. `bio` is optional; proposed limit 160 characters requires approval.
+- Birthday is optional calendar date; gender defaults to unspecified. Both are owner-only, including in friend/profile/stat endpoints. v1 avatar comes from LINE per #36; remove upload/media tables from active v1 scope. Upload support from #27 is deferred, not implemented by this ERD. Cover is a theme color, not an uploaded image.
+- Main title must be earned. Friends and gangs stats count accepted friendships and active memberships; attended meetup stats use finalized attendance, excluding hidden users and guests. Titles/pet awards use attendance, never raw going answers. Proposed unique reward source `(user_id, meetup_id, reward_kind)` prevents duplicate awards; reward ledger/pet schema is deferred to its feature contract.
+- One ordered preference entry per known home card key, with visibility; reject duplicates/unknown keys when the card registry is agreed. Theme/language match current frontend values. Notification/privacy JSON schemas and bio limit need contracts before endpoints. Cover/theme, settings, profile statistics remain data, not UI text.
+- Friends: exact app-name search only; no browse-all API. Requests require acceptance and can include mutual-friend counts. Enforce one unordered friendship pair and no self-request. Unfriend changes status silently and never alters gang memberships.
+- `USER_BLOCKS` is directional; a block in either direction prevents discovery and requests, including via old links or a gang roster action. Recheck after token lookup and before mutation. Proposed mutual-friend filtering excludes blocked/private users; detailed privacy rules need approval. Block behavior inside existing gangs is an open question, not automatic removal.
+- Friend link/QR contains an opaque token, not credentials or arbitrary user IDs. Regeneration revokes the old token atomically; a partial unique index allows one active token per user. Links lead to a request requiring acceptance. Daily request limit must be checked atomically; proposed 20/day in Asia/Bangkok is pending approval, not a LINE API limit. Existing request timestamps support counting; retries must not bypass the limit.
 
-## Friends and membership
+## Gang governance and admission (#31 supersedes owner rules)
 
-- A friendship request needs acceptance. Reject self-requests. Enforce one row per unordered user pair, preventing opposite-direction duplicate requests; retry/unfriend/block rules are still open.
-- One gang has one owner. Membership history uses separate rows for each membership period; a partial unique index on `(gang_id, user_id)` where `left_at IS NULL` prevents duplicate active memberships. Validate `left_at >= joined_at` when present.
-- The gang creator becomes its initial owner/member atomically; admission voting applies to subsequent members. This is a proposed bootstrap detail. Owner transfer, owner departure, and removal procedures still need decisions; owner-only removal is not assumed approved.
-- Leaving a gang removes read/respond permissions, but preserves prior meetup answers and their contribution to counts. Rejoining does not delete historical answers.
-- Every active member may create, read, or respond to a meetup. Signed-in outsiders receive 404 for inaccessible meetups. This rule does not define the unauthenticated error contract.
+- No owner/leader role or owner-only permissions. `created_by` is audit data only. A new gang starts with its creator as a normal member. Member removal uses majority vote; no direct owner removal or owner transfer endpoint.
+- Any active member can change settings. General settings (name, picture, harsh titles) and stricter admission changes apply immediately. Easier admission changes wait 24 hours; any member objection before activation cancels the whole pending change. Every proposal/application/cancellation writes a timeline event and notifies all current members; recipients track banner visibility independently.
+- Proposed classification: `majority_48h -> auto_unless_objection_24h` is easier; reverse is stricter. Settings changes mixing general/easier fields should be split into separate requests. Compare `base_version` at application time; never silently overwrite later changes. Supersede stale proposals and notify members. Classification of future settings must be explicit.
+- Any currently active member can object to a pending easier change (not only original recipients). Objection vs activation is serialized in one transaction using server time. Audit old/new values and actor; notifications are in-app records here, not promises of LINE Messaging API push.
+- Snapshot the admission rule and electorate at creation. `majority_48h` requires `floor(N / 2) + 1` yes votes within 48 hours; the member proposer contributes one yes. `auto_unless_objection_24h` approves after 24 hours only if no eligible objection exists; a single objection rejects it. Candidate consent is always required before membership is created. Link/QR/code never grants membership directly.
+- Removal always uses majority/48 hours even in an auto-admission gang. Target voting eligibility is still a question; proposed exclude target from electorate and deny removal if no voters remain. Removal does not require target consent, unlike admission. Lock denominator and electorate; departed-voter eligibility and ballot editing remain open.
+- Use composite FKs for votes/objections to frozen electorate, one ballot/objection per voter, at most one unresolved request per gang/target/kind, and one active membership per gang/user. Changing settings does not retroactively change open membership requests.
+- Membership history stores repeated join/leave periods. Leaving/removal revokes access but retains historical answers unless hidden under #32. Last-member departure, gang archival, link expiry, and candidate acceptance expiry require decisions before implementing those paths.
 
-## Admission voting and invitation channels
+## Meetup privacy and participant state (#32)
 
-- Friend nomination, link, QR, and code all enter the same admission workflow. QR encodes a join link; it needs no separate table. A link/code is permission to request admission, not direct membership. Friend nomination requires an accepted friendship at proposal time.
-- At request creation, snapshot all active members into `ADMISSION_ELECTORS`, freeze `electorate_count = N`, and set `required_yes_votes = floor(N / 2) + 1`. This includes the owner. Validate `N >= 1`.
-- `ADMISSION_VOTES` has a composite foreign key `(request_id, user_id)` to `ADMISSION_ELECTORS`, so only snapshot members can vote and each has at most one ballot. A member proposer gets one automatic yes vote. Self-requesting candidates do not vote.
-- `vote_expires_at = created_at + 48 hours`. Only votes received before the deadline count. Majority means more than half of all snapshot members, not half of votes cast. Non-voters do not reduce the denominator.
-- Proposed transitions: `voting -> approved` once the threshold is met; otherwise `voting -> expired` at the deadline. Approved candidates must accept before `accepted` creates membership. Candidate refusal becomes `declined`. No direct-add path bypasses approval or candidate consent.
-- Creating an electorate, recording proposer consent, and calculating the threshold must be atomic. Acceptance must atomically verify approval, insert at most one active membership, and mark the request accepted. Use a partial unique index to allow at most one `voting` or `approved` request per `(gang_id, candidate_id)`.
-- Link token/code values are returned only when issued; persist hashes. Link expiry/revocation prevents new requests. Link lifetime, code strength, acceptance expiry, ballot editing/visibility, and the right of departed snapshot voters to cast a later vote remain open. Membership changes never alter the frozen denominator.
-- Existing meetup/restaurant vote policy is separate from membership admission; do not assume all vote-engine rules apply to admission ballots.
+- A participant is an app member (`user_id` present) OR guest (`user_id` absent, nickname/token present), never both. Partial unique `(meetup_id, user_id)` for account participants. Unanswered members can be projected from eligible membership plus participant overrides; persist overrides for hidden state. Guest IDs are stable participant IDs, not fake user IDs.
+- Hidden is private state separate from response. Filter hidden participants BEFORE grouping, counting, pagination, avatar previews, attendance exports, reminders, nudges, stats, feed and reward eligibility. Never emit hidden counts, hidden IDs, or gang member totals in meetup payloads. Do not label a hidden person as unanswered. No hidden event is posted to the gang timeline.
+- Detail may include the caller's own hidden row for recovery, with caller-only `myState.hidden`; it must never include another hidden participant. Default home/calendar excludes caller-hidden meetups. Hidden list is caller-scoped and cannot retrieve another user's hidden rows. Creator cannot hide own meetup. Unhide does not broadcast the previous private state.
+- A separately accessible gang roster can still enable guessing (#32 acknowledged limitation); no meetup endpoint should make subtraction easier by returning total roster size. Guest projections have no access to a gang roster or private profile.
 
-## Meetup constraints and indexes
+## Lock, reconfirm, capacity, attendance, and guests (#33)
 
-- Preserve the shared `MeetupSummary`/`MeetupDetail` shape: `gangName` is joined from gangs; `counts` is aggregated from answers; `myResponse` is selected for the authenticated caller. Do not store these derived fields in `MEETUPS`.
-- Trim titles; enforce 1–100 characters. Validate future `starts_at` on creation or when changing the time. Do not add a database CHECK against the current time; valid records naturally become past meetups.
-- `MEETUP_RESPONSES` has primary key `(meetup_id, user_id)`. Upsert updates a member's existing answer. Repeating an answer does not increment counts. No row means unanswered, including for the meetup creator.
-- Membership checks and writes must be consistent under concurrent leave/respond or leave/create requests; a user FK alone does not prove current gang membership.
-- Proposed indexes: `AUTH_IDENTITIES(user_id)`, `FRIENDSHIPS(recipient_id, status)`, `GANG_MEMBERS(user_id, gang_id)` for active rows, `ADMISSION_REQUESTS(status, vote_expires_at)`, and `MEETUPS(gang_id, starts_at, id)`. Composite primary keys already support count queries by meetup and ballots by request. Exact SQL and query plans are a migration-stage task.
-- Deletion/cascade policies remain open; do not cascade away historical memberships, ballots, or responses without an approved policy.
+- Server computes `responseLocksAt = starts_at + 10 minutes`. Reject answer/clear/hide mutations at or after that instant with `RESPONSE_LOCKED` (proposal: hide/unhide shares this lock; see HANDOFF question). A frontend timer never authorizes writes.
+- A time move by more than 60 minutes OR to a different calendar day increments `schedule_version` and invalidates old confirmations. Proposed day timezone is Asia/Bangkok, pending approval. Keep prior intent privately for audit but expose effective response as null and status `needs_reconfirm`; hidden people stay hidden and receive no reconfirm reminder.
+- All writes use current schedule version to prevent stale responses racing with a time change. Reconfirmation explicitly records the current version. Visible old answers no longer contribute to going/maybe/not-going counts; `needsReconfirmCount` counts only visible pending reconfirmations. Small changes, rescheduling after lock/finalized attendance, and capacity effects need the policies listed in HANDOFF.
+- `min_people`/`max_people` are null or positive integers; when both exist, min <= max. Minimum is informational, not automatic cancellation. Seats are allocated transactionally. Waitlisted means going intent without a seat, not an extra `MeetupResponse` enum value. Count actual allocated going separately from visible waitlist. FIFO uses `queue_entered_at` then participant ID as a tie breaker. Proposed guests consume seats too.
+- Leaving/clearing/hiding an allocated going response frees a seat and promotes the earliest eligible visible confirmed waiter before the answer lock. Never promote hidden, stale, removed, or blocked guest credentials. What happens on capacity reduction, unhide, or vacancies after lock is pending policy. Store no duplicate aggregate counts.
+- Attendance candidates are visible, current-version, allocated going participants at lock; waitlisted/maybe/not-going/unanswered are not attendance candidates. Proposed immutable eligibility snapshot is created at lock. Proposed confirmation window opens then and ends at `starts_at + 24 hours`; #33 does not define an end time, so this interpretation must be approved. Creator can mark attended/absent; automatic finalization marks unresolved eligible going as attended at deadline. Guests may be displayed but never earn account stats, titles, or pet rewards. Automatic finalization/rewards must be idempotent and survive restart.
+- Guest link access is limited to one meetup plus an opaque guest session, never gang membership. Proposed links issued by members and managed per meetup; link scopes, attendee detail visibility, nickname edits, spam/rate limits, and link expiry need approval. Guest declines are not hidden-member events. Do not let a client impersonate a guest using only `participantId`.
+- `DELETE response` returns caller to unanswered and is idempotent; no artificial server-side 4-second window. Frontend offers undo for 4 seconds but backend still enforces lock/version. Previous non-null answers can be restored by PUT; earlier hidden state is not restored by response undo. Reverting a going answer may rejoin the waitlist rather than reclaim the previous seat.
+
+## Constraints, indexes, and concurrency
+
+- Unique normalized app names; unique LINE identity; hashed session/link tokens only. Tokens and LINE secrets never appear in logs or committed files. Database timestamps use timestamptz; birthday uses date.
+- Partial active-membership index `(gang_id, user_id) WHERE left_at IS NULL`; membership period CHECK; FK every actor. No current-time CHECK for future meetups: validate at create/time edit, allowing valid meetups to become past records.
+- Settings and membership deadline indexes; meetup `(gang_id, starts_at, id)` for calendar; participant `(meetup_id, hidden_at, queue_entered_at, id)` for filtered state and promotion. Exact SQL/query plans belong to implementation.
+- Authorization, capacity allocation, queue promotion, request finalization, settings activation, and reward source claiming require transactions/locking and concurrency tests. Read-time effective deadlines must not rely exclusively on a background timer.
+- Never cascade away historical membership, votes, hidden privacy state, or attendance without a separately approved deletion/retention policy. Stat queries must use the same hidden exclusion policy as meetup reads.
 
 ## Deterministic mock scenarios
 
-Illustrative IDs below are labels, not production UUID fixtures. These are documentation examples, not executable seeds or frontend screens.
+Examples describe distributions, not executable seeds. UUID labels are illustrative. Expanded shared types and frontend request answers are in HANDOFF.
 
 | Scenario | Input/state | Expected result |
 |---|---|---|
-| Unique app name | Existing `Earth`; attempt ` earth ` | Conflict under proposed normalized-name key; ask for another name |
-| Optional private profile | Birthday absent, gender unspecified | Signup allowed; another member sees neither field |
-| Provider and upload avatar | Provider image selected, then upload owned image | Uploaded image becomes selected; provider identity remains linked |
-| First member | Gang created by user A | A becomes owner and first active member atomically |
-| Four-member admission | A/B/C/D snapshot; A proposes E | Threshold 3; A supplies first yes; a second yes is insufficient; third approves |
-| Candidate consent | E is approved but has not accepted | E is not a member; acceptance adds one active membership |
-| Deadline | Four voters, two yes votes at 48 hours | Expired; E remains outside the gang |
-| Frozen denominator | Four-voter snapshot; membership later changes | Threshold stays 3; departed-voter eligibility is pending decision |
-| No bypass | Outsider F opens join QR | Creates/request admission flow; no direct membership grant |
-| Unanswered meetup | Creator A and other members have not answered | `myResponse: null`, all three counts 0 |
-| All response states | A=going, B=maybe, C=not_going, D unanswered | Counts 1/1/1; D sees `myResponse: null` |
-| Change answer | A changes going to maybe | Counts 0/2/1; repeating the same request leaves them unchanged |
-| Former member | C leaves after answering not_going | Count retains C's answer; C cannot read or respond and receives 404 |
+| LINE name collision | Existing Earth; LINE prefills Earth | Choose a unique app name; no second login method or account merge |
+| Private profile | Bio present, birthday/gender set | Others see bio/LINE avatar; birthday/gender omitted |
+| Four-member admission | A proposes E under majority | A supplies 1 yes; 3 of 4 approves; E must consent |
+| Auto admission | No objection for 24 hours | Approve then require E consent; any eligible objection prevents approval |
+| Easier setting | majority -> auto | Pending 24 hours, any member objection cancels; every state change notifies/timelines |
+| General/stricter setting | Rename or auto -> majority | Immediate, with actor/old/new audit and member notifications |
+| Removal | Majority request against member | No creator privilege or direct removal; target eligibility pending policy |
+| Silent decline | A going, B maybe, C hidden, D unanswered | Public counts 1/1/0; list A/B/D only; no total members or hidden counter |
+| Hidden recovery | C reads own hidden list | Only C gets own hidden state; creator hiding gets CREATOR_CANNOT_HIDE |
+| Undo | New going cleared within UI 4 seconds | Unanswered unless lock/version prevents it; repeated DELETE has no extra effect |
+| Answer boundary | At startsAt + 10 minutes | RESPONSE_LOCKED; before boundary may answer |
+| Reconfirm | Move 61 minutes or across local day | Current visible answers become needs_reconfirm; hidden users stay excluded |
+| Waitlist | Max 2; A/B seated; C/D queue | Counts going 2, waitlist 2; A clears before lock, C promoted first |
+| Attendance | Eligible A/B; creator marks A absent | Unconfirmed B defaults attended at deadline; A stays absent |
+| Guest | Nickname G joins via scoped link | Stable participantId, userId null, no membership/title/reward/profile stats |
+| Friend privacy | A blocks B then regenerates link | B cannot discover/request A; old token stops working; no gang removal |
+| Preferences | Save reorder/hide then sign in elsewhere | Server returns same known card order/visibility |
 
-## Scope
+## Scope and open details
 
-This ERD covers the approved account/profile, friends, gang admission, and meetup design. Database runtime, migrations, auth provider setup, upload implementation, API implementation, frontend mockups, pets, bills, and restaurant/time voting are outside this documentation change. Docker is not needed to view or validate these documents.
+This is design/types only. No ORM dependency, migrations, local database, auth routes, guest routes, upload support, or frontend changes are added. No new DECISIONS entry is recorded until user approval of the implementation proposals. See HANDOFF for the Windows PostgreSQL/ORM/LINE/dev-login implementation plan and outstanding product questions.
