@@ -13,7 +13,7 @@ export function MeetupRow({ meetup }: { meetup: MeetupListItem }) {
         <span className="block truncate text-sm font-medium">{meetup.title}</span>
         <span className="flex items-center gap-2 text-xs text-muted-foreground">
           <span className="truncate">{meetup.gangName}</span>
-          <AvatarStack names={meetup.goingPreview.map((p) => p.displayName)} total={meetup.counts.going} />
+          <AvatarStack names={meetup.goingAvatars.map((p) => p.displayName)} total={meetup.counts.going} />
         </span>
       </span>
       <ResponseChip response={meetup.myResponse} />

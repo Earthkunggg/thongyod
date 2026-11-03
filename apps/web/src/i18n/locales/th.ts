@@ -60,6 +60,7 @@ export const th = {
     myAnswer: 'คำตอบของคุณ',
     editableUntil: 'แก้คำตอบได้ถึง {{when}}',
     locked: 'ปิดรับคำตอบแล้ว',
+    versionConflict: 'นัดนี้เพิ่งถูกแก้ ดูข้อมูลใหม่แล้วตอบอีกครั้ง',
     members: 'ใครไปบ้าง',
     groupCount: '{{label}} · {{count}}',
     youSuffix: ' (คุณ)',

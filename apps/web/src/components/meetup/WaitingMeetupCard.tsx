@@ -13,12 +13,14 @@ type WaitingMeetupCardProps = {
   now: Date
   onAnswer: (response: MeetupResponse) => void
   onHide: () => void
+  /** False for my own meetups: the creator cannot hide them (decision #32). */
+  canHide: boolean
   /** Plays the slide-away animation (the card is answered). */
   leaving?: boolean
 }
 
 // A meetup I have not answered yet ("รอคุณตอบ"). Answering slides it away into the agenda.
-export function WaitingMeetupCard({ meetup, now, onAnswer, onHide, leaving }: WaitingMeetupCardProps) {
+export function WaitingMeetupCard({ meetup, now, onAnswer, onHide, canHide, leaving }: WaitingMeetupCardProps) {
   const { t } = useTranslation()
   const startsAt = new Date(meetup.startsAt)
   const countdown = formatTimeUntil(startsAt, now)
@@ -47,7 +49,7 @@ export function WaitingMeetupCard({ meetup, now, onAnswer, onHide, leaving }: Wa
       <div className="mt-3">
         <ResponsePicker value={meetup.myResponse} onChange={onAnswer} label={meetup.title} disabled={leaving} />
       </div>
-      {!meetup.createdByMe && (
+      {canHide && (
         <div className="-mb-2 flex justify-center">
           <HideMeetupButton onClick={onHide} disabled={leaving} />
         </div>

@@ -60,4 +60,5 @@
 | useMe, useProfile, useUpdateMe | `src/api/profile.ts` | Profile data hooks. |
 | useHomeLayout, setHomeLayout | `src/features/settings/homeLayout.ts` | Home card order/visibility (localStorage until the preferences API). |
 | checkDisplayName | `src/features/profile/validation.ts` | App-name rules (#40), tested. |
+| isLocked, canHide | `src/features/meetups/derive.ts` | Meetup display rules from server data (`responseLocksAt`, creator). |
 | useFriendSubtitle | `src/features/friends/useFriendSubtitle.ts` | "สายมู · เพื่อนร่วมกัน 2 คน" line. |

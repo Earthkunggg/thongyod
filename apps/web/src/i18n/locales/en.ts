@@ -59,6 +59,7 @@ export const en: Messages = {
     myAnswer: 'Your answer',
     editableUntil: 'You can change it until {{when}}',
     locked: 'Answers are closed',
+    versionConflict: 'This meetup was just changed. Check it again, then answer.',
     members: 'Who’s going',
     groupCount: '{{label}} · {{count}}',
     youSuffix: ' (you)',

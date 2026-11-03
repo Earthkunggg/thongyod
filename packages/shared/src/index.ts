@@ -1,4 +1,12 @@
 export type {
+  Me,
+  DevLoginRequest,
+  DevFixture,
+  DevFixturesResponse,
+  DevLoginResponse,
+  AuthErrorResponse,
+} from './auth.js'
+export type {
   CreateMeetupRequest,
   CreateMeetupResponse,
   GetMeetupResponse,

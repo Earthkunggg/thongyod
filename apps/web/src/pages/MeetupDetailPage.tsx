@@ -4,7 +4,8 @@ import { CalendarDays, Clock, EyeOff, Users } from 'lucide-react'
 import type { MeetupResponse } from '@thongyod/shared'
 import { ApiError } from '@/api/client'
 import { useMeetup } from '@/api/meetups'
-import type { MeetupMember } from '@/api/types'
+import { useMe } from '@/api/profile'
+import type { MeetupMember } from '@thongyod/shared'
 import { Avatar } from '@/components/common/Avatar'
 import { EmptyState } from '@/components/common/EmptyState'
 import { ErrorState } from '@/components/common/ErrorState'
@@ -16,6 +17,7 @@ import { HideMeetupButton } from '@/components/meetup/HideMeetupButton'
 import { ResponsePicker } from '@/components/meetup/ResponsePicker'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { canHide, isLocked } from '@/features/meetups/derive'
 import { useMeetupActions } from '@/features/meetups/useMeetupActions'
 import { formatDayLabel, formatFullDay, formatTime, formatTimeUntil } from '@/lib/date'
 
@@ -33,6 +35,7 @@ export function MeetupDetailPage() {
   const { id = '' } = useParams()
   const query = useMeetup(id)
   const actions = useMeetupActions()
+  const me = useMe()
   const now = new Date()
 
   if (query.isPending) {
@@ -60,11 +63,14 @@ export function MeetupDetailPage() {
 
   const meetup = query.data
   const startsAt = new Date(meetup.startsAt)
-  const lockAt = new Date(meetup.answersLockAt)
-  const locked = now > lockAt
+  const lockAt = new Date(meetup.responseLocksAt)
+  const locked = isLocked(meetup, now)
+  const myId = me.data?.userId
+  const isMe = (m: MeetupMember) => !m.isGuest && m.userId === myId
+  const hidden = meetup.myState.hidden
   const countdown = formatTimeUntil(startsAt, now)
   // Hidden people are in no group, including me when I hid it (decision #32).
-  const listed = meetup.members.filter((m) => !(m.isMe && meetup.myHidden))
+  const listed = meetup.members.filter((m) => !(isMe(m) && hidden))
   const groupOf = (m: MeetupMember): GroupKey => m.response ?? 'none'
 
   return (
@@ -92,13 +98,17 @@ export function MeetupDetailPage() {
       <section>
         <SectionHeader title={t('meetup.myAnswer')} />
         <Card className="mx-3 p-4">
-          {meetup.myHidden ? (
+          {hidden ? (
             <div className="flex flex-col items-center gap-2 text-center">
               <EyeOff className="size-5 text-muted-foreground" aria-hidden="true" />
               <p className="text-sm text-muted-foreground">{t('meetup.hiddenNotice')}</p>
-              <Button variant="outline" size="sm" onClick={() => actions.hide(meetup, false)}>
-                {t('meetup.unhide')}
-              </Button>
+              {locked ? (
+                <p className="text-xs text-muted-foreground">{t('meetup.locked')}</p>
+              ) : (
+                <Button variant="outline" size="sm" onClick={() => actions.hide(meetup, false)}>
+                  {t('meetup.unhide')}
+                </Button>
+              )}
             </div>
           ) : (
             <>
@@ -113,7 +123,7 @@ export function MeetupDetailPage() {
                   ? t('meetup.locked')
                   : t('meetup.editableUntil', { when: `${formatDayLabel(lockAt, now)} ${formatTime(lockAt)}` })}
               </p>
-              {!meetup.createdByMe && !locked && (
+              {canHide(meetup, myId) && !locked && (
                 <div className="-mb-2 flex justify-center">
                   <HideMeetupButton onClick={() => actions.hide(meetup, true)} />
                 </div>
@@ -136,9 +146,9 @@ export function MeetupDetailPage() {
                 </h3>
                 {people.map((p) => (
                   <ListRow
-                    key={p.userId}
+                    key={p.participantId}
                     leading={<Avatar name={p.displayName} />}
-                    title={`${p.displayName}${p.isMe ? t('meetup.youSuffix') : ''}`}
+                    title={`${p.displayName}${isMe(p) ? t('meetup.youSuffix') : ''}`}
                     subtitle={p.isGuest ? t('meetup.guest') : undefined}
                   />
                 ))}

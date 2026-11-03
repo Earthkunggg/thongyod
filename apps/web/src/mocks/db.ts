@@ -1,10 +1,11 @@
-// IN-MEMORY MOCK DATABASE for development (decision #37). Resets on page reload.
-// Follows the approved rules so the UI behaves like the real API:
-// - hidden members are excluded from member lists and all counts (#32)
-// - answers lock 10 minutes after the start time (#33)
+// IN-MEMORY MOCK DATABASE for development (decision #37). Resets when the dev server restarts.
+// Returns the V1 contract shapes from @thongyod/shared and follows the approved rules:
+// - hidden members are excluded from member lists, counts and avatars (#32)
+// - answers and hide/unhide lock 10 minutes after the start time (#33, #40)
+// - writes need the current scheduleVersion (#40)
 // Thai strings here are USER CONTENT (names, titles), not UI text.
-import type { HomeSummary, MeetupResponse } from '@thongyod/shared'
-import type { MeetupDetailFull, MeetupListItem, MeetupMember, PersonRef } from '@/api/types'
+import type { HomeSummary, MeetupMember, MeetupParticipationStatus, MeetupResponse } from '@thongyod/shared'
+import type { MeetupDetailFull, MeetupListItem, PersonRef } from '@/api/types'
 
 export const ME = 'u1'
 const LOCK_AFTER_MS = 10 * 60_000
@@ -12,7 +13,16 @@ const LOCK_AFTER_MS = 10 * 60_000
 export type User = { id: string; name: string; title: string | null }
 type Gang = { id: string; name: string; memberIds: string[] }
 type Answer = { response: MeetupResponse | null; hidden: boolean }
-type Meetup = { id: string; gangId: string; title: string; startsAt: Date; createdBy: string; createdAt: Date; answers: Map<string, Answer> }
+type Meetup = {
+  id: string
+  gangId: string
+  title: string
+  startsAt: Date
+  createdBy: string
+  createdAt: Date
+  scheduleVersion: number
+  answers: Map<string, Answer>
+}
 
 export const users: User[] = [
   { id: 'u1', name: 'เอิร์ธ', title: 'สายเปย์' },
@@ -47,21 +57,32 @@ function answers(entries: [string, MeetupResponse | null, boolean?][]): Map<stri
 const late = new Date().getHours() >= 17
 const meetups: Meetup[] = [
   {
-    id: 'm1', gangId: 'g1', title: 'หมูกระทะหลังสอบ', startsAt: dayAt(late ? 1 : 0, 18), createdBy: 'u2', createdAt: dayAt(-1, 12),
+    id: 'm1', gangId: 'g1', title: 'หมูกระทะหลังสอบ', startsAt: dayAt(late ? 1 : 0, 18), createdBy: 'u2', createdAt: dayAt(-1, 12), scheduleVersion: 1,
     // u6 hid this meetup: must not appear anywhere for others.
     answers: answers([['u2', 'going'], ['u3', 'going'], ['u4', 'maybe'], ['u5', 'not_going'], ['u6', null, true]]),
   },
   {
-    id: 'm2', gangId: 'g2', title: 'แบดเย็นพุธ', startsAt: dayAt(late ? 2 : 1, 17, 30), createdBy: 'u2', createdAt: dayAt(-2, 9),
+    id: 'm2', gangId: 'g2', title: 'แบดเย็นพุธ', startsAt: dayAt(late ? 2 : 1, 17, 30), createdBy: 'u2', createdAt: dayAt(-2, 9), scheduleVersion: 1,
     answers: answers([['u2', 'going'], ['u7', 'going'], ['u8', 'maybe']]),
   },
   {
-    id: 'm3', gangId: 'g1', title: 'ติวสอบ DB', startsAt: dayAt(late ? 1 : 0, 20, 30), createdBy: 'u1', createdAt: dayAt(-1, 8),
+    id: 'm3', gangId: 'g1', title: 'ติวสอบ DB', startsAt: dayAt(late ? 1 : 0, 20, 30), createdBy: 'u1', createdAt: dayAt(-1, 8), scheduleVersion: 1,
     answers: answers([['u1', 'going'], ['u3', 'going'], ['u4', 'going']]),
   },
   {
-    id: 'm4', gangId: 'g3', title: 'ข้าวมันไก่หน้ามอ', startsAt: dayAt(3, 12), createdBy: 'u3', createdAt: dayAt(-3, 20),
+    id: 'm4', gangId: 'g3', title: 'ข้าวมันไก่หน้ามอ', startsAt: dayAt(3, 12), createdBy: 'u3', createdAt: dayAt(-3, 20), scheduleVersion: 1,
     answers: answers([['u1', 'going'], ['u3', 'going'], ['u5', 'maybe']]),
+  },
+  {
+    // Started 2 hours ago: answers are locked.
+    id: 'm5', gangId: 'g1', title: 'กินข้าวกลางวันโรงอาหาร', startsAt: new Date(Date.now() - 2 * 3_600_000), createdBy: 'u4',
+    createdAt: dayAt(-1, 9), scheduleVersion: 1,
+    answers: answers([['u4', 'going'], ['u2', 'going'], ['u6', 'not_going']]),
+  },
+  {
+    // I hid this one: it must not appear on Home.
+    id: 'm6', gangId: 'g2', title: 'แบดเสาร์เช้า', startsAt: dayAt(4, 8), createdBy: 'u7', createdAt: dayAt(-1, 21), scheduleVersion: 1,
+    answers: answers([['u7', 'going'], ['u1', null, true]]),
   },
 ]
 
@@ -77,8 +98,13 @@ function counts(m: Meetup) {
   return c
 }
 
+const statusOf = (a: Answer): MeetupParticipationStatus => a.response ?? 'unanswered'
+const lockAt = (m: Meetup) => new Date(m.startsAt.getTime() + LOCK_AFTER_MS)
+const isLocked = (m: Meetup) => Date.now() >= lockAt(m).getTime()
+
 function toListItem(m: Meetup): MeetupListItem {
   const going = gangOf(m).memberIds.filter((id) => !answerOf(m, id).hidden && answerOf(m, id).response === 'going')
+  const mine = answerOf(m, ME)
   return {
     id: m.id,
     title: m.title,
@@ -86,33 +112,55 @@ function toListItem(m: Meetup): MeetupListItem {
     gangName: gangOf(m).name,
     startsAt: m.startsAt.toISOString(),
     counts: counts(m),
-    myResponse: answerOf(m, ME).response,
-    myHidden: answerOf(m, ME).hidden,
+    myResponse: mine.response,
     createdBy: person(m.createdBy),
-    createdByMe: m.createdBy === ME,
-    goingPreview: going.slice(0, 3).map(person),
+    myState: { hidden: mine.hidden, needsReconfirm: false, status: statusOf(mine), waitlistPosition: null },
+    goingAvatars: going.slice(0, 3).map((id) => ({ participantId: `p-${m.id}-${id}`, displayName: person(id).displayName, avatarUrl: null })),
+    responseLocksAt: lockAt(m).toISOString(),
+    scheduleVersion: m.scheduleVersion,
   }
 }
 
 function toDetail(m: Meetup): MeetupDetailFull {
+  // Other people who hid it are left out; only my own row may appear while I am hidden.
   const members: MeetupMember[] = gangOf(m)
     .memberIds.filter((id) => id === ME || !answerOf(m, id).hidden)
-    .map((id) => ({ ...person(id), response: answerOf(m, id).response, isGuest: false, isMe: id === ME }))
+    .map((id) => ({
+      participantId: `p-${m.id}-${id}`,
+      displayName: person(id).displayName,
+      avatarUrl: null,
+      response: answerOf(m, id).response,
+      status: statusOf(answerOf(m, id)),
+      isGuest: false,
+      userId: id,
+    }))
   return {
     ...toListItem(m),
     createdAt: m.createdAt.toISOString(),
-    answersLockAt: new Date(m.startsAt.getTime() + LOCK_AFTER_MS).toISOString(),
     members,
+    minPeople: null,
+    maxPeople: null,
+    waitlistedCount: 0,
+    needsReconfirmCount: 0,
+    attendance: {
+      confirmationOpensAt: lockAt(m).toISOString(),
+      confirmationDueAt: new Date(m.startsAt.getTime() + 24 * 3_600_000).toISOString(),
+      finalizedAt: null,
+      finalizedBy: null,
+      entries: [],
+    },
   }
 }
 
 const visibleToMe = (m: Meetup) => gangOf(m).memberIds.includes(ME)
 
-export function listMeetups(from: Date, to: Date, includeHidden: boolean): MeetupListItem[] {
+export type Visibility = 'visible' | 'hidden' | 'all'
+
+export function listMeetups(from: Date, to: Date, visibility: Visibility): MeetupListItem[] {
   return meetups
     .filter((m) => visibleToMe(m) && m.startsAt >= from && m.startsAt < to)
-    .filter((m) => includeHidden || !answerOf(m, ME).hidden)
-    .sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())
+    .filter((m) => visibility === 'all' || answerOf(m, ME).hidden === (visibility === 'hidden'))
+    .sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime() || a.id.localeCompare(b.id))
     .map(toListItem)
 }
 
@@ -129,9 +177,10 @@ function mutate(id: string, change: (m: Meetup) => MutationResult | null): Mutat
   return change(m) ?? { ok: true, meetup: toDetail(m) }
 }
 
-export function setResponse(id: string, response: MeetupResponse | null): MutationResult {
+export function setResponse(id: string, response: MeetupResponse | null, scheduleVersion: number): MutationResult {
   return mutate(id, (m) => {
-    if (Date.now() > m.startsAt.getTime() + LOCK_AFTER_MS) return { ok: false, status: 409, code: 'ANSWERS_LOCKED' }
+    if (scheduleVersion !== m.scheduleVersion) return { ok: false, status: 409, code: 'MEETUP_VERSION_CONFLICT' }
+    if (isLocked(m)) return { ok: false, status: 409, code: 'RESPONSE_LOCKED' }
     m.answers.set(ME, { ...answerOf(m, ME), response })
     return null
   })
@@ -139,8 +188,10 @@ export function setResponse(id: string, response: MeetupResponse | null): Mutati
 
 export function setHidden(id: string, hidden: boolean): MutationResult {
   return mutate(id, (m) => {
-    if (hidden && m.createdBy === ME) return { ok: false, status: 400, code: 'CANNOT_HIDE_OWN_MEETUP' }
-    m.answers.set(ME, { ...answerOf(m, ME), hidden })
+    if (hidden && m.createdBy === ME) return { ok: false, status: 409, code: 'CREATOR_CANNOT_HIDE' }
+    if (isLocked(m)) return { ok: false, status: 409, code: 'RESPONSE_LOCKED' }
+    // Unhide → unanswered (decision #40).
+    m.answers.set(ME, hidden ? { ...answerOf(m, ME), hidden: true } : { response: null, hidden: false })
     return null
   })
 }

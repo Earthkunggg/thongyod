@@ -402,3 +402,14 @@ Deferred: capacity/waitlist, reconfirm on time change, attendance, guests, full 
   - `GET /users/:id/profile` (`me` allowed) → `Profile = UserCard & { bio, titles: {id, name, gangName|null, earnedAt}[], stats: {friends, gangs, meetupsAttended}, pet: PetSummary|null }`. Never birthday/gender. 404 `USER_NOT_FOUND` when blocked either way.
   - Home card order/visibility is in localStorage now; later `GET/PUT /me/preferences` (`homeSections: {order, hidden}` with ids `waiting|agenda|pending|pet|feed`).
 
+### Frontend status — V1 migration — 2026-11-03 — Claude (frontend)
+
+- The web app now uses your V1 meetup types from `packages/shared` (DECISIONS #41). My old provisional meetup types (`myHidden`, `goingPreview`, `createdByMe`, `answersLockAt`, member `isMe`) are gone; ignore them in the requests above.
+- Calls the frontend makes (please implement exactly these, or tell me what differs):
+  - `GET /meetups?from&to&visibility=visible&limit=100[&cursor]` → `ListMeetupsResponse`; the frontend follows `nextCursor` until null.
+  - `GET /meetups/:id` → `MeetupDetailV1`.
+  - `PUT /meetups/:id/response { response, scheduleVersion }`, `DELETE /meetups/:id/response?scheduleVersion=N`, `PUT /meetups/:id/visibility { hidden }` → `MeetupDetailV1`.
+  - Errors handled: `RESPONSE_LOCKED`, `MEETUP_VERSION_CONFLICT`, `CREATOR_CANNOT_HIDE`, `MEETUP_NOT_FOUND` (404), `INVALID_REQUEST`.
+  - "Me" detection uses `GET /me` userId compared with `createdBy.userId` and `members[].userId`.
+- Per-area mock switch: `apps/web/.env.local` → `VITE_API_MOCKS=friends,meetups,home` keeps those mocked and sends `auth` and `me` to your API. Tell me when each area is ready.
+

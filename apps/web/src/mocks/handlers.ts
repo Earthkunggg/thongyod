@@ -3,12 +3,13 @@
 import { delay } from 'msw'
 import { http, HttpResponse } from 'msw/http'
 import type { MeetupResponse } from '@thongyod/shared'
-import { getHome, getMeetup, listMeetups, ME, setHidden, setResponse, type MutationResult } from './db'
+import { getHome, getMeetup, listMeetups, ME, setHidden, setResponse, type MutationResult, type Visibility } from './db'
 import * as friends from './friends'
 import * as profiles from './profiles'
 
 const RESPONSES: MeetupResponse[] = ['going', 'maybe', 'not_going']
 const LATENCY_MS = 300 // small delay so loading states are visible during development
+const MAX_RANGE_MS = 93 * 24 * 3_600_000 // decision #40
 
 function reply(result: MutationResult) {
   return result.ok
@@ -36,9 +37,18 @@ export const handlers = [
     const url = new URL(request.url)
     const from = new Date(url.searchParams.get('from') ?? '')
     const to = new Date(url.searchParams.get('to') ?? '')
+    const visibility = (url.searchParams.get('visibility') ?? 'visible') as Visibility
+    const limit = Number(url.searchParams.get('limit') ?? 20)
+    const offset = Number(url.searchParams.get('cursor') ?? 0)
     if (Number.isNaN(from.getTime())) return invalid('from')
-    if (Number.isNaN(to.getTime())) return invalid('to')
-    return HttpResponse.json(listMeetups(from, to, url.searchParams.get('includeHidden') === 'true'))
+    if (Number.isNaN(to.getTime()) || to <= from || to.getTime() - from.getTime() > MAX_RANGE_MS) return invalid('to')
+    if (!['visible', 'hidden', 'all'].includes(visibility)) return invalid('visibility')
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100) return invalid('limit')
+    if (!Number.isInteger(offset) || offset < 0) return invalid('cursor')
+    const all = listMeetups(from, to, visibility)
+    const items = all.slice(offset, offset + limit)
+    // Mock cursor = offset as text. The real API uses an opaque cursor: never parse it.
+    return HttpResponse.json({ items, nextCursor: offset + limit < all.length ? String(offset + limit) : null })
   }),
 
   http.get('/api/meetups/:id', async ({ params }) => {
@@ -49,17 +59,20 @@ export const handlers = [
 
   http.put('/api/meetups/:id/response', async ({ params, request }) => {
     await delay(LATENCY_MS)
-    const body = (await request.json().catch(() => null)) as { response?: unknown } | null
+    const body = (await request.json().catch(() => null)) as { response?: unknown; scheduleVersion?: unknown } | null
     if (!body || !RESPONSES.includes(body.response as MeetupResponse)) return invalid('response')
-    return reply(setResponse(String(params.id), body.response as MeetupResponse))
+    if (typeof body.scheduleVersion !== 'number') return invalid('scheduleVersion')
+    return reply(setResponse(String(params.id), body.response as MeetupResponse, body.scheduleVersion))
   }),
 
-  http.delete('/api/meetups/:id/response', async ({ params }) => {
+  http.delete('/api/meetups/:id/response', async ({ params, request }) => {
     await delay(LATENCY_MS)
-    return reply(setResponse(String(params.id), null))
+    const version = Number(new URL(request.url).searchParams.get('scheduleVersion'))
+    if (!Number.isInteger(version)) return invalid('scheduleVersion')
+    return reply(setResponse(String(params.id), null, version))
   }),
 
-  http.put('/api/meetups/:id/hidden', async ({ params, request }) => {
+  http.put('/api/meetups/:id/visibility', async ({ params, request }) => {
     await delay(LATENCY_MS)
     const body = (await request.json().catch(() => null)) as { hidden?: unknown } | null
     if (!body || typeof body.hidden !== 'boolean') return invalid('hidden')

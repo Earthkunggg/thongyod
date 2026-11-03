@@ -1,7 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { MeetupResponse } from '@thongyod/shared'
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
+import type { ListMeetupsResponse, MeetupParticipationStatus, MeetupResponse } from '@thongyod/shared'
 import { apiFetch } from './client'
-import type { MeetupDetailFull, MeetupListItem } from './types'
+import { profileKeys } from './profile'
+import type { Me, MeetupDetailFull, MeetupListItem } from './types'
 
 export const meetupKeys = {
   all: ['meetups'] as const,
@@ -9,12 +10,25 @@ export const meetupKeys = {
   detail: (id: string) => ['meetups', 'detail', id] as const,
 }
 
-/** Meetups between two instants (ISO strings). Hidden meetups are excluded. */
+/** Server maximum per page (decision #40). */
+const PAGE_LIMIT = 100
+
+/** Visible meetups between two instants (ISO; from inclusive, to exclusive). Follows all pages. */
 export function useMeetupsInRange(from: string, to: string) {
   return useQuery({
     queryKey: meetupKeys.range(from, to),
-    queryFn: () =>
-      apiFetch<MeetupListItem[]>(`/meetups?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`),
+    queryFn: async () => {
+      const items: MeetupListItem[] = []
+      let cursor: string | null = null
+      do {
+        const params = new URLSearchParams({ from, to, visibility: 'visible', limit: String(PAGE_LIMIT) })
+        if (cursor) params.set('cursor', cursor)
+        const page: ListMeetupsResponse = await apiFetch<ListMeetupsResponse>(`/meetups?${params}`)
+        items.push(...page.items)
+        cursor = page.nextCursor
+      } while (cursor)
+      return items
+    },
   })
 }
 
@@ -23,15 +37,12 @@ export function useMeetup(id: string) {
 }
 
 type ListCache = MeetupListItem[] | undefined
+type Patch = (m: MeetupListItem | MeetupDetailFull) => Partial<MeetupDetailFull>
 
 /** Updates every cached copy of a meetup (lists and detail) so all screens agree instantly. */
-function patchMeetupEverywhere(
-  queryClient: ReturnType<typeof useQueryClient>,
-  id: string,
-  patch: (m: MeetupListItem | MeetupDetailFull) => Partial<MeetupListItem & MeetupDetailFull>,
-) {
+function patchMeetupEverywhere(queryClient: QueryClient, id: string, patch: Patch) {
   queryClient.setQueriesData<ListCache>({ queryKey: ['meetups', 'range'] }, (list) =>
-    list?.map((m) => (m.id === id ? { ...m, ...patch(m) } : m)),
+    list?.map((m) => (m.id === id ? ({ ...m, ...patch(m) } as MeetupListItem) : m)),
   )
   queryClient.setQueryData<MeetupDetailFull>(meetupKeys.detail(id), (d) => (d ? { ...d, ...patch(d) } : d))
 }
@@ -44,6 +55,14 @@ function moveCount(counts: MeetupListItem['counts'], from: MeetupResponse | null
   return next
 }
 
+/** The parts of a meetup a write needs. */
+export type MeetupRef = { id: string; title: string; myResponse: MeetupResponse | null; scheduleVersion: number }
+
+function snapshotAndCancel(queryClient: QueryClient) {
+  void queryClient.cancelQueries({ queryKey: meetupKeys.all })
+  return queryClient.getQueriesData({ queryKey: meetupKeys.all })
+}
+
 /**
  * Set or clear my answer. response = null clears it (used by "ย้อนกลับ").
  * Optimistic: the screen changes first; on error everything is rolled back.
@@ -51,17 +70,26 @@ function moveCount(counts: MeetupListItem['counts'], from: MeetupResponse | null
 export function useSetMeetupResponse() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, response }: { id: string; response: MeetupResponse | null }) =>
+    mutationFn: ({ meetup, response }: { meetup: MeetupRef; response: MeetupResponse | null }) =>
       response
-        ? apiFetch<MeetupDetailFull>(`/meetups/${id}/response`, { method: 'PUT', body: JSON.stringify({ response }) })
-        : apiFetch<MeetupDetailFull>(`/meetups/${id}/response`, { method: 'DELETE' }),
-    onMutate: async ({ id, response }) => {
-      await queryClient.cancelQueries({ queryKey: meetupKeys.all })
-      const snapshot = queryClient.getQueriesData({ queryKey: meetupKeys.all })
-      patchMeetupEverywhere(queryClient, id, (m) => ({
+        ? apiFetch<MeetupDetailFull>(`/meetups/${meetup.id}/response`, {
+            method: 'PUT',
+            body: JSON.stringify({ response, scheduleVersion: meetup.scheduleVersion }),
+          })
+        : apiFetch<MeetupDetailFull>(`/meetups/${meetup.id}/response?scheduleVersion=${meetup.scheduleVersion}`, {
+            method: 'DELETE',
+          }),
+    onMutate: ({ meetup, response }) => {
+      const snapshot = snapshotAndCancel(queryClient)
+      const myId = queryClient.getQueryData<Me>(profileKeys.me)?.userId
+      const status: MeetupParticipationStatus = response ?? 'unanswered'
+      patchMeetupEverywhere(queryClient, meetup.id, (m) => ({
         myResponse: response,
         counts: moveCount(m.counts, m.myResponse, response),
-        ...('members' in m && { members: m.members.map((x) => (x.isMe ? { ...x, response } : x)) }),
+        myState: { ...m.myState, status, needsReconfirm: false },
+        ...('members' in m && {
+          members: m.members.map((x) => (!x.isGuest && x.userId === myId ? { ...x, response, status } : x)),
+        }),
       }))
       return { snapshot }
     },
@@ -76,12 +104,11 @@ export function useSetMeetupResponse() {
 export function useSetMeetupHidden() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, hidden }: { id: string; hidden: boolean }) =>
-      apiFetch<MeetupDetailFull>(`/meetups/${id}/hidden`, { method: 'PUT', body: JSON.stringify({ hidden }) }),
-    onMutate: async ({ id, hidden }) => {
-      await queryClient.cancelQueries({ queryKey: meetupKeys.all })
-      const snapshot = queryClient.getQueriesData({ queryKey: meetupKeys.all })
-      patchMeetupEverywhere(queryClient, id, () => ({ myHidden: hidden }))
+    mutationFn: ({ meetup, hidden }: { meetup: MeetupRef; hidden: boolean }) =>
+      apiFetch<MeetupDetailFull>(`/meetups/${meetup.id}/visibility`, { method: 'PUT', body: JSON.stringify({ hidden }) }),
+    onMutate: ({ meetup, hidden }) => {
+      const snapshot = snapshotAndCancel(queryClient)
+      patchMeetupEverywhere(queryClient, meetup.id, (m) => ({ myState: { ...m.myState, hidden } }))
       return { snapshot }
     },
     onError: (_error, _vars, context) => {

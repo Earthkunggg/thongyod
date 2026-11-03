@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "outDir": "./dist-prod" },
+  "exclude": ["node_modules", "dist", "dist-prod", "test", "src/main.dev.ts", "src/dev-auth/**", "src/db/seed.ts", "src/db/seed-data.ts", "src/db/migrate.ts"]
+}

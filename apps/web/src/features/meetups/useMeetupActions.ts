@@ -3,10 +3,8 @@
 import { useTranslation } from 'react-i18next'
 import type { MeetupResponse } from '@thongyod/shared'
 import { ApiError } from '@/api/client'
-import { useSetMeetupHidden, useSetMeetupResponse } from '@/api/meetups'
+import { useSetMeetupHidden, useSetMeetupResponse, type MeetupRef } from '@/api/meetups'
 import { showErrorToast, showUndoToast } from '@/lib/toast'
-
-type MeetupRef = { id: string; title: string; myResponse: MeetupResponse | null }
 
 const RESPONSE_LABEL = {
   going: 'meetup.going',
@@ -20,7 +18,14 @@ export function useMeetupActions() {
   const setHidden = useSetMeetupHidden()
 
   function onError(error: unknown) {
-    showErrorToast(error instanceof ApiError && error.code === 'ANSWERS_LOCKED' ? t('meetup.locked') : t('common.saveError'))
+    const code = error instanceof ApiError ? error.code : undefined
+    showErrorToast(
+      code === 'RESPONSE_LOCKED'
+        ? t('meetup.locked')
+        : code === 'MEETUP_VERSION_CONFLICT'
+          ? t('meetup.versionConflict')
+          : t('common.saveError'),
+    )
   }
 
   /** Change my answer. Shows an undo bar that restores the previous answer. */
@@ -28,13 +33,14 @@ export function useMeetupActions() {
     if (meetup.myResponse === response) return
     const previous = meetup.myResponse
     setResponse.mutate(
-      { id: meetup.id, response },
+      { meetup, response },
       {
         onSuccess: () =>
           showUndoToast({
             title: t('meetup.answered', { response: t(RESPONSE_LABEL[response]) }),
             description: meetup.title,
-            onUndo: () => setResponse.mutate({ id: meetup.id, response: previous }, { onError }),
+            // Undo uses the same schedule version; the server rejects it if the meetup changed meanwhile.
+            onUndo: () => setResponse.mutate({ meetup: { ...meetup, myResponse: response }, response: previous }, { onError }),
           }),
         onError,
       },
@@ -44,19 +50,19 @@ export function useMeetupActions() {
   /** Hide or unhide for myself. Hiding shows an undo bar. */
   function hide(meetup: MeetupRef, hidden: boolean) {
     setHidden.mutate(
-      { id: meetup.id, hidden },
+      { meetup, hidden },
       {
         onSuccess: () =>
           hidden
             ? showUndoToast({
                 title: t('meetup.hidden'),
                 description: meetup.title,
-                onUndo: () => setHidden.mutate({ id: meetup.id, hidden: false }, { onError }),
+                onUndo: () => setHidden.mutate({ meetup, hidden: false }, { onError }),
               })
             : showUndoToast({
                 title: t('meetup.unhidden'),
                 description: meetup.title,
-                onUndo: () => setHidden.mutate({ id: meetup.id, hidden: true }, { onError }),
+                onUndo: () => setHidden.mutate({ meetup, hidden: true }, { onError }),
               }),
         onError,
       },

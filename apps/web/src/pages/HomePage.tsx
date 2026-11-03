@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Bell, CheckSquare, Receipt, Utensils, type LucideIcon } from 'lucide-react'
 import type { MeetupResponse, PendingKind } from '@thongyod/shared'
 import { useHome } from '@/api/home'
+import { useMe } from '@/api/profile'
 import { useMeetupsInRange } from '@/api/meetups'
 import type { MeetupListItem } from '@/api/types'
 import { Avatar } from '@/components/common/Avatar'
@@ -20,7 +21,7 @@ import { WaitingMeetupCard } from '@/components/meetup/WaitingMeetupCard'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import type { HomeSectionId } from '@/config/home'
-import { isAnswerLocked } from '@/features/meetups/rules'
+import { canHide, isLocked } from '@/features/meetups/derive'
 import { useMeetupActions } from '@/features/meetups/useMeetupActions'
 import { useHomeLayout } from '@/features/settings/homeLayout'
 import { addDays, formatDayLabel, formatMonthYear, formatTimeAgo, isSameDay, startOfDay, startOfWeek } from '@/lib/date'
@@ -56,11 +57,12 @@ export function HomePage() {
   }, [now])
   const meetupsQuery = useMeetupsInRange(range.from, range.to)
   const homeQuery = useHome()
+  const me = useMe()
 
-  const meetups = (meetupsQuery.data ?? []).filter((m) => !m.myHidden)
+  const meetups = (meetupsQuery.data ?? []).filter((m) => !m.myState.hidden)
   const weekEnd = addDays(startOfWeek(now), 7)
   const weekMeetups = meetups.filter((m) => new Date(m.startsAt) < weekEnd)
-  const waiting = meetups.filter((m) => m.myResponse === null && !isAnswerLocked(new Date(m.startsAt), now))
+  const waiting = meetups.filter((m) => m.myResponse === null && !isLocked(m, now))
   const waitingIds = new Set(waiting.map((m) => m.id))
   const dayMeetups = weekMeetups.filter((m) => isSameDay(new Date(m.startsAt), selectedDay))
   const agenda = dayMeetups.filter((m) => !waitingIds.has(m.id))
@@ -89,6 +91,7 @@ export function HomePage() {
               leaving={leavingIds.includes(m.id)}
               onAnswer={(r) => answer(m, r)}
               onHide={() => actions.hide(m, true)}
+              canHide={canHide(m, me.data?.userId)}
             />
           ))}
         </div>
