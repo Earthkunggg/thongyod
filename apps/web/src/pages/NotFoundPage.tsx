@@ -1,14 +1,16 @@
 import { Link } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { buttonVariants } from '@/components/ui/button'
 
 export function NotFoundPage() {
+  const { t } = useTranslation()
   return (
     <>
-      <PageHeader title="ไม่เจอหน้านี้" subtitle="ลิงก์อาจผิด หรือหน้านี้ถูกย้ายไปแล้ว" />
+      <PageHeader title={t('pages.notFound.title')} subtitle={t('pages.notFound.subtitle')} />
       <div className="px-4 pt-2">
         <Link to="/" className={buttonVariants()}>
-          กลับหน้าหลัก
+          {t('common.backHome')}
         </Link>
       </div>
     </>

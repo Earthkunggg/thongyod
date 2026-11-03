@@ -1,11 +1,13 @@
+import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Placeholder } from '@/components/layout/Placeholder'
 
 export function ExplorePage() {
+  const { t } = useTranslation()
   return (
     <>
-      <PageHeader title="ทำอะไรดี" subtitle="เลือกได้ทั้งทำกับเพื่อนและทำคนเดียว" />
-      <Placeholder text="การ์ดเครื่องมือจะอยู่ตรงนี้" />
+      <PageHeader title={t('pages.explore.title')} subtitle={t('pages.explore.subtitle')} />
+      <Placeholder text={t('pages.explore.placeholder')} />
     </>
   )
 }

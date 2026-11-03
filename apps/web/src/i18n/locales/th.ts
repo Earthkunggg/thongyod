@@ -1,0 +1,114 @@
+// Thai UI text (default language). Every user-facing string lives here or in en.ts.
+// Rule: never write UI text directly in components; add a key here and use t('key').
+// en.ts must have exactly the same keys (TypeScript checks this).
+export const th = {
+  nav: {
+    label: 'เมนูหลัก',
+    home: 'หน้าหลัก',
+    gangs: 'แก๊ง',
+    explore: 'ทำอะไรดี',
+    pet: 'น้อง',
+    me: 'ฉัน',
+  },
+  common: {
+    notifications: 'การแจ้งเตือน',
+    backHome: 'กลับหน้าหลัก',
+  },
+  time: {
+    // Weekday short names, Sunday first (matches Date.getDay()).
+    weekdaysShort: 'อา,จ,อ,พ,พฤ,ศ,ส',
+    today: 'วันนี้',
+    todaySuffix: ' (วันนี้)',
+    tomorrow: 'พรุ่งนี้',
+    inMinutes: 'อีก {{count}} นาที',
+    inHours: 'อีก {{count}} ชม.',
+    inDays: 'อีก {{count}} วัน',
+    justNow: 'เมื่อกี้',
+    minutesAgo: '{{count}} นาที',
+    hoursAgo: '{{count}} ชม.',
+    daysAgo: '{{count}} วัน',
+    closesAt: 'ปิด {{when}}',
+  },
+  money: {
+    baht: '{{amount}} บาท',
+  },
+  meetup: {
+    going: 'ไป',
+    maybe: 'อาจจะ',
+    notGoing: 'ไม่ไป',
+    respondTo: 'ตอบรับนัด {{title}}',
+    countsShort: 'ไป {{going}} อาจจะ {{maybe}}',
+  },
+  home: {
+    subtitle: 'สัปดาห์นี้มี {{count}} นัด',
+    thisWeek: 'สัปดาห์นี้',
+    hasMeetup: ' มีนัด',
+    nextMeetup: 'นัดถัดไป',
+    noMeetupOnDay: '{{day}} ยังไม่มีนัด',
+    pendingTitle: 'รอคุณอยู่ {{count}} เรื่อง',
+    friendsUpdates: 'อัปเดตจากเพื่อน',
+  },
+  pending: {
+    voteTime: 'โหวตเวลา',
+    voteRestaurant: 'โหวตร้าน',
+    payBill: 'จ่ายให้{{name}} {{amount}}',
+    confirmPayment: '{{name}}โอนให้ {{amount}} รอคุณยืนยัน',
+  },
+  feed: {
+    meetupCreated: '{{name}} ตั้งนัด "{{subject}}"',
+    titleEarned: '{{name}} ได้ฉายา "{{subject}}"',
+    billPaid: '{{name}} จ่าย{{subject}}แล้ว',
+  },
+  pet: {
+    defaultName: 'แมวก้อน',
+    luckyColorToday: 'สีมงคลวันนี้',
+    moods: {
+      happy: 'อารมณ์ดี',
+      normal: 'ปกติดี',
+      missing_you: 'คิดถึงนิดๆ',
+      sulking: 'งอนนิดๆ',
+      wilting: 'เหี่ยวๆ',
+    },
+    hints: {
+      play: 'แตะเพื่อไปเล่นด้วย',
+      visit: 'แตะเพื่อไปหา',
+      makeUp: 'แตะเพื่อไปง้อ',
+    },
+  },
+  colors: {
+    red: 'แดง',
+    orange: 'ส้ม',
+    yellow: 'เหลือง',
+    green: 'เขียว',
+    blue: 'ฟ้า',
+    purple: 'ม่วง',
+    pink: 'ชมพู',
+    black: 'ดำ',
+    white: 'ขาว',
+    gray: 'เทา',
+  },
+  pages: {
+    gangs: { title: 'แก๊ง', placeholder: 'รายชื่อแก๊งจะอยู่ตรงนี้ (M1)' },
+    explore: {
+      title: 'ทำอะไรดี',
+      subtitle: 'เลือกได้ทั้งทำกับเพื่อนและทำคนเดียว',
+      placeholder: 'การ์ดเครื่องมือจะอยู่ตรงนี้',
+    },
+    pet: { title: 'น้อง', placeholder: 'ห้องของแมวก้อน (M5)' },
+    me: {
+      title: 'ฉัน',
+      subtitle: 'โปรไฟล์และการตั้งค่า',
+      theme: 'ธีม',
+      themeHint: 'โหมดสว่าง/มืดเปลี่ยนตามเครื่องอัตโนมัติ',
+      chooseTheme: 'เลือกธีม',
+      themeDefault: 'ค่าเริ่มต้น',
+      themeCute: 'น่ารัก',
+      language: 'ภาษา',
+      chooseLanguage: 'เลือกภาษา',
+    },
+    notFound: { title: 'ไม่เจอหน้านี้', subtitle: 'ลิงก์อาจผิด หรือหน้านี้ถูกย้ายไปแล้ว' },
+  },
+}
+
+/** Same shape as `th`, every value a string. */
+export type Messages = typeof th

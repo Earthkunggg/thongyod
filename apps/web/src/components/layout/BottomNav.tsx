@@ -1,26 +1,29 @@
 import { NavLink } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { Home, PawPrint, Sparkles, User, Users, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-type Tab = { to: string; label: string; icon: LucideIcon; center?: boolean }
+type TabKey = 'home' | 'gangs' | 'explore' | 'pet' | 'me'
+type Tab = { to: string; key: TabKey; icon: LucideIcon; center?: boolean }
 
 const TABS: Tab[] = [
-  { to: '/', label: 'หน้าหลัก', icon: Home },
-  { to: '/gangs', label: 'แก๊ง', icon: Users },
-  { to: '/explore', label: 'ทำอะไรดี', icon: Sparkles, center: true },
-  { to: '/pet', label: 'น้อง', icon: PawPrint },
-  { to: '/me', label: 'ฉัน', icon: User },
+  { to: '/', key: 'home', icon: Home },
+  { to: '/gangs', key: 'gangs', icon: Users },
+  { to: '/explore', key: 'explore', icon: Sparkles, center: true },
+  { to: '/pet', key: 'pet', icon: PawPrint },
+  { to: '/me', key: 'me', icon: User },
 ]
 
 // Bottom tab bar. The center tab ("ทำอะไรดี") is a raised, highlighted button.
 export function BottomNav() {
+  const { t } = useTranslation()
   return (
     <nav
-      aria-label="เมนูหลัก"
+      aria-label={t('nav.label')}
       className="fixed inset-x-0 bottom-0 z-40 border-t bg-card pb-[env(safe-area-inset-bottom)]"
     >
       <ul className="mx-auto flex h-16 max-w-md items-end justify-around px-1">
-        {TABS.map(({ to, label, icon: Icon, center }) => (
+        {TABS.map(({ to, key, icon: Icon, center }) => (
           <li key={to} className="flex-1">
             <NavLink
               to={to}
@@ -41,7 +44,7 @@ export function BottomNav() {
                   ) : (
                     <Icon className="size-6" strokeWidth={isActive ? 2.4 : 1.8} aria-hidden="true" />
                   )}
-                  <span>{label}</span>
+                  <span>{t(`nav.${key}`)}</span>
                 </>
               )}
             </NavLink>
