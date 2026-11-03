@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { fileURLToPath, URL } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
@@ -11,6 +12,11 @@ export default defineConfig({
     // Windows file-change events, so Vite would keep serving old code.
     // Polling checks files for changes instead. Dev server only.
     watch: { usePolling: true, interval: 300 },
+  },
+  test: {
+    // Unit tests for pure logic (money, randomization, permissions). Run: npm test
+    include: ['src/**/*.test.ts'],
+    environment: 'node',
   },
   resolve: {
     alias: {
