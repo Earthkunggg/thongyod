@@ -25,22 +25,25 @@ const LUCKY_HEX: Record<LuckyColorKey, string> = {
   gray: '#888780',
 }
 
-type PetCardProps = { pet: PetSummary; luckyColor: LuckyColorKey | null }
+type PetCardProps = {
+  pet: PetSummary
+  luckyColor: LuckyColorKey | null
+  /** Where tapping goes. null = not tappable (e.g. a friend's pet on their profile). */
+  to?: string | null
+}
 
 // Small pet card on Home. Tapping opens the pet room.
-export function PetCard({ pet, luckyColor }: PetCardProps) {
+export function PetCard({ pet, luckyColor, to = '/pet' }: PetCardProps) {
   const { t } = useTranslation()
-  return (
-    <Link
-      to="/pet"
-      className="flex items-center gap-3 rounded-xl border bg-card p-3 text-card-foreground active:opacity-80"
-    >
+  const classes = 'flex items-center gap-3 rounded-xl border bg-card p-3 text-card-foreground'
+  const content = (
+    <>
       <PetCat />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium">
           {pet.name ?? t('pet.defaultName')} · {t(`pet.moods.${pet.mood}`)}
         </span>
-        <span className="block text-xs text-muted-foreground">{t(MOOD_HINT[pet.mood])}</span>
+        {to && <span className="block text-xs text-muted-foreground">{t(MOOD_HINT[pet.mood])}</span>}
       </span>
       {luckyColor && (
         <span className="text-right">
@@ -55,6 +58,13 @@ export function PetCard({ pet, luckyColor }: PetCardProps) {
           </span>
         </span>
       )}
+    </>
+  )
+  return to ? (
+    <Link to={to} className={`${classes} active:opacity-80`}>
+      {content}
     </Link>
+  ) : (
+    <div className={classes}>{content}</div>
   )
 }

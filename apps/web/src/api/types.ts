@@ -1,7 +1,7 @@
 // PROVISIONAL frontend types for endpoints that Codex has not finalized yet
 // (requests listed in docs/HANDOFF.md, 2026-11-03). Replace with @thongyod/shared types
 // when the backend contract is published. Keep field names close to the request.
-import type { MeetupDetail, MeetupResponse, MeetupSummary } from '@thongyod/shared'
+import type { MeetupDetail, MeetupResponse, MeetupSummary, PetSummary } from '@thongyod/shared'
 
 export type PersonRef = {
   userId: string
@@ -74,3 +74,28 @@ export type FriendsOverview = {
 
 /** GET /friends/link. The frontend builds the URL: <origin>/add/<code>. */
 export type FriendLink = { code: string }
+
+// ---------- Profile (decision #36) ----------
+
+/** GET /me — the signed-in user (basic). */
+export type Me = PersonRef & { title: string | null; bio: string | null }
+
+/** PATCH /me. Name rules (decision #40): 2–20 characters, unique (case-insensitive). */
+export type UpdateMeRequest = { displayName?: string; bio?: string | null }
+
+export type EarnedTitle = { id: string; name: string; gangName: string | null; earnedAt: string }
+
+export type ProfileStats = {
+  friends: number
+  gangs: number
+  /** Confirmed attendance, not answers (decision #33). */
+  meetupsAttended: number
+}
+
+/** GET /users/:id/profile (also for myself). Private fields (birthday, gender) are never included. */
+export type Profile = UserCard & {
+  bio: string | null
+  titles: EarnedTitle[]
+  stats: ProfileStats
+  pet: PetSummary | null
+}

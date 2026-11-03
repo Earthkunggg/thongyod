@@ -26,7 +26,7 @@ export const users: User[] = [
   { id: 'u9', name: 'แบงค์', title: null },
 ]
 
-const gangs: Gang[] = [
+export const gangs: Gang[] = [
   { id: 'g1', name: 'แก๊งคอม 66', memberIds: ['u1', 'u2', 'u3', 'u4', 'u5', 'u6'] },
   { id: 'g2', name: 'ทีมแบดวันพุธ', memberIds: ['u1', 'u2', 'u7', 'u8'] },
   { id: 'g3', name: 'เพื่อนมัธยม', memberIds: ['u1', 'u3', 'u5', 'u8'] },

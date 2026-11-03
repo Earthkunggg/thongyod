@@ -77,6 +77,14 @@ export function searchByName(name: string): UserCard | null {
   return card(user.id)
 }
 
+/** Card of any visible user (null if unknown or blocked either way). */
+export function cardOf(userId: string): UserCard | null {
+  if (!users.some((u) => u.id === userId) || isBlocked(ME, userId)) return null
+  return card(userId)
+}
+
+export const friendCount = (userId: string) => friendIdsOf(userId).length
+
 export function cardByLink(code: string): UserCard | null {
   const owner = linkCodes.get(code)
   if (!owner || isBlocked(ME, owner)) return null

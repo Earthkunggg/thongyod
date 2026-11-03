@@ -143,6 +143,7 @@ export function FriendsPage() {
                     leading={<Avatar name={f.displayName} />}
                     title={f.displayName}
                     subtitle={f.title ?? undefined}
+                    to={`/u/${f.userId}`}
                   />
                 ))
               ) : (

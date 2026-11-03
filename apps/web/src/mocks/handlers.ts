@@ -3,8 +3,9 @@
 import { delay } from 'msw'
 import { http, HttpResponse } from 'msw/http'
 import type { MeetupResponse } from '@thongyod/shared'
-import { getHome, getMeetup, listMeetups, setHidden, setResponse, type MutationResult } from './db'
+import { getHome, getMeetup, listMeetups, ME, setHidden, setResponse, type MutationResult } from './db'
 import * as friends from './friends'
+import * as profiles from './profiles'
 
 const RESPONSES: MeetupResponse[] = ['going', 'maybe', 'not_going']
 const LATENCY_MS = 300 // small delay so loading states are visible during development
@@ -110,5 +111,28 @@ export const handlers = [
   http.delete('/api/friends/requests/:id', async ({ params }) => {
     await delay(LATENCY_MS)
     return replyFriend(friends.deleteRequest(String(params.id)))
+  }),
+
+  // ---------- Profile ----------
+  http.get('/api/me', async () => {
+    await delay(LATENCY_MS)
+    return HttpResponse.json(profiles.getMe())
+  }),
+
+  http.patch('/api/me', async ({ request }) => {
+    await delay(LATENCY_MS)
+    const body = (await request.json().catch(() => null)) as Record<string, unknown> | null
+    if (!body) return invalid('body')
+    if (body.displayName !== undefined && typeof body.displayName !== 'string') return invalid('displayName')
+    if (body.bio !== undefined && body.bio !== null && typeof body.bio !== 'string') return invalid('bio')
+    const result = profiles.updateMe(body as { displayName?: string; bio?: string | null })
+    return result.ok ? HttpResponse.json(result.me) : errorBody(result.status, result.code)
+  }),
+
+  http.get('/api/users/:id/profile', async ({ params }) => {
+    await delay(LATENCY_MS)
+    const id = String(params.id)
+    const profile = profiles.getProfile(id === 'me' ? ME : id)
+    return profile ? HttpResponse.json(profile) : errorBody(404, 'USER_NOT_FOUND')
   }),
 ]

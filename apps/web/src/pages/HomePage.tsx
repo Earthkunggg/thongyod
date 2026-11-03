@@ -19,9 +19,10 @@ import { MeetupRow } from '@/components/meetup/MeetupRow'
 import { WaitingMeetupCard } from '@/components/meetup/WaitingMeetupCard'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { DEFAULT_HOME_SECTIONS, type HomeSectionId } from '@/config/home'
+import type { HomeSectionId } from '@/config/home'
 import { isAnswerLocked } from '@/features/meetups/rules'
 import { useMeetupActions } from '@/features/meetups/useMeetupActions'
+import { useHomeLayout } from '@/features/settings/homeLayout'
 import { addDays, formatDayLabel, formatMonthYear, formatTimeAgo, isSameDay, startOfDay, startOfWeek } from '@/lib/date'
 import { feedText, pendingSubtitle, pendingTitle } from '@/lib/describe'
 
@@ -45,6 +46,7 @@ export function HomePage() {
   const [selectedDay, setSelectedDay] = useState(now)
   const [leavingIds, setLeavingIds] = useState<string[]>([])
   const actions = useMeetupActions()
+  const layout = useHomeLayout()
 
   // One request covers this week (week strip + agenda) and the next 2 weeks ("รอคุณตอบ").
   const range = useMemo(() => {
@@ -175,9 +177,12 @@ export function HomePage() {
         markedDays={weekMeetups.map((m) => new Date(m.startsAt))}
       />
 
-      {DEFAULT_HOME_SECTIONS.map((id) => (
-        <Fragment key={id}>{sections[id]}</Fragment>
-      ))}
+      {/* Order and visibility come from Settings → หน้าหลัก. */}
+      {layout.order
+        .filter((id) => !layout.hidden.includes(id))
+        .map((id) => (
+          <Fragment key={id}>{sections[id]}</Fragment>
+        ))}
 
       {homeQuery.isError && <ErrorState onRetry={() => void homeQuery.refetch()} />}
     </div>

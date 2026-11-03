@@ -2,6 +2,7 @@ import { createBrowserRouter, type RouteObject } from 'react-router'
 import { AppShell } from '@/components/layout/AppShell'
 import { SubPageShell } from '@/components/layout/SubPageShell'
 import { TOOLS } from '@/config/tools'
+import { EditProfilePage } from '@/pages/EditProfilePage'
 import { ExplorePage } from '@/pages/ExplorePage'
 import { AddFriendPage } from '@/pages/AddFriendPage'
 import { FriendQrPage } from '@/pages/FriendQrPage'
@@ -14,7 +15,9 @@ import { MePage } from '@/pages/MePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { PetPage } from '@/pages/PetPage'
 import { QuickVotePage } from '@/pages/QuickVotePage'
+import { SettingsPage } from '@/pages/SettingsPage'
 import { ToolPlaceholderPage } from '@/pages/ToolPlaceholderPage'
+import { UserProfilePage } from '@/pages/UserProfilePage'
 
 /** Paths that already have their own page (tabs). */
 const TAB_PATHS = ['/', '/gangs', '/explore', '/pet', '/me']
@@ -55,6 +58,9 @@ export const router = createBrowserRouter([
       { path: 'meetups/:id', element: <MeetupDetailPage /> },
       { path: 'friends/qr', element: <FriendQrPage /> },
       { path: 'add/:code', element: <AddFriendPage /> },
+      { path: 'u/:userId', element: <UserProfilePage /> },
+      { path: 'me/edit', element: <EditProfilePage /> },
+      { path: 'settings', element: <SettingsPage /> },
       ...placeholderToolRoutes,
       { path: '*', element: <NotFoundPage /> },
     ],
