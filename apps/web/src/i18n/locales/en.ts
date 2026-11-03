@@ -11,6 +11,8 @@ export const en: Messages = {
     me: 'Me',
   },
   common: {
+    underConstruction: 'This page is being built',
+    back: 'Back',
     notifications: 'Notifications',
     backHome: 'Back to Home',
   },
@@ -74,6 +76,25 @@ export const en: Messages = {
       makeUp: 'Tap to make up',
     },
   },
+  explore: {
+    withFriends: 'With friends',
+    solo: 'On your own',
+    soon: 'Coming soon',
+    lockedSuffix: ' (coming soon)',
+  },
+  tools: {
+    createMeetup: { title: 'Plan a meetup', desc: 'Set a meetup, vote on a time, share to LINE' },
+    quickVote: { title: 'Quick vote', desc: 'Vote together on one phone' },
+    restaurantVote: { title: 'Restaurant vote', desc: 'Let the gang pick' },
+    splitBill: { title: 'Split the bill', desc: 'A PromptPay QR for everyone' },
+    randomRestaurant: { title: 'Random restaurant', desc: 'Hungry but can’t decide' },
+    playPet: { title: 'Play with pet', desc: 'Feed it, pat it' },
+    luckyColor: { title: 'Lucky color', desc: 'Just for fun' },
+    myMeetups: { title: 'My meetups', desc: 'All your meetups in one place' },
+    gradeCalculator: { title: 'Grade calculator', desc: 'Term grades and GPAX' },
+    focusTimer: { title: 'Focus timer', desc: 'Study together with friends' },
+    flashcards: { title: 'Flashcards', desc: 'Review before exams' },
+  },
   colors: {
     red: 'Red',
     orange: 'Orange',
@@ -91,7 +112,6 @@ export const en: Messages = {
     explore: {
       title: 'Explore',
       subtitle: 'Things to do with friends or on your own',
-      placeholder: 'Tool cards will be here',
     },
     pet: { title: 'Pet', placeholder: 'Maew Gon’s room (M5)' },
     me: {

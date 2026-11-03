@@ -7,7 +7,7 @@ export function NotFoundPage() {
   const { t } = useTranslation()
   return (
     <>
-      <PageHeader title={t('pages.notFound.title')} subtitle={t('pages.notFound.subtitle')} />
+      <PageHeader title={t('pages.notFound.title')} subtitle={t('pages.notFound.subtitle')} backTo="/" />
       <div className="px-4 pt-2">
         <Link to="/" className={buttonVariants()}>
           {t('common.backHome')}

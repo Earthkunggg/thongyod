@@ -11,6 +11,8 @@ export const th = {
     me: 'ฉัน',
   },
   common: {
+    underConstruction: 'หน้านี้กำลังสร้าง',
+    back: 'ย้อนกลับ',
     notifications: 'การแจ้งเตือน',
     backHome: 'กลับหน้าหลัก',
   },
@@ -75,6 +77,25 @@ export const th = {
       makeUp: 'แตะเพื่อไปง้อ',
     },
   },
+  explore: {
+    withFriends: 'กับเพื่อน',
+    solo: 'คนเดียว',
+    soon: 'เร็วๆ นี้',
+    lockedSuffix: ' (เร็วๆ นี้)',
+  },
+  tools: {
+    createMeetup: { title: 'ชวนนัด', desc: 'ตั้งนัด โหวตเวลา แชร์ลง LINE' },
+    quickVote: { title: 'โหวตด่วน', desc: 'เครื่องเดียวก็โหวตได้' },
+    restaurantVote: { title: 'ห้องโหวตร้าน', desc: 'ให้แก๊งช่วยเลือก' },
+    splitBill: { title: 'หารบิล', desc: 'ทำ QR ให้ทุกคน' },
+    randomRestaurant: { title: 'สุ่มร้าน', desc: 'หิวแต่คิดไม่ออก' },
+    playPet: { title: 'เล่นกับน้อง', desc: 'ป้อนขนม ลูบหัว' },
+    luckyColor: { title: 'สีมงคลวันนี้', desc: 'ดูเพื่อความบันเทิง' },
+    myMeetups: { title: 'นัดของฉัน', desc: 'ทุกนัดในที่เดียว' },
+    gradeCalculator: { title: 'คำนวณเกรด', desc: 'เกรดเทอมและ GPAX' },
+    focusTimer: { title: 'จับเวลาอ่านหนังสือ', desc: 'อ่านไปพร้อมเพื่อน' },
+    flashcards: { title: 'แฟลชการ์ด', desc: 'ทวนก่อนสอบ' },
+  },
   colors: {
     red: 'แดง',
     orange: 'ส้ม',
@@ -92,7 +113,6 @@ export const th = {
     explore: {
       title: 'ทำอะไรดี',
       subtitle: 'เลือกได้ทั้งทำกับเพื่อนและทำคนเดียว',
-      placeholder: 'การ์ดเครื่องมือจะอยู่ตรงนี้',
     },
     pet: { title: 'น้อง', placeholder: 'ห้องของแมวก้อน (M5)' },
     me: {
