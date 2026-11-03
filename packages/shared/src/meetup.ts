@@ -15,3 +15,38 @@ export interface MeetupSummary {
   /** The current user's response; null = not answered yet. */
   myResponse: MeetupResponse | null
 }
+
+// Proposed meetup v1 contract. These endpoints are not implemented yet.
+// Identity and gang permissions must be agreed before backend implementation.
+export interface CreateMeetupRequest {
+  gangId: string
+  title: string
+  startsAt: string
+}
+
+export interface MeetupDetail extends MeetupSummary {
+  createdAt: string
+}
+
+export type CreateMeetupResponse = MeetupDetail
+export type GetMeetupResponse = MeetupDetail
+
+export interface SetMeetupResponseRequest {
+  response: MeetupResponse
+}
+
+/** Updated meetup, including the caller's response and aggregate counts. */
+export type SetMeetupResponseResponse = MeetupDetail
+
+export type MeetupErrorCode =
+  | 'INVALID_REQUEST'
+  | 'FORBIDDEN'
+  | 'MEETUP_NOT_FOUND'
+
+/** Machine-readable errors; the frontend supplies localized UI text. */
+export interface MeetupErrorResponse {
+  error: {
+    code: MeetupErrorCode
+    field?: keyof CreateMeetupRequest | keyof SetMeetupResponseRequest
+  }
+}

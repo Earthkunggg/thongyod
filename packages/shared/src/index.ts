@@ -1,4 +1,15 @@
-export type { MeetupResponse, MeetupSummary } from './meetup'
+export type {
+  CreateMeetupRequest,
+  CreateMeetupResponse,
+  GetMeetupResponse,
+  MeetupDetail,
+  MeetupErrorCode,
+  MeetupErrorResponse,
+  MeetupResponse,
+  MeetupSummary,
+  SetMeetupResponseRequest,
+  SetMeetupResponseResponse,
+} from './meetup'
 export type {
   FeedItem,
   FeedKind,
