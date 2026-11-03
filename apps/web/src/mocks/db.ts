@@ -9,20 +9,21 @@ import type { MeetupDetailFull, MeetupListItem, MeetupMember, PersonRef } from '
 export const ME = 'u1'
 const LOCK_AFTER_MS = 10 * 60_000
 
-type User = { id: string; name: string }
+export type User = { id: string; name: string; title: string | null }
 type Gang = { id: string; name: string; memberIds: string[] }
 type Answer = { response: MeetupResponse | null; hidden: boolean }
 type Meetup = { id: string; gangId: string; title: string; startsAt: Date; createdBy: string; createdAt: Date; answers: Map<string, Answer> }
 
-const users: User[] = [
-  { id: 'u1', name: 'เอิร์ธ' },
-  { id: 'u2', name: 'ต้น' },
-  { id: 'u3', name: 'เบียร์' },
-  { id: 'u4', name: 'แอม' },
-  { id: 'u5', name: 'พลอย' },
-  { id: 'u6', name: 'กาย' },
-  { id: 'u7', name: 'มายด์' },
-  { id: 'u8', name: 'บอส' },
+export const users: User[] = [
+  { id: 'u1', name: 'เอิร์ธ', title: 'สายเปย์' },
+  { id: 'u2', name: 'ต้น', title: 'ตัวตึงหมูกระทะ' },
+  { id: 'u3', name: 'เบียร์', title: 'นก' },
+  { id: 'u4', name: 'แอม', title: null },
+  { id: 'u5', name: 'พลอย', title: 'สายมู' },
+  { id: 'u6', name: 'กาย', title: null },
+  { id: 'u7', name: 'มายด์', title: null },
+  { id: 'u8', name: 'บอส', title: 'มาสาย' },
+  { id: 'u9', name: 'แบงค์', title: null },
 ]
 
 const gangs: Gang[] = [
@@ -64,7 +65,7 @@ const meetups: Meetup[] = [
   },
 ]
 
-const person = (id: string): PersonRef => ({ userId: id, displayName: users.find((u) => u.id === id)?.name ?? '?', avatarUrl: null })
+export const person = (id: string): PersonRef => ({ userId: id, displayName: users.find((u) => u.id === id)?.name ?? '?', avatarUrl: null })
 const gangOf = (m: Meetup) => gangs.find((g) => g.id === m.gangId)!
 const answerOf = (m: Meetup, userId: string): Answer => m.answers.get(userId) ?? { response: null, hidden: false }
 

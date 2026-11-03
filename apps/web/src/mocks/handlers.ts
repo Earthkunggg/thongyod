@@ -4,6 +4,7 @@ import { delay } from 'msw'
 import { http, HttpResponse } from 'msw/http'
 import type { MeetupResponse } from '@thongyod/shared'
 import { getHome, getMeetup, listMeetups, setHidden, setResponse, type MutationResult } from './db'
+import * as friends from './friends'
 
 const RESPONSES: MeetupResponse[] = ['going', 'maybe', 'not_going']
 const LATENCY_MS = 300 // small delay so loading states are visible during development
@@ -12,6 +13,13 @@ function reply(result: MutationResult) {
   return result.ok
     ? HttpResponse.json(result.meetup)
     : HttpResponse.json({ error: { code: result.code } }, { status: result.status })
+}
+
+const errorBody = (status: number, code: string) => HttpResponse.json({ error: { code } }, { status })
+
+function replyFriend(result: friends.FriendResult, okStatus = 200) {
+  if (!result.ok) return errorBody(result.status, result.code)
+  return result.data === null ? new HttpResponse(null, { status: 204 }) : HttpResponse.json(result.data, { status: okStatus })
 }
 
 const invalid = (field: string) => HttpResponse.json({ error: { code: 'INVALID_REQUEST', field } }, { status: 400 })
@@ -55,5 +63,52 @@ export const handlers = [
     const body = (await request.json().catch(() => null)) as { hidden?: unknown } | null
     if (!body || typeof body.hidden !== 'boolean') return invalid('hidden')
     return reply(setHidden(String(params.id), body.hidden))
+  }),
+
+  // ---------- Friends ----------
+  http.get('/api/friends', async () => {
+    await delay(LATENCY_MS)
+    return HttpResponse.json(friends.getOverview())
+  }),
+
+  http.get('/api/users/search', async ({ request }) => {
+    await delay(LATENCY_MS)
+    const name = new URL(request.url).searchParams.get('name') ?? ''
+    if (name.trim() === '') return invalid('name')
+    const found = friends.searchByName(name)
+    return found ? HttpResponse.json(found) : errorBody(404, 'USER_NOT_FOUND')
+  }),
+
+  http.get('/api/friends/link', async () => {
+    await delay(LATENCY_MS)
+    return HttpResponse.json({ code: friends.myLinkCode() })
+  }),
+
+  http.post('/api/friends/link', async () => {
+    await delay(LATENCY_MS)
+    return HttpResponse.json({ code: friends.regenerateLink() })
+  }),
+
+  http.get('/api/friend-links/:code', async ({ params }) => {
+    await delay(LATENCY_MS)
+    const found = friends.cardByLink(String(params.code))
+    return found ? HttpResponse.json(found) : errorBody(404, 'LINK_INVALID')
+  }),
+
+  http.post('/api/friends/requests', async ({ request }) => {
+    await delay(LATENCY_MS)
+    const body = (await request.json().catch(() => null)) as { userId?: unknown } | null
+    if (!body || typeof body.userId !== 'string') return invalid('userId')
+    return replyFriend(friends.sendRequest(body.userId), 201)
+  }),
+
+  http.post('/api/friends/requests/:id/accept', async ({ params }) => {
+    await delay(LATENCY_MS)
+    return replyFriend(friends.acceptRequest(String(params.id)))
+  }),
+
+  http.delete('/api/friends/requests/:id', async ({ params }) => {
+    await delay(LATENCY_MS)
+    return replyFriend(friends.deleteRequest(String(params.id)))
   }),
 ]

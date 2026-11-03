@@ -3,6 +3,10 @@ import { AppShell } from '@/components/layout/AppShell'
 import { SubPageShell } from '@/components/layout/SubPageShell'
 import { TOOLS } from '@/config/tools'
 import { ExplorePage } from '@/pages/ExplorePage'
+import { AddFriendPage } from '@/pages/AddFriendPage'
+import { FriendQrPage } from '@/pages/FriendQrPage'
+import { FriendsPage } from '@/pages/FriendsPage'
+import { GangsLayout } from '@/pages/GangsLayout'
 import { GangsPage } from '@/pages/GangsPage'
 import { HomePage } from '@/pages/HomePage'
 import { MeetupDetailPage } from '@/pages/MeetupDetailPage'
@@ -30,7 +34,14 @@ export const router = createBrowserRouter([
     element: <AppShell />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: 'gangs', element: <GangsPage /> },
+      {
+        path: 'gangs',
+        element: <GangsLayout />,
+        children: [
+          { index: true, element: <GangsPage /> },
+          { path: 'friends', element: <FriendsPage /> },
+        ],
+      },
       { path: 'explore', element: <ExplorePage /> },
       { path: 'pet', element: <PetPage /> },
       { path: 'me', element: <MePage /> },
@@ -42,6 +53,8 @@ export const router = createBrowserRouter([
     children: [
       { path: 'quick-vote', element: <QuickVotePage /> },
       { path: 'meetups/:id', element: <MeetupDetailPage /> },
+      { path: 'friends/qr', element: <FriendQrPage /> },
+      { path: 'add/:code', element: <AddFriendPage /> },
       ...placeholderToolRoutes,
       { path: '*', element: <NotFoundPage /> },
     ],

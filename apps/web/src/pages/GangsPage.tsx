@@ -1,13 +1,8 @@
 import { useTranslation } from 'react-i18next'
-import { PageHeader } from '@/components/layout/PageHeader'
 import { Placeholder } from '@/components/layout/Placeholder'
 
+// Sub-tab "แก๊ง" (inside GangsLayout). Gang list comes in M1.
 export function GangsPage() {
   const { t } = useTranslation()
-  return (
-    <>
-      <PageHeader title={t('pages.gangs.title')} />
-      <Placeholder text={t('pages.gangs.placeholder')} />
-    </>
-  )
+  return <Placeholder text={t('pages.gangs.placeholder')} />
 }

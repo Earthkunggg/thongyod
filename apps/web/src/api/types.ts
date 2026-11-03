@@ -38,3 +38,39 @@ export type MeetupDetailFull = MeetupDetail & {
   answersLockAt: string
   members: MeetupMember[]
 }
+
+// ---------- Friends (decision #34) ----------
+
+/** How the signed-in user is related to another person. */
+export type Relationship = 'self' | 'none' | 'friend' | 'request_sent' | 'request_received'
+
+/** A person found by exact-name search or by a friend link. */
+export type UserCard = PersonRef & {
+  /** Main title shown on the profile (e.g. "สายมู"), or null. */
+  title: string | null
+  mutualFriends: number
+  relationship: Relationship
+  /** Set when relationship is request_sent or request_received. */
+  requestId: string | null
+}
+
+export type FriendRequest = {
+  id: string
+  user: PersonRef
+  mutualFriends: number
+  createdAt: string
+}
+
+export type Friend = PersonRef & { title: string | null }
+
+/** GET /friends */
+export type FriendsOverview = {
+  friends: Friend[]
+  /** Requests other people sent me. */
+  incoming: FriendRequest[]
+  /** Requests I sent that are still waiting. */
+  outgoing: FriendRequest[]
+}
+
+/** GET /friends/link. The frontend builds the URL: <origin>/add/<code>. */
+export type FriendLink = { code: string }

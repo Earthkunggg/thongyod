@@ -338,4 +338,52 @@ Every phase needs strict TypeScript, authorization, validation, deadline/concurr
   - `PUT /meetups/:id/response {response}`, `DELETE /meetups/:id/response` (undo → no answer), `PUT /meetups/:id/hidden {hidden}`: all return the updated detail.
   - errors used by the UI: `404 MEETUP_NOT_FOUND`, `409 ANSWERS_LOCKED`, `400 CANNOT_HIDE_OWN_MEETUP`, `400 INVALID_REQUEST`. Body `{ error: { code } }`.
 - **Mock API:** `apps/web/src/mocks/` (MSW) implements exactly this, including the hidden-member and lock rules. Useful as a reference. Turn it off with `VITE_API_MOCKS=off` in `apps/web/.env.local` to use the real API through the Vite proxy (`/api` → `http://127.0.0.1:3000`).
+- **Friends (provisional, used by the frontend now; see `apps/web/src/api/types.ts` and `apps/web/src/mocks/friends.ts`):**
+  - `GET /friends` → `{ friends: {userId, displayName, avatarUrl, title}[], incoming: FriendRequest[], outgoing: FriendRequest[] }`, `FriendRequest = { id, user: PersonRef, mutualFriends, createdAt }`.
+  - `GET /users/search?name=` exact name (trimmed, case-insensitive) → `UserCard = PersonRef & { title, mutualFriends, relationship: 'self'|'none'|'friend'|'request_sent'|'request_received', requestId }`; 404 `USER_NOT_FOUND` also when either side blocked the other.
+  - `GET /friends/link` → `{ code }`; `POST /friends/link` regenerates (old code → 404). `GET /friend-links/:code` → `UserCard`, 404 `LINK_INVALID`.
+  - `POST /friends/requests {userId}` → 201 `FriendRequest`; 409 `ALREADY_FRIENDS` / `REQUEST_EXISTS`, 400 `CANNOT_ADD_SELF`, 429 `DAILY_LIMIT_REACHED` (mock limit 20 per 24 h).
+  - `POST /friends/requests/:id/accept` → 204. `DELETE /friends/requests/:id` → 204 (decline received = silent, or cancel sent).
+  - Not built yet in the UI: unfriend, block (profile round).
+
+## Approved for backend phase 1 — 2026-11-03 — user (via Claude)
+
+The user approved everything below (DECISIONS #40). Anything not listed stays open: ask before implementing it.
+
+### Stack
+- Native PostgreSQL on Windows. Latest stable major on postgresql.org is 18 (18.6 released 2026-08-13; 19 is only RC — do not use). The user installs it; you guide and verify. Check first whether an instance already exists (service, version, port).
+- Drizzle ORM + Drizzle Kit + pg, as you proposed. Re-check versions/licenses/Node 26 compatibility at install time. Generated SQL is reviewed and committed. No auto-sync or auto-reset ever.
+- Secrets only in ignored `apps/api/.env`. Commit `apps/api/.env.example` without real values. Never print the DB password.
+
+### Phase 1 order (stop and hand off after each step)
+1. DB connection + migrations + **deterministic seed** + DB health check (keep `/health` liveness as is).
+2. Sessions + **dev-only login** exactly as you proposed (flags, loopback only, excluded from production build, tests). Add `GET /auth/dev/fixtures` (list of fixture keys + display names, dev only) so the frontend can show a user switcher. `POST /auth/logout`. `GET /me` → define `Me` in `packages/shared` (userId, displayName, avatarUrl, title, …).
+3. **Friends**: the endpoints already used by the frontend (see "Friends (provisional…)" above). You may rename to match your contract; tell me the final shapes.
+4. **Meetups (basic)**: list (from/to/visibility/cursor/limit), detail, answer (PUT with scheduleVersion), clear (DELETE), visibility (hide/unhide), 10-minute lock, hidden-privacy filtering everywhere. Create meetup only if simple; otherwise next phase.
+5. **`GET /home`** = current `HomeSummary` in `packages/shared/src/home.ts` (pending, pet or null, luckyColor, feed). Meetups are not inside it.
+Deferred: capacity/waitlist, reconfirm on time change, attendance, guests, full gang governance (admission/removal votes), real LINE Login, gang create/edit UI flows.
+
+### Policies (answers to your open questions)
+- Hide/unhide shares the answer lock (start + 10 min). After lock: 409 `RESPONSE_LOCKED`.
+- Unhide → my answer becomes unanswered (null), new queue timestamp.
+- Day boundary for "another day" rules: Asia/Bangkok.
+- Friend requests: max 20 per rolling 24 h → 429 `DAILY_LIMIT_REACHED`.
+- Session lifetime 30 days (rotate on login, revoke on logout).
+- App name: 2–20 characters after trim, unique case-insensitive. Allowed: Thai, English letters, digits, space, `.`, `_`, `-`. No leading/trailing spaces.
+- Meetup list: default limit 20, max 100, max range 93 days.
+- Guests and gang membership edge cases: not in phase 1.
+
+### Seed data ("a lot", deterministic)
+- Fixed random seed: same data every run. One command to reset + seed the **local dev database only** (refuse if the DB name/host is not local dev). Separate test DB for tests.
+- ≈40 users with Thai nicknames (unique app names, some with titles like "สายมู", "นก", "สายเปย์"); fixture keys like `earth`, `ton`, `beer`. User `earth` (display name "เอิร์ธ") is the main test account.
+- 8 gangs, sizes 3–25 (one big gang of 25 to test lists), `earth` in 5 of them.
+- ≈150 meetups from 60 days ago to 30 days ahead, spread over many days and times; for `earth`: some unanswered upcoming, some answered (all three answers), some hidden, some locked (started > 10 min ago), some created by `earth`, at least 2 on today and 3 on tomorrow (relative to seed time), varied answer mixes.
+- ≈200 friendships, plus for `earth`: 3 incoming requests, 2 outgoing, 1 user who blocked `earth`, 1 user `earth` blocked, friend links for several users.
+- Home: pending items and feed items for `earth`; pet = null for `earth` (not activated), non-null for some others.
+- Document the main fixtures (who is in which gang, notable meetups) in `docs/SEED.md` so the frontend can test specific cases.
+
+### Frontend integration notes
+- The web dev server proxies `/api/*` → `http://127.0.0.1:3000/*` (prefix removed). Cookies are same-origin through the proxy; no CORS needed for dev.
+- Frontend turns mocks off with `VITE_API_MOCKS=off` in `apps/web/.env.local`.
+- Do not edit `apps/web`. Put contract types in `packages/shared` (keep the frontend compiling; tell me what changed).
 

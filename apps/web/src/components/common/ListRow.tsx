@@ -10,10 +10,12 @@ type ListRowProps = {
   subtitle?: string
   /** When set, the whole row is a link and shows a chevron. */
   to?: string
+  /** Right side: e.g. buttons. Do not combine with `to` (no buttons inside links). */
+  trailing?: ReactNode
 }
 
 // One row inside a list card. Rows separate themselves with a top border.
-export function ListRow({ leading, title, subtitle, to }: ListRowProps) {
+export function ListRow({ leading, title, subtitle, to, trailing }: ListRowProps) {
   const content = (
     <>
       {leading}
@@ -21,6 +23,7 @@ export function ListRow({ leading, title, subtitle, to }: ListRowProps) {
         <span className="block truncate text-sm font-medium">{title}</span>
         {subtitle && <span className="block truncate text-xs text-muted-foreground">{subtitle}</span>}
       </span>
+      {trailing && <span className="flex shrink-0 items-center gap-2">{trailing}</span>}
       {to && <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />}
     </>
   )
