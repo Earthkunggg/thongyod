@@ -1,0 +1,29 @@
+# Decisions Log — Thongyod
+
+Format: date | topic | decision | reason.
+Newest first. Never delete an old decision; mark it "superseded by #N" instead.
+
+| # | Date | Topic | Decision | Reason |
+|---|---|---|---|---|
+| 17 | 2026-11-03 | Node.js version | Node.js 26 LTS (installed 26.13.0 via nvm-windows 1.1.12). `.nvmrc` = 26. Fallback: Node 24 LTS if a library does not support 26 yet. | Newest LTS, supported until Apr 2029. Node 22 ends Apr 2027. |
+| 16 | 2026-11-03 | Figma | Figma = rough mockups only (file "Thongyod — UI v0"). Source of truth for UI = React components in code. | Figma free plan: variables limited to 1 mode, MCP tool calls limited per month. One source avoids drift. |
+| 15 | 2026-11-03 | Component reuse | All components live in `apps/web/src/components/`. Registry in `docs/COMPONENTS.md`. Before creating a component, check the registry; if a similar one exists, extend it with props instead. Use a free-licensed (MIT or similar) UI library as base (to be chosen). Record the source and license of any copied code. | Avoid duplicate components that look slightly different. |
+| 14 | 2026-11-03 | Quick vote (NEW, not in original spec) | One shared vote engine used by quick vote, time vote, and restaurant vote. Modes: single device (pass the phone) or multi-device (share link). Secret ballot: show only ranked scores, never who voted what (server stores votes, API never exposes them). Default single choice; "multiple choice" hidden in advanced settings (restaurant room keeps multi-select per spec). Tie popup: random (recommended) / runoff among tied / choose manually. Single device: no login, works offline, enter number of people, "undo last vote", "close vote now". Single-device votes do NOT count toward titles. Multi-device: no login needed (nickname), 1 vote per browser, show "voted X / Y", reveal when count reached, owner closes, or deadline; max 30 people. | Groups often decide while sitting together with one phone. Must be fast. |
+| 13 | 2026-11-03 | Motion | Animate only transform/opacity. Big effects only for special moments (new title, bill fully paid, blind box). Setting: full / reduced / off; follow OS "reduce motion". Sound off by default. | Smooth on mid-range Android; not annoying. |
+| 12 | 2026-11-03 | Pet rendering | Outside the pet room, show pre-rendered static images/light loops of the pet. Full 3D only in the pet room. | 3D in many places drains battery and lags. |
+| 11 | 2026-11-03 | "ทำอะไรดี" page | Center tab opens a scrollable page of everything the user can do, grouped: กับเพื่อน (ชวนนัด, โหวตด่วน, ห้องโหวตร้าน, หารบิล), คนเดียว (สุ่มร้าน, เล่นกับน้อง, สีมงคลวันนี้, นัดของฉัน), เร็วๆ นี้ (locked cards). Tools defined in a config with status `ready` / `soon`. | One place for solo and group features; new features = new card, no menu change. |
+| 10 | 2026-11-03 | Home screen | Home = "Today" dashboard (pulled forward from v1.5). Order: week strip calendar → next meetup (respond inline) → "รอคุณอยู่" (hidden when empty) → pet card → friends' updates. Built from cards registered in a config file; cards load independently; max ~6 cards. | Useful at a glance; easy to add features. |
+| 9 | 2026-11-03 | Navigation | Bottom tabs: หน้าหลัก / แก๊ง / ✦ ทำอะไรดี (center, highlighted) / น้อง / ฉัน. | Meetups are the core; solo features need a home. |
+| 8 | 2026-11-03 | Themes | Two themes chosen on first launch (skippable): "ค่าเริ่มต้น" (default: clean, white/gray + gold accent, small quiet pet) and "น่ารัก" (pastel, rounder, bigger pet that talks). Not labeled by gender. "Pet talks" is a separate toggle. Themes = design tokens only, same components. Light/dark/system also available. | Not too cute for users who prefer a plain look, without stereotyping. |
+| 7 | 2026-11-03 | Design principle | "Fast, simple, not annoying": common tasks ≤ 3 taps; UI responds instantly (optimistic update); hide what is not needed. | Daily-use app; any slowness makes people quit. |
+| 6 | 2026-11-03 | Mobile-first | Design for phones first; works on desktop web; PWA now, Capacitor later if needed. | Most use is on phones. |
+| 5 | 2026-11-03 | API contract first | Before each feature, write endpoints + shared TypeScript types in `packages/shared`. Frontend uses mocks until the backend is ready. | Two AIs work in parallel without conflicts. |
+| 4 | 2026-11-03 | Repo structure | Monorepo: `apps/web` (React, frontend), `apps/api` (NestJS, backend), `packages/shared` (shared types), `docs/`. | Clear ownership per folder. |
+| 3 | 2026-11-03 | AI roles | Claude = frontend (`apps/web`) + reviews backend. Codex = backend (`apps/api`) + reviews frontend. Nobody edits the other's folder; requests go through `docs/HANDOFF.md`. Roles can be swapped if results are poor. | Split by area; nobody reviews their own work. |
+| 2 | 2026-11-03 | Development environment | Develop and run everything locally first (NestJS + PostgreSQL on the developer's Windows PC). Deploy later. Hosting candidates (re-verify before deploy): Koyeb + Neon + Cloudflare Pages, or Render + Neon. | Learn and iterate fast at 0 THB; choose hosting when the app works. |
+| 1 | 2026-11-03 | Project folder | `C:\Users\Earth\Desktop\BUU\Playground\thongyod` | No spaces/Thai characters in path. |
+
+## Open questions
+- Which free UI component library to use (compare and check licenses at project setup).
+- Let users hide/reorder home cards in v1.5? (proposed)
+- Final app name, pet character, no in-app chat (from original spec).
