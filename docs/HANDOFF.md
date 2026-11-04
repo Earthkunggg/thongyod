@@ -569,3 +569,14 @@ To do when there is a real domain (HTTPS):
 3. Google Search Console: add the domain (DNS TXT record is the most robust; HTML meta tag also works), then submit the sitemap and use URL Inspection on the home page.
 4. A public landing page that is pre-rendered (static HTML) so crawlers and LINE previews see real content without JavaScript; the signed-in app stays out of the index.
 5. Per-invite link previews (`/add/:code`, shared meetups) need server-rendered OG tags (see UX_GUIDELINES); plan with the backend.
+
+## Next session — frontend plan (Claude, 2026-11-04 23:59)
+
+Done today: DECISIONS #48–#57 (onboarding, wheel, bill split v2, fortune, light/dark switch, home v2, theme tokens + cute v2, SEO basics, invite deck v2).
+Agreed, not started, in this order:
+1. Full-month calendar `/calendar` (dots on days, tap a day → list; open from Home "สัปดาห์นี้มี n นัด") + a › chevron on every meetup row.
+2. "ดูทั้งหมด" pages for long sections (pending, friends' updates, titles, shared gangs, fortune history) + gang detail page (members, gang meetups, titles).
+3. Notifications page (the bell does nothing yet).
+4. Pets as layered parts (smooth motion, not image swaps) from `image/00…12-*.png` (real alpha, 2×3 grids of 512 px cells; parts sheets have no white border). Start with the dragon, show the user before continuing.
+Future idea (not approved, discuss later): meetups with strangers + gender/age filters and quotas — safety, verification, PDPA and chat need a decision first.
+Still open: run real vitest (`npm test -w apps/web`), PromptPay QR, backend auth/me connection.
