@@ -16,6 +16,8 @@ export const en: Messages = {
   },
   common: {
     seeAll: 'See all',
+    soundOn: 'Sound on, tap to mute',
+    soundOff: 'Sound off, tap to turn on',
     decrease: 'Decrease',
     increase: 'Increase',
     underConstruction: 'This page is being built',

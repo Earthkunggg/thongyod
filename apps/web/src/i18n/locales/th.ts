@@ -16,6 +16,8 @@ export const th = {
   },
   common: {
     seeAll: 'ดูทั้งหมด',
+    soundOn: 'เสียงเปิดอยู่ แตะเพื่อปิด',
+    soundOff: 'เสียงปิดอยู่ แตะเพื่อเปิด',
     decrease: 'ลด',
     increase: 'เพิ่ม',
     underConstruction: 'หน้านี้กำลังสร้าง',

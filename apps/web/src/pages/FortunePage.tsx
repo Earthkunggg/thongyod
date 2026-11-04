@@ -10,6 +10,9 @@ import { bangkokDayKey, drawForToday, levelOf, type Draw } from '@/features/fort
 import { loadDraw, saveDraw } from '@/features/fortune/storage'
 import { useShake } from '@/features/fortune/useShake'
 import { celebrate } from '@/lib/celebrate'
+import { SoundToggle } from '@/components/common/SoundToggle'
+import { playSound, unlockSound } from '@/lib/sound'
+import { useGameSound } from '@/lib/soundPrefs'
 import { appUrl, lineShareUrl } from '@/lib/share'
 import { cn } from '@/lib/utils'
 
@@ -26,12 +29,15 @@ export function FortunePage() {
   const [phase, setPhase] = useState<Phase>(draw ? 'card' : 'ready')
   const [alreadyToday] = useState(draw !== null)
   const timers = useRef<number[]>([])
+  const sound = useGameSound('fortune')
 
   useEffect(() => () => timers.current.forEach(window.clearTimeout), [])
 
   function reveal(next: Draw) {
     setPhase('card')
-    if (levelOf(next.stick) === 'great') celebrate()
+    const great = levelOf(next.stick) === 'great'
+    if (sound) playSound(great ? 'end' : 'correct')
+    if (great) celebrate()
   }
 
   function shake() {
@@ -42,6 +48,7 @@ export function FortunePage() {
       return
     }
     if (phase !== 'ready') return
+    unlockSound()
     const { draw: next } = drawForToday(new Date(), loadDraw())
     saveDraw(next)
     setDraw(next)
@@ -51,7 +58,16 @@ export function FortunePage() {
       return
     }
     setPhase('shaking')
-    timers.current = [window.setTimeout(() => setPhase('stick'), 700), window.setTimeout(() => reveal(next), 1150)]
+    // Rattle while the cup shakes, a pop when the stick jumps out (sound on by default, #46).
+    const rattle = sound ? [0, 110, 220, 330, 440, 550].map((ms) => window.setTimeout(() => playSound('tick', 1.6), ms)) : []
+    timers.current = [
+      ...rattle,
+      window.setTimeout(() => {
+        setPhase('stick')
+        if (sound) playSound('pop')
+      }, 700),
+      window.setTimeout(() => reveal(next), 1150),
+    ]
   }
 
   const { support, requestPermission } = useShake(shake, phase === 'ready')
@@ -75,9 +91,12 @@ export function FortunePage() {
         subtitle={t('fortune.subtitle')}
         backTo="/explore"
         action={
-          <Link to="/fortune/history" className={buttonVariants({ variant: 'ghost', size: 'icon' })} aria-label={t('fortune.history')}>
+          <span className="flex items-center">
+            <SoundToggle game="fortune" />
+            <Link to="/fortune/history" className={buttonVariants({ variant: 'ghost', size: 'icon' })} aria-label={t('fortune.history')}>
             <History className="size-5" />
-          </Link>
+            </Link>
+          </span>
         }
       />
 

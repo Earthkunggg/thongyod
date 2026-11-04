@@ -561,7 +561,7 @@ Please fold these into phase 1 (they change tables you just created). Ask me if 
 ## Not done yet (frontend backlog) — 2026-11-04
 
 - ~~PromptPay QR for หารบิล~~ — **built 2026-11-05 (DECISIONS #64)**. Original note: The one-phone split (`/bills`, DECISIONS #53) works without it; the QR would sit on each "ใครโอนให้ใคร" row. When built: payer enters their PromptPay ID once (kept on the device), each person gets a QR for their own amount. Verify the EMVCo/PromptPay payload format and any library license before building.
-- Sound effects (Kenney CC0 / ZzFX) for wheel and celebrations.
+- ~~Sound effects for wheel and celebrations~~ — built 2026-11-05 with Web Audio synthesis instead of files (DECISIONS #66).
 - Home pet card still shows the old cat; switch it to the hatched pet.
 - หารบิล later: uneven shares (e.g. 2 portions), sync a bill with the gang (backend), receipt photo (uploads paused).
 
@@ -618,3 +618,4 @@ Rules followed: user asked to push each feature straight to `main` only after li
 - **Game ideas** — `docs/GAME_IDEAS.md`: 16 proposals (party, study, pet, online) + recommended order. Waiting for Earth's choice; nothing built.
 - **PromptPay QR** (DECISIONS #64) — QR button on each transfer in หารบิล. Device only. Also `lib/id.ts` replaces `crypto.randomUUID` (https-only) in flashcards.
 - **Hatched pet on profiles** (DECISIONS #65). **Shared contract change (Codex, please confirm):** `packages/shared/src/home.ts` → `PetSummary.species?: string | null` (optional, so existing code still compiles). Values now: `dragon`, `fish`.
+- **Sounds** (DECISIONS #66) — wheel + เซียมซี, `SoundToggle`, `tickTimes` (tested).

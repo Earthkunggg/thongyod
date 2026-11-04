@@ -12,7 +12,10 @@ import { Input } from '@/components/ui/input'
 import { celebrate } from '@/lib/celebrate'
 import { markDone } from '@/features/daily/daily'
 import { getMyPet } from '@/features/onboarding/storage'
-import { MAX_OPTION_LENGTH, MAX_OPTIONS, MIN_OPTIONS, canSpin, normalizeOptions, spin } from '@/features/wheel/logic'
+import { MAX_OPTION_LENGTH, MAX_OPTIONS, MIN_OPTIONS, canSpin, normalizeOptions, spin, tickTimes } from '@/features/wheel/logic'
+import { SoundToggle } from '@/components/common/SoundToggle'
+import { playSound, unlockSound } from '@/lib/sound'
+import { useGameSound } from '@/lib/soundPrefs'
 import { loadOptions, saveOptions } from '@/features/wheel/storage'
 
 /** UX_GUIDELINES motion token `story`: ≤ 1200 ms, always skippable by tap. */
@@ -43,6 +46,14 @@ export function WheelPage() {
   const pending = useRef(0)
   const spinCount = useRef(0)
   const [species] = useState(() => getMyPet()?.species ?? 'dragon')
+  const sound = useGameSound('wheel')
+  /** Pending tick sounds of the current spin (cleared on skip / leave). */
+  const ticks = useRef<number[]>([])
+  const clearTicks = () => {
+    ticks.current.forEach((id) => window.clearTimeout(id))
+    ticks.current = []
+  }
+  useEffect(() => clearTicks, [])
 
   useEffect(() => saveOptions(options), [options])
 
@@ -67,6 +78,13 @@ export function WheelPage() {
     const instant = reducedMotion()
     setDuration(instant ? 0 : SPIN_MS)
     setRotation(next.rotation)
+    clearTicks()
+    if (sound && !instant) {
+      unlockSound()
+      // One soft tick each time the pointer passes a slice border, slowing down with the wheel.
+      const borders = Math.round(Math.abs(next.rotation - rotation) / (360 / count))
+      ticks.current = tickTimes(borders, SPIN_MS).map((ms) => window.setTimeout(() => playSound('tick', 0.8), ms))
+    }
     const id = ++spinCount.current
     pending.current = id
     if (instant) showResult()
@@ -77,6 +95,8 @@ export function WheelPage() {
   function showResult() {
     if (!pending.current) return
     pending.current = 0
+    clearTicks()
+    if (sound) playSound('end')
     setPhase('result')
     markDone('tool')
     celebrate()
@@ -113,7 +133,7 @@ export function WheelPage() {
 
   return (
     <>
-      <PageHeader title={t('wheel.title')} subtitle={t('wheel.subtitle')} backTo="/explore" />
+      <PageHeader title={t('wheel.title')} subtitle={t('wheel.subtitle')} backTo="/explore" action={<SoundToggle game="wheel" />} />
 
       <div className="flex flex-col gap-5 px-4 pb-8">
         <div className="mx-auto w-full max-w-[320px]">
