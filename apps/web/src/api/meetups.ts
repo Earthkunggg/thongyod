@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
-import type { ListMeetupsResponse, MeetupParticipationStatus, MeetupResponse } from '@thongyod/shared'
+import type { CreateMeetupRequest, ListMeetupsResponse, MeetupParticipationStatus, MeetupResponse } from '@thongyod/shared'
 import { apiFetch } from './client'
 import { profileKeys } from './profile'
 import type { Me, MeetupDetailFull, MeetupListItem } from './types'
@@ -115,5 +115,18 @@ export function useSetMeetupHidden() {
       context?.snapshot.forEach(([key, data]) => queryClient.setQueryData(key, data))
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: meetupKeys.all }),
+  })
+}
+
+/** Create a meetup. The server records the creator as "going". */
+export function useCreateMeetup() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (body: CreateMeetupRequest) =>
+      apiFetch<MeetupDetailFull>('/meetups', { method: 'POST', body: JSON.stringify(body) }),
+    onSuccess: (meetup) => {
+      queryClient.setQueryData(meetupKeys.detail(meetup.id), meetup)
+      void queryClient.invalidateQueries({ queryKey: meetupKeys.all })
+    },
   })
 }

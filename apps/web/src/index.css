@@ -206,7 +206,10 @@
     -webkit-tap-highlight-color: transparent;
   }
   html {
-    @apply font-sans;
+    @apply font-sans bg-background;
+    /* Phone browsers: no rubber-band scroll past the top/bottom of the page, so the fixed
+       tab bar never looks detached ("app feel"). Side effect: browser pull-to-refresh is off. */
+    overscroll-behavior-y: none;
   }
   h1, h2, h3 {
     @apply font-heading;

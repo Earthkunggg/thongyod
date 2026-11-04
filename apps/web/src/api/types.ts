@@ -14,13 +14,16 @@ export type PersonRef = {
   avatarUrl: string | null
 }
 
-// ---------- Friends (decision #34) ----------
+// ---------- Friends (decision #34, #43, #45) ----------
 
 /** How the signed-in user is related to another person. */
 export type Relationship = 'self' | 'none' | 'friend' | 'request_sent' | 'request_received'
 
-/** A person found by exact-name search or by a friend link. */
-export type UserCard = PersonRef & {
+/** A person with their unique @handle (decision #45). Display names may repeat. */
+export type PersonCard = PersonRef & { handle: string }
+
+/** A person found by handle or by a friend link. */
+export type UserCard = PersonCard & {
   /** Main title shown on the profile (e.g. "สายมู"), or null. */
   title: string | null
   mutualFriends: number
@@ -31,16 +34,16 @@ export type UserCard = PersonRef & {
 
 export type FriendRequest = {
   id: string
-  user: PersonRef
+  user: PersonCard
   mutualFriends: number
   createdAt: string
 }
 
-export type Friend = PersonRef & { title: string | null }
+/** Item of GET /friends?q&cursor&limit (paged, decision #43). */
+export type Friend = PersonCard & { title: string | null }
 
-/** GET /friends */
-export type FriendsOverview = {
-  friends: Friend[]
+/** GET /friends/requests */
+export type FriendRequests = {
   /** Requests other people sent me. */
   incoming: FriendRequest[]
   /** Requests I sent that are still waiting. */
@@ -50,15 +53,27 @@ export type FriendsOverview = {
 /** GET /friends/link. The frontend builds the URL: <origin>/add/<code>. */
 export type FriendLink = { code: string }
 
-// ---------- Profile (decision #36) ----------
+// ---------- Profile (decision #36, #44, #45) ----------
 
-/** GET /me — the signed-in user (basic). */
-export type Me = PersonRef & { title: string | null; bio: string | null }
+/** GET /me — the signed-in user. */
+export type Me = PersonCard & {
+  title: string | null
+  bio: string | null
+  coverUrl: string | null
+  /** When the handle may be changed again (once per 30 days); null = now. */
+  handleChangeableAt: string | null
+}
 
-/** PATCH /me. Name rules (decision #40): 2–20 characters, unique (case-insensitive). */
-export type UpdateMeRequest = { displayName?: string; bio?: string | null }
+/** PATCH /me. Names: 2–20 chars, may repeat. Handle: unique, see features/profile/validation.ts. */
+export type UpdateMeRequest = { displayName?: string; bio?: string | null; handle?: string }
 
-export type EarnedTitle = { id: string; name: string; gangName: string | null; earnedAt: string }
+export type EarnedTitle = {
+  id: string
+  name: string
+  /** null when earned outside a gang, or when I am not in that gang (privacy, #44). */
+  gangName: string | null
+  earnedAt: string
+}
 
 export type ProfileStats = {
   friends: number
@@ -67,10 +82,31 @@ export type ProfileStats = {
   meetupsAttended: number
 }
 
-/** GET /users/:id/profile (also for myself). Private fields (birthday, gender) are never included. */
+/**
+ * GET /users/:id/profile (also 'me'). Fields marked "friends" are null for non-friends (#44).
+ * Never includes birthday or gender.
+ */
 export type Profile = UserCard & {
-  bio: string | null
-  titles: EarnedTitle[]
-  stats: ProfileStats
-  pet: PetSummary | null
+  coverUrl: string | null
+  /** Up to 5 mutual friends (full list: GET /users/:id/mutual-friends). */
+  mutualPreview: PersonCard[]
+  /** Only gangs the viewer is also in. */
+  sharedGangs: { id: string; name: string }[]
+  /** friends */ bio: string | null
+  /** friends (not self) */ friendsSince: string | null
+  /** friends */ stats: ProfileStats | null
+  /** friends */ titles: EarnedTitle[] | null
+  /** friends */ pet: PetSummary | null
+  /** friends: up to 5 upcoming meetups where we both answered going. */
+  upcomingTogether: MeetupSummaryV1[] | null
 }
+
+// ---------- Gangs (minimal, for choosing a gang) ----------
+
+/** GET /gangs — gangs I am a member of. */
+export type GangSummary = { id: string; name: string; memberCount: number }
+
+// ---------- Paging (decision #43) ----------
+
+/** One page of a growing list. Pass `nextCursor` back as `cursor`; null = no more. Never parse a cursor. */
+export type CursorPage<T> = { items: T[]; nextCursor: string | null }

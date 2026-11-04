@@ -1,6 +1,6 @@
 import { useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { CalendarDays, Clock, EyeOff, Users } from 'lucide-react'
+import { CalendarDays, Clock, EyeOff, Send, Users } from 'lucide-react'
 import type { MeetupResponse } from '@thongyod/shared'
 import { ApiError } from '@/api/client'
 import { useMeetup } from '@/api/meetups'
@@ -15,11 +15,12 @@ import { SectionHeader } from '@/components/common/SectionHeader'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { HideMeetupButton } from '@/components/meetup/HideMeetupButton'
 import { ResponsePicker } from '@/components/meetup/ResponsePicker'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { canHide, isLocked } from '@/features/meetups/derive'
 import { useMeetupActions } from '@/features/meetups/useMeetupActions'
 import { formatDayLabel, formatFullDay, formatTime, formatTimeUntil } from '@/lib/date'
+import { appUrl, lineShareUrl } from '@/lib/share'
 
 type GroupKey = MeetupResponse | 'none'
 const GROUPS: { key: GroupKey; label: 'meetup.going' | 'meetup.maybe' | 'meetup.notGoing' | 'meetup.notAnswered' }[] = [
@@ -93,6 +94,21 @@ export function MeetupDetailPage() {
           <Users className="size-4" aria-hidden="true" />
           {t('meetup.createdBy', { name: meetup.createdBy.displayName })}
         </p>
+        <a
+          href={lineShareUrl(
+            t('meetup.shareText', {
+              title: meetup.title,
+              when: `${formatDayLabel(startsAt, now)} ${formatTime(startsAt)}`,
+              url: appUrl(`/meetups/${meetup.id}`),
+            }),
+          )}
+          target="_blank"
+          rel="noreferrer"
+          className={buttonVariants({ variant: 'outline', size: 'sm', className: 'mt-1' })}
+        >
+          <Send aria-hidden="true" />
+          {t('meetup.shareLine')}
+        </a>
       </Card>
 
       <section>

@@ -1,26 +1,39 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiFetch } from './client'
-import type { FriendLink, FriendRequest, FriendsOverview, UserCard } from './types'
+import { useCursorList } from './paging'
+import type { Friend, FriendLink, FriendRequest, FriendRequests, PersonCard, UserCard } from './types'
 
+/** Everything under 'friends' is refreshed after any friend action (lists, profiles, links). */
 export const friendKeys = {
   all: ['friends'] as const,
-  overview: ['friends', 'overview'] as const,
+  list: (q: string) => ['friends', 'list', q] as const,
+  requests: ['friends', 'requests'] as const,
   link: ['friends', 'link'] as const,
-  search: (name: string) => ['friends', 'search', name] as const,
+  byHandle: (handle: string) => ['friends', 'byHandle', handle] as const,
   byLink: (code: string) => ['friends', 'byLink', code] as const,
+  mutual: (userId: string) => ['friends', 'mutual', userId] as const,
 }
 
-export function useFriends() {
-  return useQuery({ queryKey: friendKeys.overview, queryFn: () => apiFetch<FriendsOverview>('/friends') })
+/** My friends, paged; `q` = part of a name or handle (decision #43). */
+export function useFriendList(q: string) {
+  return useCursorList<Friend>(friendKeys.list(q), '/friends', { q })
 }
 
-/** Exact-name search. Runs only when `name` is not empty (after the user presses search). */
-export function useUserSearch(name: string) {
+export function useFriendRequests() {
+  return useQuery({ queryKey: friendKeys.requests, queryFn: () => apiFetch<FriendRequests>('/friends/requests') })
+}
+
+/** Find a stranger by exact @handle (decision #45). Runs only when `handle` is not empty. */
+export function useHandleSearch(handle: string) {
   return useQuery({
-    queryKey: friendKeys.search(name),
-    queryFn: () => apiFetch<UserCard>(`/users/search?name=${encodeURIComponent(name)}`),
-    enabled: name !== '',
+    queryKey: friendKeys.byHandle(handle),
+    queryFn: () => apiFetch<UserCard>(`/users/search?handle=${encodeURIComponent(handle)}`),
+    enabled: handle !== '',
   })
+}
+
+export function useMutualFriends(userId: string) {
+  return useCursorList<PersonCard>(friendKeys.mutual(userId), `/users/${encodeURIComponent(userId)}/mutual-friends`)
 }
 
 /** The person who owns a friend link (/add/:code). */
@@ -35,7 +48,6 @@ export function useMyFriendLink() {
   return useQuery({ queryKey: friendKeys.link, queryFn: () => apiFetch<FriendLink>('/friends/link') })
 }
 
-/** Every friend mutation refreshes all friend data (lists, search results, link pages). */
 function useFriendMutation<TVars, TResult>(fn: (vars: TVars) => Promise<TResult>) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -67,4 +79,13 @@ export function useAcceptFriendRequest() {
 /** Decline (silent) or cancel a request. */
 export function useDeleteFriendRequest() {
   return useFriendMutation((requestId: string) => apiFetch<void>(`/friends/requests/${requestId}`, { method: 'DELETE' }))
+}
+
+/** Silent unfriend: the other person is not told; gangs stay the same. */
+export function useUnfriend() {
+  return useFriendMutation((userId: string) => apiFetch<void>(`/friends/${encodeURIComponent(userId)}`, { method: 'DELETE' }))
+}
+
+export function useBlockUser() {
+  return useFriendMutation((userId: string) => apiFetch<void>('/blocks', { method: 'POST', body: JSON.stringify({ userId }) }))
 }

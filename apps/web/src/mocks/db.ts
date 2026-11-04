@@ -5,12 +5,12 @@
 // - writes need the current scheduleVersion (#40)
 // Thai strings here are USER CONTENT (names, titles), not UI text.
 import type { HomeSummary, MeetupMember, MeetupParticipationStatus, MeetupResponse } from '@thongyod/shared'
-import type { MeetupDetailFull, MeetupListItem, PersonRef } from '@/api/types'
+import type { MeetupDetailFull, MeetupListItem, PersonCard, PersonRef } from '@/api/types'
 
 export const ME = 'u1'
 const LOCK_AFTER_MS = 10 * 60_000
 
-export type User = { id: string; name: string; title: string | null }
+export type User = { id: string; name: string; handle: string; title: string | null; avatarUrl: string | null; coverUrl: string | null }
 type Gang = { id: string; name: string; memberIds: string[] }
 type Answer = { response: MeetupResponse | null; hidden: boolean }
 type Meetup = {
@@ -24,20 +24,31 @@ type Meetup = {
   answers: Map<string, Answer>
 }
 
+const u = (id: string, name: string, handle: string, title: string | null = null): User => ({
+  id, name, handle, title, avatarUrl: null, coverUrl: null,
+})
+
 export const users: User[] = [
-  { id: 'u1', name: 'เอิร์ธ', title: 'สายเปย์' },
-  { id: 'u2', name: 'ต้น', title: 'ตัวตึงหมูกระทะ' },
-  { id: 'u3', name: 'เบียร์', title: 'นก' },
-  { id: 'u4', name: 'แอม', title: null },
-  { id: 'u5', name: 'พลอย', title: 'สายมู' },
-  { id: 'u6', name: 'กาย', title: null },
-  { id: 'u7', name: 'มายด์', title: null },
-  { id: 'u8', name: 'บอส', title: 'มาสาย' },
-  { id: 'u9', name: 'แบงค์', title: null },
+  u('u1', 'เอิร์ธ', 'earth_buu', 'สายเปย์'),
+  u('u2', 'ต้น', 'ton.cpe', 'ตัวตึงหมูกระทะ'),
+  u('u3', 'เบียร์', 'beer.bear', 'นก'),
+  u('u4', 'แอม', 'am_amm'),
+  u('u5', 'พลอย', 'ploy.mu', 'สายมู'),
+  u('u6', 'กาย', 'guy_gg'),
+  u('u7', 'มายด์', 'mind.m'),
+  u('u8', 'บอส', 'boss99', 'มาสาย'),
+  u('u9', 'แบงค์', 'bank.b'),
+  // Same display names as u2 / u3: handles tell them apart (decision #45).
+  u('u10', 'ต้น', 'ton.math'),
+  u('u11', 'เบียร์', 'beer_eng', 'สายกิน'),
+  // Many friends of u1 so the friend list needs paging (decision #43).
+  ...['ฟ้า', 'น้ำ', 'ปาล์ม', 'เจ', 'มิว', 'ไอซ์', 'ฝน', 'บีม', 'ตาล', 'โอ๊ต', 'แพร', 'เก่ง', 'นิว', 'ปุ้ย', 'ออม', 'จูน', 'เต้', 'แนน', 'กิ๊ฟ', 'เฟิร์ส', 'ปอ', 'มุก', 'โฟม', 'เอ็ม', 'ภูมิ'].map(
+    (name, i) => u(`u${20 + i}`, name, `friend${String(i + 1).padStart(2, '0')}`),
+  ),
 ]
 
 export const gangs: Gang[] = [
-  { id: 'g1', name: 'แก๊งคอม 66', memberIds: ['u1', 'u2', 'u3', 'u4', 'u5', 'u6'] },
+  { id: 'g1', name: 'แก๊งคอม 66', memberIds: ['u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u10'] },
   { id: 'g2', name: 'ทีมแบดวันพุธ', memberIds: ['u1', 'u2', 'u7', 'u8'] },
   { id: 'g3', name: 'เพื่อนมัธยม', memberIds: ['u1', 'u3', 'u5', 'u8'] },
 ]
@@ -86,7 +97,13 @@ const meetups: Meetup[] = [
   },
 ]
 
-export const person = (id: string): PersonRef => ({ userId: id, displayName: users.find((u) => u.id === id)?.name ?? '?', avatarUrl: null })
+export const userById = (id: string) => users.find((x) => x.id === id)
+export const person = (id: string): PersonRef => ({
+  userId: id,
+  displayName: userById(id)?.name ?? '?',
+  avatarUrl: userById(id)?.avatarUrl ?? null,
+})
+export const personCard = (id: string): PersonCard => ({ ...person(id), handle: userById(id)?.handle ?? '' })
 const gangOf = (m: Meetup) => gangs.find((g) => g.id === m.gangId)!
 const answerOf = (m: Meetup, userId: string): Answer => m.answers.get(userId) ?? { response: null, hidden: false }
 
@@ -194,6 +211,58 @@ export function setHidden(id: string, hidden: boolean): MutationResult {
     m.answers.set(ME, hidden ? { ...answerOf(m, ME), hidden: true } : { response: null, hidden: false })
     return null
   })
+}
+
+/** Title limit (proposal for the backend): 1-60 characters after trim. */
+const TITLE_MAX = 60
+/** How far ahead a meetup may start (proposal). */
+const MAX_AHEAD_MS = 365 * 24 * 3_600_000
+let nextMeetupId = 100
+
+export function listMyGangs(q = '') {
+  const needle = q.trim().toLowerCase()
+  return gangs
+    .filter((g) => g.memberIds.includes(ME) && g.name.toLowerCase().includes(needle))
+    .map((g) => ({ id: g.id, name: g.name, memberCount: g.memberIds.length }))
+}
+
+/** Gangs both I and `otherId` are in (#44: never reveal other gangs). */
+export function sharedGangs(otherId: string) {
+  return gangs.filter((g) => g.memberIds.includes(ME) && g.memberIds.includes(otherId)).map((g) => ({ id: g.id, name: g.name }))
+}
+
+/** Upcoming meetups where both answered going and neither hid it (max 5). */
+export function upcomingTogether(otherId: string): MeetupListItem[] {
+  const now = Date.now()
+  return meetups
+    .filter((m) => visibleToMe(m) && gangOf(m).memberIds.includes(otherId) && m.startsAt.getTime() > now)
+    .filter((m) => [ME, otherId].every((id) => answerOf(m, id).response === 'going' && !answerOf(m, id).hidden))
+    .sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())
+    .slice(0, 5)
+    .map(toListItem)
+}
+
+export function createMeetup(body: { gangId: string; title: string; startsAt: string }): MutationResult | { ok: false; status: number; code: string; field: string } {
+  const gang = gangs.find((g) => g.id === body.gangId)
+  if (!gang || !gang.memberIds.includes(ME)) return { ok: false, status: 404, code: 'GANG_NOT_FOUND', field: 'gangId' }
+  const title = body.title.trim()
+  if ([...title].length < 1 || [...title].length > TITLE_MAX) return { ok: false, status: 400, code: 'INVALID_REQUEST', field: 'title' }
+  const startsAt = new Date(body.startsAt)
+  if (Number.isNaN(startsAt.getTime()) || startsAt.getTime() <= Date.now() || startsAt.getTime() - Date.now() > MAX_AHEAD_MS) {
+    return { ok: false, status: 400, code: 'INVALID_REQUEST', field: 'startsAt' }
+  }
+  const meetup: Meetup = {
+    id: `m${nextMeetupId++}`,
+    gangId: gang.id,
+    title,
+    startsAt,
+    createdBy: ME,
+    createdAt: new Date(),
+    scheduleVersion: 1,
+    answers: answers([[ME, 'going']]), // creator counts as going
+  }
+  meetups.push(meetup)
+  return { ok: true, meetup: toDetail(meetup) }
 }
 
 export function getHome(): HomeSummary {

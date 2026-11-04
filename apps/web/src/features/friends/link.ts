@@ -1,7 +1,9 @@
+import { appUrl } from '@/lib/share'
+
 // Friend links look like <origin>/add/<code>. The QR code contains the same URL.
 
 export function friendLinkUrl(code: string): string {
-  return `${window.location.origin}/add/${encodeURIComponent(code)}`
+  return appUrl(`/add/${encodeURIComponent(code)}`)
 }
 
 /**
@@ -15,9 +17,4 @@ export function parseFriendLink(text: string): string | null {
   } catch {
     return null
   }
-}
-
-/** LINE share screen (works in LINE for iOS/Android; see developers.line.biz "LINE URL scheme"). */
-export function lineShareUrl(text: string): string {
-  return `https://line.me/R/share?text=${encodeURIComponent(text)}`
 }

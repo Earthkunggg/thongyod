@@ -8,32 +8,44 @@ type ListRowProps = {
   leading?: ReactNode
   title: string
   subtitle?: string
-  /** When set, the whole row is a link and shows a chevron. */
+  /** Link target. Without `trailing` the whole row is a link with a chevron;
+   *  with `trailing` only the left part (leading + text) is the link. */
   to?: string
-  /** Right side: e.g. buttons. Do not combine with `to` (no buttons inside links). */
+  /** Right side: e.g. buttons. Never inside the link. */
   trailing?: ReactNode
 }
 
 // One row inside a list card. Rows separate themselves with a top border.
 export function ListRow({ leading, title, subtitle, to, trailing }: ListRowProps) {
-  const content = (
+  const main = (
     <>
       {leading}
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium">{title}</span>
         {subtitle && <span className="block truncate text-xs text-muted-foreground">{subtitle}</span>}
       </span>
-      {trailing && <span className="flex shrink-0 items-center gap-2">{trailing}</span>}
-      {to && <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />}
     </>
   )
-  const classes = cn('flex min-h-14 items-center gap-3 py-2 [&+&]:border-t')
+  const row = 'flex min-h-14 items-center gap-3 py-2 [&+&]:border-t'
 
-  return to ? (
-    <Link to={to} className={cn(classes, 'active:opacity-70')}>
-      {content}
-    </Link>
-  ) : (
-    <div className={classes}>{content}</div>
+  if (to && !trailing) {
+    return (
+      <Link to={to} className={cn(row, 'active:opacity-70')}>
+        {main}
+        <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+      </Link>
+    )
+  }
+  return (
+    <div className={row}>
+      {to ? (
+        <Link to={to} className="flex min-w-0 flex-1 items-center gap-3 active:opacity-70">
+          {main}
+        </Link>
+      ) : (
+        main
+      )}
+      {trailing && <span className="flex shrink-0 items-center gap-2">{trailing}</span>}
+    </div>
   )
 }

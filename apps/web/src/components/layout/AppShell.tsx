@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router'
+import { Outlet, ScrollRestoration } from 'react-router'
 import { BottomNav } from './BottomNav'
 
 // Page frame for every tab: content area + fixed bottom tab bar.
@@ -9,6 +9,8 @@ export function AppShell() {
       {/* Bottom padding = tab bar height + phone safe area, so content is never hidden. */}
       <main className="pb-[calc(5rem+env(safe-area-inset-bottom))]">
         <Outlet />
+      {/* Back button returns to the same scroll position (decision #43). */}
+      <ScrollRestoration />
       </main>
       <BottomNav />
     </div>

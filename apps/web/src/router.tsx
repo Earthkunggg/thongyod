@@ -5,12 +5,14 @@ import { TOOLS } from '@/config/tools'
 import { EditProfilePage } from '@/pages/EditProfilePage'
 import { ExplorePage } from '@/pages/ExplorePage'
 import { AddFriendPage } from '@/pages/AddFriendPage'
+import { CreateMeetupPage } from '@/pages/CreateMeetupPage'
 import { FriendQrPage } from '@/pages/FriendQrPage'
 import { FriendsPage } from '@/pages/FriendsPage'
 import { GangsLayout } from '@/pages/GangsLayout'
 import { GangsPage } from '@/pages/GangsPage'
 import { HomePage } from '@/pages/HomePage'
 import { MeetupDetailPage } from '@/pages/MeetupDetailPage'
+import { MutualFriendsPage } from '@/pages/MutualFriendsPage'
 import { MePage } from '@/pages/MePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { PetPage } from '@/pages/PetPage'
@@ -24,7 +26,7 @@ const TAB_PATHS = ['/', '/gangs', '/explore', '/pet', '/me']
 
 // Ready tools without a real page yet get a placeholder.
 // When a tool page is built, add its route above this list and it will be skipped here.
-const BUILT_TOOL_PATHS: string[] = ['/quick-vote']
+const BUILT_TOOL_PATHS: string[] = ['/quick-vote', '/meetups/new']
 const placeholderToolRoutes: RouteObject[] = TOOLS.filter(
   (tool) => tool.status === 'ready' && tool.to && !TAB_PATHS.includes(tool.to) && !BUILT_TOOL_PATHS.includes(tool.to),
 ).map((tool) => ({ path: tool.to!.slice(1), element: <ToolPlaceholderPage toolId={tool.id} /> }))
@@ -55,10 +57,12 @@ export const router = createBrowserRouter([
     element: <SubPageShell />,
     children: [
       { path: 'quick-vote', element: <QuickVotePage /> },
+      { path: 'meetups/new', element: <CreateMeetupPage /> },
       { path: 'meetups/:id', element: <MeetupDetailPage /> },
       { path: 'friends/qr', element: <FriendQrPage /> },
       { path: 'add/:code', element: <AddFriendPage /> },
       { path: 'u/:userId', element: <UserProfilePage /> },
+      { path: 'u/:userId/mutual', element: <MutualFriendsPage /> },
       { path: 'me/edit', element: <EditProfilePage /> },
       { path: 'settings', element: <SettingsPage /> },
       ...placeholderToolRoutes,

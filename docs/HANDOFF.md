@@ -402,6 +402,103 @@ Deferred: capacity/waitlist, reconfirm on time change, attendance, guests, full 
   - `GET /users/:id/profile` (`me` allowed) → `Profile = UserCard & { bio, titles: {id, name, gangName|null, earnedAt}[], stats: {friends, gangs, meetupsAttended}, pet: PetSummary|null }`. Never birthday/gender. 404 `USER_NOT_FOUND` when blocked either way.
   - Home card order/visibility is in localStorage now; later `GET/PUT /me/preferences` (`homeSections: {order, hidden}` with ids `waiting|agenda|pending|pet|feed`).
 
+## Backend status — step 2 — 2026-11-03
+
+Sessions and local dev login are implemented. This supersedes the step-1 note that login routes did not exist. Step 3 (friends), real LINE Login, profile updates and profile-detail endpoints have NOT started. No apps/web file was edited.
+
+### Exact contracts
+
+All paths below are backend paths. Browser requests use `/api` in front of them; the existing Vite proxy strips `/api` and forwards to `http://127.0.0.1:3000`. No CORS setup is needed for that same-origin path.
+
+| Request | Success response |
+|---|---|
+| `GET /auth/dev/fixtures` | 200 JSON array: `[{ "fixtureKey": "earth", "displayName": "เอิร์ธ" }, ...]`; no wrapper, sorted by fixtureKey |
+| `POST /auth/dev/login` with JSON `{ "fixtureKey": "earth" }` | 200 `Me` plus Set-Cookie; rejects extra body fields, non-string keys and non-JSON Content-Type |
+| `GET /me` with the session cookie | 200 `Me` |
+| `POST /auth/logout` with the session cookie, no body required | 204, empty body, revokes current token and expires cookie; safe to repeat or call without a cookie |
+
+`Me` is exactly:
+
+```json
+{
+  "userId": "a-user-uuid",
+  "displayName": "เอิร์ธ",
+  "avatarUrl": null,
+  "title": "สายมู",
+  "bio": "ชอบนัดเพื่อนและลองร้านใหม่"
+}
+```
+
+userId/displayName are strings; avatarUrl/title/bio are string or null. The current seed's main_title_key supplies title. Birthday, gender, fixture key, token hash, raw token and session metadata never appear in Me. Successful login returns this same shape, not a token in JSON.
+
+Errors from the auth handlers use `{ "error": { "code": "..." } }`:
+
+| Status | Code | Meaning |
+|---|---|---|
+| 400 | INVALID_REQUEST | Invalid login body/content type |
+| 401 | UNAUTHENTICATED | Missing, malformed, duplicate, expired, revoked or disallowed-source session cookie |
+| 403 | DEV_ACCESS_DENIED | Non-loopback dev request or dev access no longer enabled |
+| 403 | ORIGIN_NOT_ALLOWED | Missing/disallowed Origin (or invalid safe-GET Referer fallback) |
+| 404 | FIXTURE_NOT_FOUND | Unknown fixture, missing seeded user or user linked to a real LINE identity |
+| 503 | AUTH_UNAVAILABLE | Database/auth storage unavailable; no driver details returned |
+
+Disabled dev routes and all production dev routes return normal Nest 404 (not an auth error envelope). Syntactically invalid JSON may be rejected by Nest's body parser before the auth handler with its standard 400 response.
+
+### Session behavior
+
+- Cookie name: `thongyod_session`; random 32-byte/256-bit opaque token, base64url encoded. Only SHA-256 hash is stored in auth_sessions. Cookie is HttpOnly, SameSite=Lax, Path=/, no Domain, Max-Age=2592000 and matching Expires. Local development uses HTTP; production cookie adds Secure.
+- Lifetime is fixed 30 * 24 hours from login, not sliding. Login creates a new session and revokes the cookie's previous session atomically; other browser profiles' sessions remain independent. Login failure does not revoke an existing session. Logout revokes even an expired presented token and expires the cookie.
+- Local-dev sessions are tagged local_dev and accepted only by the dev application with all flags still enabled and a valid local request. Production rejects them regardless of any environment flag. Generic session reading/revocation supports the line source for future LINE Login; no real LINE login endpoint was added.
+- Auth responses use Cache-Control: no-store. POST login/logout require an exact allowed Origin; login also requires JSON. Forwarded headers/userId headers do not establish identity. Local origins are `http://localhost:5173` and `http://127.0.0.1:5173`.
+- Browser same-origin GET may omit Origin, so dev fixtures and dev-session Me accept a Referer from one of those exact origins instead. Without both, send Origin explicitly in command-line tests. GET from a LAN Referer/Origin is rejected. The direct socket peer must be 127.0.0.1, ::1 or IPv4-mapped loopback; forwarded IPs are ignored. Backend still binds 127.0.0.1.
+- One cookie per browser profile: switching fixtures switches all ordinary tabs sharing that cookie. Use separate browser profiles for simultaneous users. Dev login is intentionally unavailable from phone/LAN origins, even through the web proxy; do not widen the allowlist to bypass this restriction.
+
+### Flags and build separation
+
+- Default ENABLE_DEV_LOGIN is unset/false. It must be exactly true to enable dev routes, with NODE_ENV=development and APP_ENV=local. Other boolean spellings fail closed. Enabling it in any other environment refuses startup.
+- `npm.cmd run dev:api` uses main.dev.ts. It checks local dev/test database settings and only exposes the 40 known seed fixture keys that are not linked to auth_identities. With the flag off, dev routes are absent (404).
+- `npm.cmd run build:api` remains the development/test/database-tools build in dist, preserving step-1 migrate/seed commands.
+- Production build: `npm.cmd run build:prod --workspace apps/api`; start: `npm.cmd run start --workspace apps/api`. tsconfig.prod.json outputs dist-prod and excludes main.dev, dev-auth, seed, seed-data and migration runner. No dev module is imported or emitted in that production artifact. The production entry additionally requires NODE_ENV=production, APP_ENV not local, and dev login off. Supply the exact HTTPS APP_ORIGIN for production logout CSRF checks; real deployment/LINE flow remains deferred.
+- `.env.example` documents ENABLE_DEV_LOGIN=false and APP_ORIGIN. No password or real session token is committed; the actual ignored `.env` is unchanged.
+
+### Shared contract changes
+
+- Added `packages/shared/src/auth.ts`: Me, DevLoginRequest, DevFixture, DevFixturesResponse, DevLoginResponse and AuthErrorResponse; all exported from the shared index.
+- Existing exported names and shapes remain unchanged. Shared index's existing meetup/home exports now use `.js` specifiers so both NodeNext backend and Bundler frontend resolve their TypeScript sources. Backend imports shared types through `@thongyod/shared` (declared workspace dependency), erased at runtime. Removed an accidentally generated, empty shared auth.js artifact; auth.ts remains the source.
+- Claude can replace the provisional frontend Me with shared Me without changing fields. No frontend file was changed. Keep other mocks until their endpoints exist; step 2 does not implement friends, meetups, PATCH /me, /users/:id/profile or /home.
+
+### How to test (Command Prompt, from repository root)
+
+In the terminal running the API:
+
+```cmd
+set NODE_ENV=development
+set APP_ENV=local
+set ENABLE_DEV_LOGIN=true
+npm run dev:api
+```
+
+Run the frontend separately with `npm run dev:web`. Its Origin is `http://localhost:5173`. For manual requests use PowerShell (no secrets need typing):
+
+```powershell
+$session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+$headers = @{ Origin = 'http://localhost:5173' }
+Invoke-RestMethod http://localhost:5173/api/auth/dev/fixtures -Headers $headers
+Invoke-RestMethod http://localhost:5173/api/auth/dev/login -Method Post -Headers $headers -ContentType 'application/json' -Body '{"fixtureKey":"earth"}' -WebSession $session
+Invoke-RestMethod http://localhost:5173/api/me -Headers $headers -WebSession $session
+Invoke-RestMethod http://localhost:5173/api/auth/dev/login -Method Post -Headers $headers -ContentType 'application/json' -Body '{"fixtureKey":"ton"}' -WebSession $session
+Invoke-RestMethod http://localhost:5173/api/me -Headers $headers -WebSession $session
+Invoke-WebRequest http://localhost:5173/api/auth/logout -Method Post -Headers $headers -WebSession $session -UseBasicParsing
+```
+
+After logout, GET /api/me with the same session returns 401. API-only tests can replace `http://localhost:5173/api` with `http://127.0.0.1:3000`, retaining the Origin header and using a separate cookie session for that host. Do not print or share the cookie jar/token. Disable dev login by stopping the server, setting ENABLE_DEV_LOGIN=false and restarting: fixture/login routes should be 404.
+
+Automated verification: `npm.cmd run test:api` builds dev and production outputs, then runs tests serially against the separate local test DB. Tests cover flags, socket/Origin checks, cookies and hash-only storage, 30-day lifetime, rotation/failure preservation, expiry, logout, Me privacy, fixture restrictions, disabled routes, production source exclusion, actual production 404/startup refusal, and production rejection of local_dev sessions. Existing step-1 tests remain included. No seed/reset of the dev database is performed by these auth tests.
+
+Result for this round: all 9 tests passed, none skipped. Shared strict compilation and frontend TypeScript check passed. Actual root dev script started successfully and returned 40 fixtures; the already-running frontend proxy at `http://localhost:5173/api/auth/dev/fixtures` also returned the same 40 fixtures with Origin `http://localhost:5173`. The temporary API smoke-test process was stopped. No app password/cookie was printed, and the ignored env file was not changed.
+
+References checked: [Nest guards](https://docs.nestjs.com/guards), [Node HTTP headers/socket](https://nodejs.org/api/http.html), [Set-Cookie attributes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie). Stop after step 2; wait for user approval before step 3.
+
 ### Frontend status — V1 migration — 2026-11-03 — Claude (frontend)
 
 - The web app now uses your V1 meetup types from `packages/shared` (DECISIONS #41). My old provisional meetup types (`myHidden`, `goingPreview`, `createdByMe`, `answersLockAt`, member `isMe`) are gone; ignore them in the requests above.
@@ -412,4 +509,39 @@ Deferred: capacity/waitlist, reconfirm on time change, attendance, guests, full 
   - Errors handled: `RESPONSE_LOCKED`, `MEETUP_VERSION_CONFLICT`, `CREATOR_CANNOT_HIDE`, `MEETUP_NOT_FOUND` (404), `INVALID_REQUEST`.
   - "Me" detection uses `GET /me` userId compared with `createdBy.userId` and `members[].userId`.
 - Per-area mock switch: `apps/web/.env.local` → `VITE_API_MOCKS=friends,meetups,home` keeps those mocked and sends `auth` and `me` to your API. Tell me when each area is ready.
+- **Create meetup (#42), used by the frontend now:**
+  - `GET /gangs` → `GangSummary[] = { id, name, memberCount }[]` (gangs I belong to). Provisional type in `apps/web/src/api/types.ts`; please add a real one to `packages/shared`.
+  - `POST /meetups` body `CreateMeetupRequest { gangId, title, startsAt }` → **201 `MeetupDetailV1`** with the creator already `going`. Errors: 404 `GANG_NOT_FOUND` (or not a member), 400 `INVALID_REQUEST` with `field: 'title' | 'startsAt'` (title 1–60 code points after trim; startsAt in the future, ≤ 365 days ahead). Please confirm or tell me your limits.
+  - Mock: `apps/web/src/mocks/db.ts` → `createMeetup`, `listMyGangs`.
+
+## Change request — handles, photos, paging — 2026-11-03 — user approved (DECISIONS #43–#45)
+
+Please fold these into phase 1 (they change tables you just created). Ask me if anything conflicts with your schema.
+
+### Users
+- New `handle`: 4–20 chars, regex `^[a-z][a-z0-9._]{3,19}$` after lowercasing, unique case-insensitive. Store lowercase. `handleChangedAt`; change allowed once per 30 days → 429 `HANDLE_CHANGE_TOO_SOON` with `retryAt`. 409 `HANDLE_TAKEN`, 400 `INVALID_HANDLE`.
+- **Display names are no longer unique** (drop that constraint; keep 2–20 chars + allowed chars of #40).
+- `avatarUrl` (uploaded or LINE), `coverUrl` (null = theme color). `friendsSince` per friendship.
+- Seed: give every user a handle (e.g. `earth_buu`, `ton.cpe`); add a few duplicate display names (e.g. two "ต้น", two "เบียร์") to test.
+- `Me` gains `handle`, `handleChangeableAt` (null = can change now), `coverUrl`. `PATCH /me` accepts `handle`.
+
+### Photos
+- `POST /me/avatar` and `POST /me/cover`, `multipart/form-data` field `file`; `DELETE /me/avatar`, `DELETE /me/cover`. Return updated `Me`.
+- Max 5 MB, JPEG/PNG/WebP (check magic bytes, not only the content type). Re-encode on the server (strip EXIF/GPS), avatar 512×512, cover 1500×500, WebP. Random file names; never use the client file name. 413 `FILE_TOO_LARGE`, 415 `UNSUPPORTED_IMAGE`.
+- Dev: store under an ignored local folder and serve read-only under `/files/...` (through the same `/api` proxy). Production storage: decide later (do not pick a paid service). Pick an image library with a free license and tell me which (check license first).
+
+### Search and lists (all `{ items, nextCursor }`, default limit 20, max 50)
+- Find a stranger: `GET /users/search?handle=` exact (case-insensitive) → `UserCard` or 404 `USER_NOT_FOUND`. **Remove name search for strangers.**
+- `GET /friends?q=&cursor=&limit=` → my friends, `q` = partial match on display name or handle (case-insensitive), sorted by display name then id.
+- `GET /friends/requests` → `{ incoming: FriendRequest[], outgoing: FriendRequest[] }` (small; no paging).
+- `GET /gangs?q=&cursor=&limit=` → my gangs `{ id, name, memberCount }`.
+- `GET /users/:id/mutual-friends?cursor=&limit=` → PersonRef + handle.
+- Feed and gang members will use the same pattern later.
+
+### Profiles (`GET /users/:id/profile`, `me` allowed)
+- Everyone (non-blocked): userId, displayName, handle, avatarUrl, coverUrl, title, relationship, requestId, mutualFriends (count), mutualPreview (≤5 PersonRef), sharedGangs `{id,name}[]` (only gangs the viewer is also in).
+- Friends and self also get: bio, friendsSince (friends only), stats, titles (`gangName` = null when the viewer is not in that gang), pet, upcomingTogether (≤5 `MeetupSummaryV1`, both going, visible to the viewer, not hidden by either).
+- Non-friends: those extra fields are **absent or null** (decide and tell me which).
+- Blocked either way → 404 `USER_NOT_FOUND`.
+- `DELETE /friends/:userId` (unfriend, silent, 204). `POST /blocks {userId}` (204; also removes friendship and pending requests both ways), `DELETE /blocks/:userId`. In shared gangs both stay visible to each other (#44).
 

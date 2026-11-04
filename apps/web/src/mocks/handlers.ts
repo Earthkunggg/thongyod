@@ -3,7 +3,7 @@
 import { delay } from 'msw'
 import { http, HttpResponse } from 'msw/http'
 import type { MeetupResponse } from '@thongyod/shared'
-import { getHome, getMeetup, listMeetups, ME, setHidden, setResponse, type MutationResult, type Visibility } from './db'
+import { createMeetup, getHome, getMeetup, listMeetups, listMyGangs, ME, setHidden, setResponse, type MutationResult, type Visibility } from './db'
 import * as friends from './friends'
 import * as profiles from './profiles'
 
@@ -22,6 +22,17 @@ const errorBody = (status: number, code: string) => HttpResponse.json({ error: {
 function replyFriend(result: friends.FriendResult, okStatus = 200) {
   if (!result.ok) return errorBody(result.status, result.code)
   return result.data === null ? new HttpResponse(null, { status: 204 }) : HttpResponse.json(result.data, { status: okStatus })
+}
+
+function replyMe(result: profiles.ProfileResult) {
+  if (result.ok) return HttpResponse.json(result.me)
+  return HttpResponse.json({ error: { code: result.code, retryAt: result.retryAt } }, { status: result.status })
+}
+
+/** Paged list limit: default 20, max 50 (decision #43). null = invalid. */
+function listLimit(url: URL): number | null {
+  const limit = Number(url.searchParams.get('limit') ?? 20)
+  return Number.isInteger(limit) && limit >= 1 && limit <= 50 ? limit : null
 }
 
 const invalid = (field: string) => HttpResponse.json({ error: { code: 'INVALID_REQUEST', field } }, { status: 400 })
@@ -49,6 +60,18 @@ export const handlers = [
     const items = all.slice(offset, offset + limit)
     // Mock cursor = offset as text. The real API uses an opaque cursor: never parse it.
     return HttpResponse.json({ items, nextCursor: offset + limit < all.length ? String(offset + limit) : null })
+  }),
+
+  http.post('/api/meetups', async ({ request }) => {
+    await delay(LATENCY_MS)
+    const body = (await request.json().catch(() => null)) as Record<string, unknown> | null
+    if (!body || typeof body.gangId !== 'string') return invalid('gangId')
+    if (typeof body.title !== 'string') return invalid('title')
+    if (typeof body.startsAt !== 'string') return invalid('startsAt')
+    const result = createMeetup({ gangId: body.gangId, title: body.title, startsAt: body.startsAt })
+    if (result.ok) return HttpResponse.json(result.meetup, { status: 201 })
+    const field = 'field' in result ? result.field : undefined
+    return HttpResponse.json({ error: { code: result.code, field } }, { status: result.status })
   }),
 
   http.get('/api/meetups/:id', async ({ params }) => {
@@ -79,18 +102,44 @@ export const handlers = [
     return reply(setHidden(String(params.id), body.hidden))
   }),
 
-  // ---------- Friends ----------
-  http.get('/api/friends', async () => {
+  // ---------- Gangs ----------
+  http.get('/api/gangs', async ({ request }) => {
     await delay(LATENCY_MS)
-    return HttpResponse.json(friends.getOverview())
+    const url = new URL(request.url)
+    const limit = listLimit(url)
+    if (limit === null) return invalid('limit')
+    return HttpResponse.json(friends.page(listMyGangs(url.searchParams.get('q') ?? ''), url.searchParams.get('cursor'), limit))
+  }),
+
+  // ---------- Friends ----------
+  http.get('/api/friends', async ({ request }) => {
+    await delay(LATENCY_MS)
+    const url = new URL(request.url)
+    const limit = listLimit(url)
+    if (limit === null) return invalid('limit')
+    return HttpResponse.json(friends.listFriends(url.searchParams.get('q') ?? '', url.searchParams.get('cursor'), limit))
+  }),
+
+  http.get('/api/friends/requests', async () => {
+    await delay(LATENCY_MS)
+    return HttpResponse.json(friends.getRequests())
   }),
 
   http.get('/api/users/search', async ({ request }) => {
     await delay(LATENCY_MS)
-    const name = new URL(request.url).searchParams.get('name') ?? ''
-    if (name.trim() === '') return invalid('name')
-    const found = friends.searchByName(name)
+    const handle = new URL(request.url).searchParams.get('handle') ?? ''
+    if (handle.trim() === '') return invalid('handle')
+    const found = friends.searchByHandle(handle)
     return found ? HttpResponse.json(found) : errorBody(404, 'USER_NOT_FOUND')
+  }),
+
+  http.get('/api/users/:id/mutual-friends', async ({ params, request }) => {
+    await delay(LATENCY_MS)
+    const url = new URL(request.url)
+    const limit = listLimit(url)
+    if (limit === null) return invalid('limit')
+    const result = friends.listMutual(String(params.id), url.searchParams.get('cursor'), limit)
+    return result ? HttpResponse.json(result) : errorBody(404, 'USER_NOT_FOUND')
   }),
 
   http.get('/api/friends/link', async () => {
@@ -126,6 +175,18 @@ export const handlers = [
     return replyFriend(friends.deleteRequest(String(params.id)))
   }),
 
+  http.delete('/api/friends/:userId', async ({ params }) => {
+    await delay(LATENCY_MS)
+    return replyFriend(friends.unfriend(String(params.userId)))
+  }),
+
+  http.post('/api/blocks', async ({ request }) => {
+    await delay(LATENCY_MS)
+    const body = (await request.json().catch(() => null)) as { userId?: unknown } | null
+    if (!body || typeof body.userId !== 'string') return invalid('userId')
+    return replyFriend(friends.block(body.userId))
+  }),
+
   // ---------- Profile ----------
   http.get('/api/me', async () => {
     await delay(LATENCY_MS)
@@ -137,10 +198,24 @@ export const handlers = [
     const body = (await request.json().catch(() => null)) as Record<string, unknown> | null
     if (!body) return invalid('body')
     if (body.displayName !== undefined && typeof body.displayName !== 'string') return invalid('displayName')
+    if (body.handle !== undefined && typeof body.handle !== 'string') return invalid('handle')
     if (body.bio !== undefined && body.bio !== null && typeof body.bio !== 'string') return invalid('bio')
-    const result = profiles.updateMe(body as { displayName?: string; bio?: string | null })
-    return result.ok ? HttpResponse.json(result.me) : errorBody(result.status, result.code)
+    return replyMe(profiles.updateMe(body as { displayName?: string; bio?: string | null; handle?: string }))
   }),
+
+  ...(['avatar', 'cover'] as const).flatMap((kind) => [
+    http.post(`/api/me/${kind}`, async ({ request }) => {
+      await delay(LATENCY_MS)
+      const form = await request.formData().catch(() => null)
+      const file = form?.get('file')
+      if (!(file instanceof File)) return invalid('file')
+      return replyMe(await profiles.setPhoto(kind, file))
+    }),
+    http.delete(`/api/me/${kind}`, async () => {
+      await delay(LATENCY_MS)
+      return replyMe(await profiles.setPhoto(kind, null))
+    }),
+  ]),
 
   http.get('/api/users/:id/profile', async ({ params }) => {
     await delay(LATENCY_MS)
