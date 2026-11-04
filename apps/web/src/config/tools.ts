@@ -14,6 +14,7 @@ import {
   Palette,
   Receipt,
   Shuffle,
+  Smartphone,
   Timer,
   ThumbsUp,
   type LucideIcon,
@@ -22,6 +23,7 @@ import {
 export type ToolId =
   | 'createMeetup'
   | 'quickVote'
+  | 'headsUp'
   | 'wheel'
   | 'fortune'
   | 'restaurantVote'
@@ -48,6 +50,7 @@ export type Tool = {
 export const TOOLS: Tool[] = [
   { id: 'createMeetup', icon: CalendarPlus, group: 'friends', status: 'ready', to: '/meetups/new', featured: true },
   { id: 'quickVote', icon: CheckSquare, group: 'friends', status: 'ready', to: '/quick-vote' },
+  { id: 'headsUp', icon: Smartphone, group: 'friends', status: 'ready', to: '/head-guess' },
   { id: 'restaurantVote', icon: ThumbsUp, group: 'friends', status: 'ready', to: '/restaurant-vote' },
   { id: 'splitBill', icon: Receipt, group: 'friends', status: 'ready', to: '/bills' },
   { id: 'wheel', icon: LoaderPinwheel, group: 'solo', status: 'ready', to: '/wheel' },

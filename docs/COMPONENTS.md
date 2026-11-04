@@ -64,7 +64,13 @@
 | NumberStepper | `src/components/common/NumberStepper.tsx` | ours | − value + for small whole numbers | value, onChange, min, max, label | |
 | Quick vote screens | `src/features/quick-vote/*.tsx` | ours | SetupForm, VoteScreen, HandoffScreen, ResultView, TieDialog | — | Feature-only; logic in `logic.ts` (tested) |
 
+| Heads-up screens | `src/features/heads-up/{SetupScreen,PlayScreen,ResultScreen}.tsx` | ours | ใบ้บนหัว setup / full-screen round / result | see files | Feature-only; logic in `logic.ts` (tested), sensors in `useTilt.ts`. |
+
 ## Shared hooks (not components, but reuse them the same way)
+
+- `src/lib/sound.ts` → `unlockSound()` (call in a tap), `playSound(name)`, `buzz(pattern)`: short synthesized game sounds + Android vibration. Reuse for the wheel, celebrations and other games.
+- `src/features/heads-up/useTilt.ts` → `tiltSupport()`, `requestTiltPermission()`, `useTiltStream(active, onZ)` (with 1.5 s watchdog), `useWakeLock(active)`, `enterLandscape()` / `leaveLandscape()`.
+- `src/config/wordPacks.ts` → `WORD_PACKS`: word packs for word games (reuse for future word games).
 
 - `src/features/fortune/useShake.ts` → `useShake(onShake, enabled)` + `createShakeDetector()` (pure, tested): phone-shake input with iOS permission handling. Reuse for any shake feature; the tilt game needs its own tilt detector (UX_GUIDELINES §4).
 - `src/lib/tones.ts` → `TONE_CLASS`, `TONE_TEXT`, `tintClass(n)`: theme-aware colors (DECISIONS #55).

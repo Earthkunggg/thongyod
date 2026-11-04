@@ -12,7 +12,7 @@ const ITEMS: Item[] = [
   { key: 'whoPays', to: '/wheel?preset=whoPays', icon: LoaderPinwheel, tone: tintClass(3) },
   { key: 'jot', to: '/bills', icon: Receipt, tone: tintClass(2) },
   { key: 'vote', to: '/quick-vote', icon: CheckSquare, tone: tintClass(5) },
-  { key: 'headsUp', to: '/explore', icon: Smartphone, tone: tintClass(8), soon: true },
+  { key: 'headsUp', to: '/head-guess', icon: Smartphone, tone: tintClass(8) },
 ]
 
 // "ลองเล่นเลย": a sideways row of ideas that open a tool (Steam-style discovery row).
@@ -26,7 +26,7 @@ export function DiscoverRow() {
           <Link key={key} to={to} className={cn('flex w-40 shrink-0 snap-start flex-col gap-1 rounded-2xl p-3 active:opacity-90', tone)}>
             <Icon className="size-6" aria-hidden="true" />
             <span className="mt-1 text-sm font-medium">{t(`home.discover.${key}.title`)}</span>
-            <span className="text-xs opacity-80">{soon || key === 'headsUp' ? t('explore.soon') : t(`home.discover.${key}.text`)}</span>
+            <span className="text-xs opacity-80">{soon ? t('explore.soon') : t(`home.discover.${key}.text`)}</span>
           </Link>
         ))}
       </HScroll>
