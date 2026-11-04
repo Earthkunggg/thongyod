@@ -1,0 +1,1 @@
+{ "extends": "./tsconfig.app.json", "compilerOptions": { "types": [], "noEmit": true, "paths": { "@/*": ["./src/*"], "@thongyod/shared": ["../../packages/shared/src/index.ts"] } } }

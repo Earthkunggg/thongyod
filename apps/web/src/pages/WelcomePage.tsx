@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Check, HelpCircle, X } from 'lucide-react'
+import { ModeChoice } from '@/components/common/ModeChoice'
 import { SwipeDeck, type SwipeAction, type SwipeDir } from '@/components/common/SwipeDeck'
 import { Egg, type EggStyle } from '@/components/pet/Egg'
 import { Pet } from '@/components/pet/Pet'
@@ -9,7 +10,7 @@ import type { PetSpeciesId } from '@/components/pet/species'
 import { Button } from '@/components/ui/button'
 import { finishOnboarding, getMyPet, saveMyPet } from '@/features/onboarding/storage'
 import { secureRandomInt } from '@/lib/random'
-import { getTheme, setTheme, type Theme } from '@/lib/theme'
+import { getMode, getTheme, setMode, setTheme, type Mode, type Theme } from '@/lib/theme'
 import { cn } from '@/lib/utils'
 
 // First launch (DECISIONS #46/#47, UX_GUIDELINES §7): ≤ 4 screens, skippable, ends with the pet hatch.
@@ -127,6 +128,7 @@ function Practice({ onNext }: { onNext: () => void }) {
 function ThemeStep({ onNext }: { onNext: () => void }) {
   const { t } = useTranslation()
   const [theme, setThemeState] = useState<Theme>(getTheme)
+  const [mode, setModeState] = useState<Mode>(getMode)
   const options: { value: Theme; label: string }[] = [
     { value: 'default', label: t('pages.me.themeDefault') },
     { value: 'cute', label: t('pages.me.themeCute') },
@@ -158,6 +160,13 @@ function ThemeStep({ onNext }: { onNext: () => void }) {
           </button>
         ))}
       </div>
+      <ModeChoice
+        value={mode}
+        onChange={(next) => {
+          setMode(next)
+          setModeState(next)
+        }}
+      />
       <Button size="lg" onClick={onNext}>
         {t('welcome.next')}
       </Button>

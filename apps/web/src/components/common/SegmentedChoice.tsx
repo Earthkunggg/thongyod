@@ -1,6 +1,7 @@
+import type { LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-type Option<T extends string> = { value: T; label: string }
+type Option<T extends string> = { value: T; label: string; icon?: LucideIcon }
 
 type SegmentedChoiceProps<T extends string> = {
   options: Option<T>[]
@@ -26,6 +27,7 @@ export function SegmentedChoice<T extends string>({ options, value, onChange, la
           disabled={disabled}
           onClick={() => onChange(option.value)}
         >
+          {option.icon && <option.icon data-icon="inline-start" />}
           {option.label}
         </Button>
       ))}

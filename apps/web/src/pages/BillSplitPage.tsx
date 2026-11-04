@@ -27,6 +27,13 @@ export function BillSplitPage() {
   useEffect(() => saveDraft(draft), [draft])
 
   const { result, badItems, totalInvalid } = checkDraft(draft)
+
+  /** Editing the bill: if anyone's amount changes, the "จ่ายแล้ว" ticks no longer apply. */
+  function update(next: BillDraft) {
+    const before = result?.amounts.join()
+    const after = checkDraft(next).result?.amounts.join()
+    setDraft(before === after ? next : { ...next, paid: [] })
+  }
   const nameOf = (i: number) => draft.people[i].trim() || t('billSplit.personN', { n: i + 1 })
 
   function togglePaid(index: number) {
@@ -56,12 +63,12 @@ export function BillSplitPage() {
 
       {view === 'edit' || !result ? (
         <div className="flex flex-col gap-6 px-4">
-          <PeopleSection draft={draft} onChange={setDraft} />
+          <PeopleSection draft={draft} onChange={update} />
 
           <SegmentedChoice<BillDraft['mode']>
             label={t('billSplit.mode')}
             value={draft.mode}
-            onChange={(mode) => setDraft({ ...draft, mode })}
+            onChange={(mode) => update({ ...draft, mode })}
             options={[
               { value: 'equal', label: t('billSplit.modeEqual') },
               { value: 'items', label: t('billSplit.modeItems') },
@@ -78,7 +85,7 @@ export function BillSplitPage() {
                   placeholder="0"
                   aria-invalid={totalInvalid || undefined}
                   className="h-14 pr-14 text-right text-2xl tabular-nums"
-                  onChange={(e) => setDraft({ ...draft, totalText: e.target.value })}
+                  onChange={(e) => update({ ...draft, totalText: e.target.value })}
                 />
                 <span className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-muted-foreground">{t('billSplit.bahtUnit')}</span>
               </div>
@@ -89,7 +96,7 @@ export function BillSplitPage() {
               )}
             </label>
           ) : (
-            <ItemsSection draft={draft} badItems={badItems} onChange={setDraft} />
+            <ItemsSection draft={draft} badItems={badItems} onChange={update} />
           )}
 
           <SummaryBar draft={draft} result={result} onReceipt={() => setView('receipt')} />

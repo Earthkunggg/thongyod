@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Cake, Circle, CircleCheck, Receipt, Wallet } from 'lucide-react'
 import { Avatar } from '@/components/common/Avatar'
 import { formatBaht } from '@/lib/money'
 import { cn } from '@/lib/utils'
@@ -23,7 +24,10 @@ export function ReceiptView({ draft, result, onTogglePaid }: Props) {
       onPointerDown={() => setSkip(true)}
     >
       <div className="receipt-line mb-3 text-center" style={{ animationDelay: '0ms' }}>
-        <p className="font-sans text-lg font-medium">🧾 {t('billSplit.receiptTitle')}</p>
+        <p className="flex items-center justify-center gap-2 font-sans text-lg font-medium">
+          <Receipt className="size-5" aria-hidden="true" />
+          {t('billSplit.receiptTitle')}
+        </p>
         <p className="font-sans text-xs text-muted-foreground">{t('billSplit.payTo', { name: payerName })}</p>
       </div>
 
@@ -36,31 +40,44 @@ export function ReceiptView({ draft, result, onTogglePaid }: Props) {
           const paid = draft.paid.includes(i)
           return (
             <li key={i} className="receipt-line" style={{ animationDelay: `${(i + 1) * step}ms` }}>
-              <button
-                type="button"
-                disabled={auto}
-                aria-pressed={auto ? undefined : paid}
-                aria-label={auto ? undefined : t(paid ? 'billSplit.markUnpaid' : 'billSplit.markPaid', { name })}
-                onClick={() => onTogglePaid(i)}
-                className="relative flex w-full items-center gap-3 py-2.5 text-left font-sans disabled:opacity-100"
-              >
-                <Avatar name={name} className={personColor(i)} />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium">{name}</span>
-                  {auto && <span className="block text-xs text-muted-foreground">{treated ? t('billSplit.treatedTag') : t('billSplit.payerTag')}</span>}
-                </span>
-                <span className={cn('font-mono text-base tabular-nums', (paid || auto) && 'text-muted-foreground')}>
-                  {formatBaht(treated ? 0 : result.amounts[i])}
-                </span>
-                {paid && !auto && (
-                  <span
-                    className="paid-stamp pointer-events-none absolute top-1/2 right-16 -mt-3.5 rounded-md border-2 border-red-500 px-1.5 text-sm font-bold text-red-500"
-                    aria-hidden="true"
-                  >
-                    {t('billSplit.paidStamp')}
+              {auto ? (
+                // Payer and treated people never transfer anything: a plain row, not a button.
+                <div className="flex items-center gap-3 py-2.5 font-sans">
+                  <Avatar name={name} className={personColor(i)} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium">{name}</span>
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                      {treated ? <Cake className="size-3.5" aria-hidden="true" /> : <Wallet className="size-3.5" aria-hidden="true" />}
+                      {treated ? t('billSplit.treatedTag') : t('billSplit.payerTag')}
+                    </span>
                   </span>
-                )}
-              </button>
+                  <span className="text-right">
+                    <span className="block font-mono text-base text-muted-foreground tabular-nums">{formatBaht(treated ? 0 : result.amounts[i])}</span>
+                    <span className="block text-xs text-muted-foreground">{t('billSplit.noTransfer')}</span>
+                  </span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  aria-pressed={paid}
+                  aria-label={t(paid ? 'billSplit.markUnpaid' : 'billSplit.markPaid', { name })}
+                  onClick={() => onTogglePaid(i)}
+                  className="relative flex w-full items-center gap-3 py-2.5 text-left font-sans active:bg-muted/50"
+                >
+                  <Avatar name={name} className={personColor(i)} />
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium">{name}</span>
+                  <span className={cn('font-mono text-base tabular-nums', paid && 'text-muted-foreground line-through')}>{formatBaht(result.amounts[i])}</span>
+                  {paid ? <CircleCheck className="size-6 shrink-0 text-primary" aria-hidden="true" /> : <Circle className="size-6 shrink-0 text-muted-foreground/50" aria-hidden="true" />}
+                  {paid && (
+                    <span
+                      className="paid-stamp pointer-events-none absolute top-1/2 right-24 -mt-3.5 rounded-md border-2 border-red-500 px-1.5 text-sm font-bold text-red-500"
+                      aria-hidden="true"
+                    >
+                      {t('billSplit.paidStamp')}
+                    </span>
+                  )}
+                </button>
+              )}
             </li>
           )
         })}

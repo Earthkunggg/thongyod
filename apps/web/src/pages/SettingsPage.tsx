@@ -4,6 +4,7 @@ import { Bell, ChevronDown, ChevronUp, Lock, MessageCircle, Sparkles } from 'luc
 import { IconTile } from '@/components/common/IconTile'
 import { ListRow } from '@/components/common/ListRow'
 import { SectionHeader } from '@/components/common/SectionHeader'
+import { ModeChoice } from '@/components/common/ModeChoice'
 import { SegmentedChoice } from '@/components/common/SegmentedChoice'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
@@ -12,7 +13,7 @@ import { Switch } from '@/components/ui/switch'
 import type { HomeSectionId } from '@/config/home'
 import { moveSection, setHomeLayout, toggleSection, useHomeLayout } from '@/features/settings/homeLayout'
 import { getLanguage, setLanguage, type Language } from '@/i18n'
-import { getTheme, setTheme, type Theme } from '@/lib/theme'
+import { getMode, getTheme, setMode, setTheme, type Mode, type Theme } from '@/lib/theme'
 
 const SECTION_LABEL = {
   waiting: 'settings.home.waiting',
@@ -26,6 +27,7 @@ const SECTION_LABEL = {
 export function SettingsPage() {
   const { t } = useTranslation()
   const [theme, setThemeState] = useState<Theme>(getTheme)
+  const [mode, setModeState] = useState<Mode>(getMode)
   const language = getLanguage()
   const layout = useHomeLayout()
 
@@ -92,6 +94,15 @@ export function SettingsPage() {
               { value: 'cute', label: t('pages.me.themeCute') },
             ]}
           />
+          <div className="mt-3">
+            <ModeChoice
+              value={mode}
+              onChange={(next) => {
+                setMode(next)
+                setModeState(next)
+              }}
+            />
+          </div>
           <p className="mt-2 text-xs text-muted-foreground">{t('pages.me.themeHint')}</p>
         </div>
       </section>

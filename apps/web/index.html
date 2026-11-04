@@ -8,21 +8,26 @@
     <title>Thongyod</title>
     <script>
       // Runs before the page draws, so there is no flash of the wrong theme.
-      // data-mode follows the device's light/dark setting and updates live.
-      // data-theme is the user's saved choice ("default" or "cute").
+      // data-mode: the user's saved choice "light" / "dark", or "system" (default) = follow the device, live.
+      // data-theme: the user's saved choice ("default" or "cute").
+      // Keep the storage keys in sync with src/lib/theme.ts.
       ;(function () {
         var root = document.documentElement
         var media = window.matchMedia('(prefers-color-scheme: dark)')
+        function saved(key) {
+          try {
+            return localStorage.getItem(key)
+          } catch (e) {
+            return null
+          }
+        }
         function applyMode() {
-          root.dataset.mode = media.matches ? 'dark' : 'light'
+          var choice = saved('thongyod-mode')
+          root.dataset.mode = choice === 'light' || choice === 'dark' ? choice : media.matches ? 'dark' : 'light'
         }
         applyMode()
         media.addEventListener('change', applyMode)
-        try {
-          root.dataset.theme = localStorage.getItem('thongyod-theme') === 'cute' ? 'cute' : 'default'
-        } catch (e) {
-          root.dataset.theme = 'default'
-        }
+        root.dataset.theme = saved('thongyod-theme') === 'cute' ? 'cute' : 'default'
       })()
     </script>
   </head>

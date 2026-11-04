@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Receipt } from 'lucide-react'
+import { Cake, Receipt, Wallet } from 'lucide-react'
 import { Avatar } from '@/components/common/Avatar'
 import { Button } from '@/components/ui/button'
 import { formatBaht } from '@/lib/money'
@@ -26,8 +26,8 @@ export function SummaryBar({ draft, result, onReceipt }: Props) {
                   <span className="relative">
                     <Avatar name={name} className={cn('size-10', personColor(i))} />
                     {(treated || draft.payer === i) && (
-                      <span className="absolute -right-1 -bottom-1 text-sm" aria-hidden="true">
-                        {treated ? '🎂' : '💰'}
+                      <span className="absolute -right-1 -bottom-1 grid size-5 place-items-center rounded-full border-2 border-background bg-primary text-primary-foreground" aria-hidden="true">
+                        {treated ? <Cake className="size-3" /> : <Wallet className="size-3" />}
                       </span>
                     )}
                   </span>

@@ -23,6 +23,7 @@
 | Avatar | `src/components/common/Avatar.tsx` | ours | Circle with the first letter of a name (skips Thai leading vowels) | name | Photos later |
 | ResponsePicker | `src/components/meetup/ResponsePicker.tsx` | ours | ไป / อาจจะ / ไม่ไป buttons for a meetup (built on SegmentedChoice) | value, onChange, label | Use everywhere a meetup can be answered |
 | SegmentedChoice | `src/components/common/SegmentedChoice.tsx` | ours | Pick one of 2-4 options as equal-width buttons (generic `<T>`) | options, value, onChange, label | Used by ResponsePicker, theme and language settings |
+| ModeChoice | `src/components/common/ModeChoice.tsx` | ours (wraps SegmentedChoice) | Light / dark / follow device picker | value, onChange | Use with `getMode` / `setMode` from `lib/theme`. |
 | PetCat | `src/components/pet/PetCat.tsx` | ours | PLACEHOLDER pet drawing (SVG) | className | Replace with rendered images of the 3D model |
 | Pet | `src/components/pet/Pet.tsx` + `species.ts` + `pet.css` (art in `src/assets/pets/<species>/`) | ours; art traced from `image/*-sheet-v1.png` with vtracer (MIT), optimized with svgo (MIT) | Any pet species: always alive (breathe or float + blink); idle actions after 15 s (puff / bubbles), 30 s (fly / swim), 60 s (sleep); tap = reaction pose + squish + sparkles | species ('dragon' \| 'fish'), size, ref (`run(act)`) | Add a species = add art + one entry in `species.ts`. Pauses when hidden; reduced motion = no bounce/fly/swim. |
 | Egg | `src/components/pet/Egg.tsx` (+ `pet.css`) | ours (SVG) | Pet egg in 3 styles: fire (→ dragon), sleepy (→ fish), mystery (random) | style, state ('idle' \| 'wobble' \| 'crack'), className | Used in onboarding; reuse for future egg rewards. |
@@ -56,6 +57,7 @@
 
 ## Shared hooks (not components, but reuse them the same way)
 
+- `src/features/fortune/useShake.ts` → `useShake(onShake, enabled)` + `createShakeDetector()` (pure, tested): phone-shake input with iOS permission handling. Reuse for any shake feature; the tilt game needs its own tilt detector (UX_GUIDELINES §4).
 - `src/lib/celebrate.ts` → `celebrate()`: confetti for peak moments only (result, all paid, hatch). canvas-confetti 1.9.4, ISC; off with reduced motion.
 - `src/lib/random.ts` → `secureRandomInt(max)`: the one fair random source for every game/tool (tests mock it by passing a `random` function).
 

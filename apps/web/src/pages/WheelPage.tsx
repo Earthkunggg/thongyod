@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Plus, RotateCw, X } from 'lucide-react'
+import { HandCoins, Plus, RotateCw, Utensils, Vote, X } from 'lucide-react'
 import { SpinWheel } from '@/components/common/SpinWheel'
 import { SuggestionChips } from '@/components/common/SuggestionChips'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -16,6 +16,7 @@ import { loadOptions, saveOptions } from '@/features/wheel/storage'
 /** UX_GUIDELINES motion token `story`: ≤ 1200 ms, always skippable by tap. */
 const SPIN_MS = 1200
 const PRESETS = ['food', 'whoPays', 'yesNo'] as const
+const PRESET_ICONS = [Utensils, HandCoins, Vote]
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 type Phase = 'idle' | 'spinning' | 'result'
@@ -158,6 +159,7 @@ export function WheelPage() {
           <SuggestionChips
             label={t('wheel.presetsLabel')}
             items={PRESETS.map((id) => t(`wheel.presets.${id}.name`))}
+            icons={PRESET_ICONS}
             onPick={(name) => {
               const id = PRESETS.find((p) => t(`wheel.presets.${p}.name`) === name)
               if (id && !locked) applyPreset(id)
