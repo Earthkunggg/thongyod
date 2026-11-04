@@ -23,7 +23,7 @@ import {
   combineDateTime,
   dateFor,
   DEFAULT_TIME,
-  suggestedDay,
+  initialDay,
   TITLE_MAX,
   toDateInput,
   type CreateProblem,
@@ -87,13 +87,13 @@ export function CreateMeetupPage() {
           />
         </Card>
       ) : (
-        <CreateForm gangs={sortGangs(options, readLastGang())} />
+        <CreateForm gangs={sortGangs(options, readLastGang())} requestedDate={params.get('date')} />
       )}
     </div>
   )
 }
 
-function CreateForm({ gangs }: { gangs: GangSummary[] }) {
+function CreateForm({ gangs, requestedDate }: { gangs: GangSummary[]; requestedDate: string | null }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const create = useCreateMeetup()
@@ -101,8 +101,9 @@ function CreateForm({ gangs }: { gangs: GangSummary[] }) {
 
   const [gangId, setGangId] = useState<string>(gangs[0].id)
   const [title, setTitle] = useState('')
-  const [day, setDay] = useState<DayChoice>(suggestedDay(now))
-  const [pickedDate, setPickedDate] = useState(toDateInput(now))
+  const [start] = useState(() => initialDay(requestedDate, now))
+  const [day, setDay] = useState<DayChoice>(start.day)
+  const [pickedDate, setPickedDate] = useState(start.picked)
   const [time, setTime] = useState(DEFAULT_TIME)
   const [tried, setTried] = useState(false)
   const [serverProblem, setServerProblem] = useState<CreateProblem>(null)

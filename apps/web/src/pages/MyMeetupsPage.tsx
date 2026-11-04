@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { CalendarPlus } from 'lucide-react'
+import { CalendarDays, CalendarPlus } from 'lucide-react'
 import { useMeetupsInRange } from '@/api/meetups'
 import type { MeetupListItem } from '@/api/types'
 import { EmptyState } from '@/components/common/EmptyState'
@@ -45,7 +45,15 @@ export function MyMeetupsPage() {
 
   return (
     <>
-      <PageHeader title={t('myMeetups.title')} backTo="/me" />
+      <PageHeader
+        title={t('myMeetups.title')}
+        backTo="/me"
+        action={
+          <Link to="/calendar" className={buttonVariants({ variant: 'ghost', size: 'icon' })} aria-label={t('calendar.open')}>
+            <CalendarDays className="size-5" />
+          </Link>
+        }
+      />
       <div className="flex flex-col gap-3 pb-8">
         <div className="px-4">
           <SegmentedChoice<View>

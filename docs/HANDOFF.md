@@ -592,3 +592,11 @@ Agreed, not started, in this order:
 4. Pets as layered parts (smooth motion, not image swaps) from `image/00…12-*.png` (real alpha, 2×3 grids of 512 px cells; parts sheets have no white border). Start with the dragon, show the user before continuing.
 Future idea (not approved, discuss later): meetups with strangers + gender/age filters and quotas — safety, verification, PDPA and chat need a decision first.
 Still open: run real vitest (`npm test -w apps/web`), PromptPay QR, backend auth/me connection.
+
+## Away session — 2026-11-05 — Claude (frontend, cloud, user away 2 days)
+
+Rules followed: user asked to push each feature straight to `main` only after lint + all web tests + the demo build (`VITE_DEPLOY_MOCKS=true`, `--base=/thongyod/`) pass. Each build was also opened in headless Chrome at 375×812 under `/thongyod/#/…` (MSW worker running) in default/cute × light/dark, with zero console errors.
+**Limitation:** the repo now redirects to `Exrthexrth225/thongyod`; this cloud session can push, but cannot read GitHub Actions results or open `*.github.io`. If a deploy looks broken, revert the newest commit on `main` (`git revert <sha>`); each commit is one feature.
+
+- **fix: tests + lint** — `i18n/index.ts` no longer touches `document` at import time in Node (the daily test failed); `eslint.config.js` ignores the generated `public/mockServiceWorker.js`. All tests pass.
+- **1. Calendar** (DECISIONS #58) — `/calendar`, `MonthGrid`, `features/calendar/month.ts` (+ tests), › on `MeetupRow`, Home "ปฏิทิน ›" link, calendar icon on นัดของฉัน, `/meetups/new?date=YYYY-MM-DD`. No API change: uses `GET /meetups?from&to` (≤ 42 days).

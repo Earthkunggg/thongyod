@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { CheckSquare, ChevronRight, Receipt, Utensils, type LucideIcon } from 'lucide-react'
+import { CalendarDays, CheckSquare, ChevronRight, Receipt, Utensils, type LucideIcon } from 'lucide-react'
 import type { PendingKind } from '@thongyod/shared'
 import { useHome } from '@/api/home'
 import { useMe } from '@/api/profile'
@@ -110,7 +110,16 @@ export function HomePage() {
 
     agenda: (
       <section className="flex flex-col gap-1">
-        <SectionHeader title={t('home.subtitle', { count: weekMeetups.length })} />
+        <SectionHeader
+          title={t('home.subtitle', { count: weekMeetups.length })}
+          action={
+            <Link to="/calendar" className="flex items-center gap-1 text-xs font-medium text-primary">
+              <CalendarDays className="size-3.5" aria-hidden="true" />
+              {t('calendar.open')}
+              <ChevronRight className="size-3.5" aria-hidden="true" />
+            </Link>
+          }
+        />
         <WeekStrip today={now} selected={selectedDay} onSelect={setSelectedDay} markedDays={weekMeetups.map((m) => new Date(m.startsAt))} />
         <SectionHeader title={t('home.agendaTitle', { day: formatDayLabel(selectedDay, now) })} />
         {meetupsQuery.isPending ? (

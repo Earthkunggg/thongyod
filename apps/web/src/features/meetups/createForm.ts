@@ -19,6 +19,20 @@ export function suggestedDay(now: Date): DayChoice {
   return now.getHours() >= LATE_HOUR ? 'tomorrow' : 'today'
 }
 
+/**
+ * Starting day for the form. `requested` = "YYYY-MM-DD" from the calendar (?date=); ignored if invalid or in the past.
+ * Today / tomorrow map to their buttons; later days open the date picker on that date.
+ */
+export function initialDay(requested: string | null, now: Date): { day: DayChoice; picked: string } {
+  const today = toDateInput(now)
+  const date = requested === null ? null : combineDateTime(requested, '00:00')
+  // toDateInput(date) !== requested catches impossible dates such as 2026-02-30.
+  if (requested === null || !date || toDateInput(date) !== requested || requested < today) return { day: suggestedDay(now), picked: today }
+  if (requested === today) return { day: 'today', picked: today }
+  if (requested === dateFor('tomorrow', today, now)) return { day: 'tomorrow', picked: today }
+  return { day: 'pick', picked: requested }
+}
+
 /** The date for a day choice. `picked` is the value of the date input (used for 'pick'). */
 export function dateFor(choice: DayChoice, picked: string, now: Date): string {
   if (choice === 'today') return toDateInput(now)

@@ -27,6 +27,7 @@
 | PetCat | `src/components/pet/PetCat.tsx` | ours | PLACEHOLDER pet drawing (SVG) | className | Replace with rendered images of the 3D model |
 | Pet | `src/components/pet/Pet.tsx` + `species.ts` + `pet.css` (art in `src/assets/pets/<species>/`) | ours; art traced from `image/*-sheet-v1.png` with vtracer (MIT), optimized with svgo (MIT) | Any pet species: always alive (breathe or float + blink); idle actions after 15 s (puff / bubbles), 30 s (fly / swim), 60 s (sleep); tap = reaction pose + squish + sparkles | species ('dragon' \| 'fish'), size, ref (`run(act)`) | Add a species = add art + one entry in `species.ts`. Pauses when hidden; reduced motion = no bounce/fly/swim. |
 | Egg | `src/components/pet/Egg.tsx` (+ `pet.css`) | ours (SVG) | Pet egg in 3 styles: fire (→ dragon), sleepy (→ fish), mystery (random) | style, state ('idle' \| 'wobble' \| 'crack'), className | Used in onboarding; reuse for future egg rewards. |
+| MonthGrid | `src/components/common/MonthGrid.tsx` | ours | Full month grid (Mon first): today filled, selected ring, up to 3 dots per day (hollow first dot = waiting for my answer) + legend; swipe left/right = change month | month, today, selected, onSelect, marks (Map dayKey → {count, needsAnswer}), onSwipeMonth? | Logic in `features/calendar/month.ts` (tested). Reuse later for classes, exams, holy days. Page must also show ‹ › buttons (gesture rule). |
 | WeekStrip | `src/components/home/WeekStrip.tsx` | ours | Mon-Sun strip, today filled, selected ring, dot = has meetup | today, selected, onSelect, markedDays | Later: classes, exams, holy days as extra dots |
 | SwipeDeck | `src/components/common/SwipeDeck.tsx` | ours (no library: pointer events + CSS) | Stack of cards (2 visible behind) answered by swiping left / up / right or with the round buttons; stamps while dragging; rubber-band drag limit; tap = onOpen; keyboard ← ↑ → and Enter | items, getKey, renderCard, actions [{dir,label,icon,tone}], onSwipe, onOpen?, label, tall? | DECISIONS #46/#57. For invites use `useInviteActions()` + `SWIPE_TO_RESPONSE`. |
 | HScroll | `src/components/common/HScroll.tsx` | ours | Sideways scrolling row with snap (cards peek from the right), hidden scrollbar | label, children (`shrink-0 snap-start`), onScroll | Use for any horizontal card row (Home highlights, pending, feed, discover). |
@@ -34,7 +35,7 @@
 | Home sections | `src/components/home/{HomeGreeting,Highlights,QuickTools,DailyMissions,DiscoverRow}.tsx` | ours | Building blocks of Home v2 (DECISIONS #54) | see files | Section order/visibility from `features/settings/homeLayout`. |
 | SpinWheel | `src/components/common/SpinWheel.tsx` | ours (SVG + CSS transition) | Wheel of names with a fixed top pointer; animates to the `rotation` it is given; tap = spin / skip | options, rotation, durationMs, onSpinEnd, onTap, label | Draws only. Pick the winner with `features/wheel/logic` (`spin()` = secure random first, then the stop angle). Up to 12 slices; labels cut at 10 chars. |
 | InviteCard | `src/components/meetup/InviteCard.tsx` | ours | Face of an invite in the deck: gang, title, when + countdown, going avatars, hide link | meetup, now, onHide? | Replaces WaitingMeetupCard (removed). |
-| MeetupRow | `src/components/meetup/MeetupRow.tsx` | ours | One meetup in a day agenda: time, title, gang, going avatars, my answer; links to `/meetups/:id` | meetup | |
+| MeetupRow | `src/components/meetup/MeetupRow.tsx` | ours | One meetup in a day agenda: time, title, gang, going avatars, my answer, › ; links to `/meetups/:id` | meetup | Used by Home agenda, Calendar, นัดของฉัน, profiles. |
 | ResponseChip | `src/components/meetup/ResponseChip.tsx` | ours | Small label with my answer or "ยังไม่ตอบ" | response | |
 | HideMeetupButton | `src/components/meetup/HideMeetupButton.tsx` | ours | "ซ่อนนัดนี้ (ไม่บอกใคร)" quiet button (#32) | onClick, disabled | Never show to the meetup creator. |
 | AvatarStack | `src/components/common/AvatarStack.tsx` | ours | Overlapping small avatars + "+N" | names, total | |
@@ -80,5 +81,6 @@
 | checkDisplayName | `src/features/profile/validation.ts` | App-name rules (#40), tested. |
 | isLocked, canHide | `src/features/meetups/derive.ts` | Meetup display rules from server data (`responseLocksAt`, creator). |
 | lineShareUrl, appUrl | `src/lib/share.ts` | Share text to LINE; full URL of an app page. |
-| checkCreateForm, dateFor, combineDateTime | `src/features/meetups/createForm.ts` | "ชวนนัด" form rules (tested). |
+| checkCreateForm, dateFor, combineDateTime, initialDay | `src/features/meetups/createForm.ts` | "ชวนนัด" form rules (tested). `initialDay` reads `?date=` from the calendar. |
+| monthGrid, gridRange, groupByDay, dayKey, defaultDay | `src/features/calendar/month.ts` | Month calendar math (tested); `groupByDay` works for any `{ startsAt }` list. |
 | useFriendSubtitle | `src/features/friends/useFriendSubtitle.ts` | "สายมู · เพื่อนร่วมกัน 2 คน" line. |

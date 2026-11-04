@@ -7,6 +7,7 @@ import { ExplorePage } from '@/pages/ExplorePage'
 import { AddFriendPage } from '@/pages/AddFriendPage'
 import { BillPage } from '@/pages/BillPage'
 import { BillsPage } from '@/pages/BillsPage'
+import { CalendarPage } from '@/pages/CalendarPage'
 import { CreateMeetupPage } from '@/pages/CreateMeetupPage'
 import { FortunePage } from '@/pages/FortunePage'
 import { FriendQrPage } from '@/pages/FriendQrPage'
@@ -72,6 +73,7 @@ export const router = createRouter([
       { path: 'bills/:id', element: <BillPage /> },
       { path: 'fortune', element: <FortunePage /> },
       { path: 'meetups', element: <MyMeetupsPage /> },
+      { path: 'calendar', element: <CalendarPage /> },
       { path: 'invites', element: <InvitesPage /> },
       { path: 'meetups/new', element: <CreateMeetupPage /> },
       { path: 'meetups/:id', element: <MeetupDetailPage /> },

@@ -1,10 +1,11 @@
 import { Link } from 'react-router'
+import { ChevronRight } from 'lucide-react'
 import { AvatarStack } from '@/components/common/AvatarStack'
 import type { MeetupListItem } from '@/api/types'
 import { formatTime } from '@/lib/date'
 import { ResponseChip } from './ResponseChip'
 
-// One meetup in a day agenda: time | title, gang, who is going | my answer. Opens the detail page.
+// One meetup in a day agenda: time | title, gang, who is going | my answer | ›. Opens the detail page.
 export function MeetupRow({ meetup }: { meetup: MeetupListItem }) {
   return (
     <Link to={`/meetups/${meetup.id}`} className="flex min-h-16 items-center gap-3 py-2 active:opacity-70 [&+&]:border-t">
@@ -17,6 +18,7 @@ export function MeetupRow({ meetup }: { meetup: MeetupListItem }) {
         </span>
       </span>
       <ResponseChip response={meetup.myResponse} />
+      <ChevronRight className="-mr-1 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
     </Link>
   )
 }
