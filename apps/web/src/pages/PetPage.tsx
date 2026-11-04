@@ -7,6 +7,7 @@ import { Pet, type PetAct, type PetHandle } from '@/components/pet/Pet'
 import type { PetSpeciesId } from '@/components/pet/species'
 import { Egg } from '@/components/pet/Egg'
 import { Button, buttonVariants } from '@/components/ui/button'
+import { markDone } from '@/features/daily/daily'
 import { getMyPet } from '@/features/onboarding/storage'
 
 // Tab "สัตว์เลี้ยง" — pet preview while we test the first 2 species (DECISIONS #47). Full room in M5.
@@ -50,7 +51,7 @@ export function PetPage() {
             ]}
           />
         </div>
-        <Pet key={species} species={species} size={280} ref={pet} />
+        <Pet key={species} species={species} size={280} ref={pet} onTap={() => markDone('pet')} />
         {/* Development only: jump to each idle action instead of waiting. */}
         {import.meta.env.DEV && (
           <div className="grid w-full grid-cols-2 gap-2">

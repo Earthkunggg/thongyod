@@ -1,6 +1,6 @@
 import { Fragment, useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bell, Check, CheckSquare, HelpCircle, Receipt, Utensils, X, type LucideIcon } from 'lucide-react'
+import { Check, CheckSquare, HelpCircle, Receipt, Utensils, X, type LucideIcon } from 'lucide-react'
 import type { MeetupResponse, PendingKind } from '@thongyod/shared'
 import { useHome } from '@/api/home'
 import { useMe } from '@/api/profile'
@@ -10,22 +10,27 @@ import { Avatar } from '@/components/common/Avatar'
 import { EmptyState } from '@/components/common/EmptyState'
 import { ErrorState } from '@/components/common/ErrorState'
 import { IconTile } from '@/components/common/IconTile'
-import { ListRow } from '@/components/common/ListRow'
 import { LoadingState } from '@/components/common/LoadingState'
 import { SectionHeader } from '@/components/common/SectionHeader'
 import { SwipeDeck, type SwipeAction, type SwipeDir } from '@/components/common/SwipeDeck'
-import { PetCard } from '@/components/home/PetCard'
+import { HScroll } from '@/components/common/HScroll'
+import { DailyMissions } from '@/components/home/DailyMissions'
+import { DiscoverRow } from '@/components/home/DiscoverRow'
+import { Highlights } from '@/components/home/Highlights'
+import { HomeGreeting } from '@/components/home/HomeGreeting'
+import { QuickTools } from '@/components/home/QuickTools'
 import { WeekStrip } from '@/components/home/WeekStrip'
-import { PageHeader } from '@/components/layout/PageHeader'
 import { MeetupRow } from '@/components/meetup/MeetupRow'
 import { InviteCard } from '@/components/meetup/InviteCard'
-import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import type { HomeSectionId } from '@/config/home'
 import { canHide, isLocked } from '@/features/meetups/derive'
 import { useMeetupActions } from '@/features/meetups/useMeetupActions'
+import { homeRange } from '@/features/meetups/useWaiting'
+import { markDone, streakOf, useDaily } from '@/features/daily/daily'
+import { getMyPet } from '@/features/onboarding/storage'
 import { useHomeLayout } from '@/features/settings/homeLayout'
-import { addDays, formatDayLabel, formatMonthYear, formatTimeAgo, isSameDay, startOfDay, startOfWeek } from '@/lib/date'
+import { addDays, formatDayLabel, formatTimeAgo, isSameDay, startOfWeek } from '@/lib/date'
 import { feedText, pendingSubtitle, pendingTitle } from '@/lib/describe'
 
 const PENDING_ICONS: Record<PendingKind, LucideIcon> = {
@@ -35,8 +40,6 @@ const PENDING_ICONS: Record<PendingKind, LucideIcon> = {
   confirm_payment: Receipt,
 }
 
-/** How far ahead "รอคุณตอบ" looks. */
-const WAITING_DAYS_AHEAD = 14
 const SWIPE_TO_RESPONSE: Record<SwipeDir, MeetupResponse> = { right: 'going', left: 'not_going', up: 'maybe' }
 
 export function HomePage() {
@@ -45,13 +48,11 @@ export function HomePage() {
   const [selectedDay, setSelectedDay] = useState(now)
   const actions = useMeetupActions()
   const layout = useHomeLayout()
+  const daily = useDaily()
+  const [myPet] = useState(getMyPet)
 
   // One request covers this week (week strip + agenda) and the next 2 weeks ("รอคุณตอบ").
-  const range = useMemo(() => {
-    const from = startOfWeek(now)
-    const to = new Date(Math.max(addDays(from, 7).getTime(), addDays(startOfDay(now), WAITING_DAYS_AHEAD + 1).getTime()))
-    return { from: from.toISOString(), to: to.toISOString() }
-  }, [now])
+  const range = useMemo(() => homeRange(now), [now])
   const meetupsQuery = useMeetupsInRange(range.from, range.to)
   const homeQuery = useHome()
   const me = useMe()
@@ -67,7 +68,7 @@ export function HomePage() {
   // Swipe deck (DECISIONS #46): right = ไป, left = ไม่ไป, up = อาจจะ. Buttons do the same.
   const swipeActions: SwipeAction[] = [
     { dir: 'left', label: t('meetup.notGoing'), icon: X, tone: 'border-muted-foreground/40 text-muted-foreground' },
-    { dir: 'up', label: t('meetup.maybe'), icon: HelpCircle, tone: 'border-amber-500 text-amber-600 dark:text-amber-400' },
+    { dir: 'up', label: t('meetup.maybe'), icon: HelpCircle, tone: 'border-tone-warning-foreground text-tone-warning-foreground' },
     { dir: 'right', label: t('meetup.going'), icon: Check, tone: 'border-primary text-primary' },
   ]
 
@@ -91,7 +92,9 @@ export function HomePage() {
     ),
 
     agenda: (
-      <section>
+      <section className="flex flex-col gap-1">
+        <SectionHeader title={t('home.subtitle', { count: weekMeetups.length })} />
+        <WeekStrip today={now} selected={selectedDay} onSelect={setSelectedDay} markedDays={weekMeetups.map((m) => new Date(m.startsAt))} />
         <SectionHeader title={t('home.agendaTitle', { day: formatDayLabel(selectedDay, now) })} />
         {meetupsQuery.isPending ? (
           <LoadingState rows={2} />
@@ -116,61 +119,51 @@ export function HomePage() {
     pending: home && home.pending.length > 0 && (
       <section>
         <SectionHeader title={t('home.pendingTitle', { count: home.pending.length })} />
-        <Card className="mx-3 px-4 py-1">
-          {home.pending.map((item) => (
-            <ListRow
-              key={item.id}
-              leading={<IconTile icon={PENDING_ICONS[item.kind]} />}
-              title={pendingTitle(item)}
-              subtitle={pendingSubtitle(item, now)}
-            />
-          ))}
-        </Card>
-      </section>
-    ),
-
-    // Hidden until the pet is activated (decision #35).
-    pet: home?.pet && (
-      <section className="px-3">
-        <PetCard pet={home.pet} luckyColor={home.luckyColor} />
+        <HScroll label={t('home.pendingTitle', { count: home.pending.length })}>
+          {home.pending.map((item) => {
+            const Icon = PENDING_ICONS[item.kind]
+            return (
+              <div key={item.id} className="flex w-56 shrink-0 snap-start items-start gap-3 rounded-xl border bg-card p-3">
+                <IconTile icon={Icon} />
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-medium">{pendingTitle(item)}</span>
+                  <span className="line-clamp-2 text-xs text-muted-foreground">{pendingSubtitle(item, now)}</span>
+                </span>
+              </div>
+            )
+          })}
+        </HScroll>
       </section>
     ),
 
     feed: home && home.feed.length > 0 && (
       <section>
         <SectionHeader title={t('home.friendsUpdates')} />
-        <Card className="mx-3 px-4 py-1">
+        <HScroll label={t('home.friendsUpdates')}>
           {home.feed.map((item) => (
-            <ListRow
-              key={item.id}
-              leading={<Avatar name={item.actorName} />}
-              title={feedText(item)}
-              subtitle={`${item.gangName} · ${formatTimeAgo(new Date(item.createdAt), now)}`}
-            />
+            <div key={item.id} className="flex w-60 shrink-0 snap-start items-center gap-3 rounded-xl border bg-card p-3">
+              <Avatar name={item.actorName} />
+              <span className="min-w-0">
+                <span className="line-clamp-2 text-sm">{feedText(item)}</span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  {item.gangName} · {formatTimeAgo(new Date(item.createdAt), now)}
+                </span>
+              </span>
+            </div>
           ))}
-        </Card>
+        </HScroll>
       </section>
     ),
+
+    highlights: <Highlights meetups={meetups} now={now} />,
+    tools: <QuickTools />,
+    missions: <DailyMissions petName={myPet ? t(`pet.species.${myPet.species}`) : t('home.yourPet')} />,
+    discover: <DiscoverRow />,
   }
 
   return (
-    <div className="flex flex-col gap-3 pb-4">
-      <PageHeader
-        title={formatMonthYear(now)}
-        subtitle={meetupsQuery.isSuccess ? t('home.subtitle', { count: weekMeetups.length }) : undefined}
-        action={
-          <Button variant="ghost" size="icon" aria-label={t('common.notifications')}>
-            <Bell />
-          </Button>
-        }
-      />
-
-      <WeekStrip
-        today={now}
-        selected={selectedDay}
-        onSelect={setSelectedDay}
-        markedDays={weekMeetups.map((m) => new Date(m.startsAt))}
-      />
+    <div className="flex flex-col gap-4 pb-6">
+      <HomeGreeting name={me.data?.displayName ?? null} species={myPet?.species ?? null} streak={streakOf(daily, now)} onPetTap={() => markDone('pet')} now={now} />
 
       {/* Order and visibility come from Settings → หน้าหลัก. */}
       {layout.order

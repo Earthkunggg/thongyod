@@ -10,7 +10,7 @@ import { addBill, useBills } from '@/features/bill-split/storage'
 import { intlLocale } from '@/i18n'
 import { formatDayLabel } from '@/lib/date'
 import { formatBaht } from '@/lib/money'
-import { cn } from '@/lib/utils'
+import { Badge } from '@/components/common/Badge'
 
 // หารบิล home (DECISIONS #53): bills kept on this device, newest first.
 export function BillsPage() {
@@ -68,15 +68,9 @@ function BillRow({ bill }: { bill: Bill }) {
             {t('billSplit.entriesCount', { count: bill.entries.length })}
             {s.total > 0 && ` · ${formatBaht(s.total)}`}
           </span>
-          <span
-            className={cn(
-              'flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs',
-              status === 'cleared' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200' : status === 'waiting' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200' : 'bg-muted text-muted-foreground',
-            )}
-          >
-            <Icon className="size-3.5" aria-hidden="true" />
+          <Badge tone={status === 'cleared' ? 'success' : status === 'waiting' ? 'warning' : 'neutral'} icon={Icon}>
             {t(`billSplit.status.${status}`, { count: waiting })}
-          </span>
+          </Badge>
         </span>
       </Link>
     </li>

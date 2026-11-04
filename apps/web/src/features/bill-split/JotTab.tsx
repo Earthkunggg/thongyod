@@ -5,11 +5,13 @@ import { EmptyState } from '@/components/common/EmptyState'
 import { SuggestionChips } from '@/components/common/SuggestionChips'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { markDone } from '@/features/daily/daily'
 import { formatBaht } from '@/lib/money'
 import { bumpEntry, itemKey, jot, MAX_ITEM_LENGTH, priceOf, recentNames, type Bill, type Entry } from './bill'
 import { EntryDialog } from './EntryDialog'
 import { FacePicker, Faces } from './Faces'
 import { parseBaht } from './logic'
+import { Badge } from '@/components/common/Badge'
 
 type Props = { bill: Bill; onChange: (change: (bill: Bill) => Bill) => void }
 
@@ -35,6 +37,7 @@ export function JotTab({ bill, onChange }: Props) {
     e.preventDefault()
     if (!name.trim() || priceInvalid) return
     onChange((b) => jot(b, { name, price: priceText.trim() ? parseBaht(priceText) : null, eaters }))
+    markDone('tool')
     setName('')
     setPriceText('')
     setEaters([])
@@ -123,7 +126,7 @@ function EntryRow({ bill, entry, onEdit, onPlusOne }: { bill: Bill; entry: Entry
         {entry.eaters.length > 0 ? <Faces bill={bill} ids={entry.eaters} /> : <span className="text-xs text-muted-foreground">{t('billSplit.everyone')}</span>}
       </button>
       {price === null ? (
-        <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">{t('billSplit.noPrice')}</span>
+        <Badge tone="warning">{t('billSplit.noPrice')}</Badge>
       ) : (
         <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
           {sharers > 1 ? t('billSplit.perPerson', { amount: formatBaht(Math.ceil((price * entry.qty) / sharers)) }) : formatBaht(price * entry.qty)}

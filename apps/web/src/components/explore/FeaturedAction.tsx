@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { ChevronRight } from 'lucide-react'
 import type { Tool } from '@/config/tools'
+import { SHOW_BACK } from '@/lib/nav'
 
 // Big highlighted card for the main action of a group (e.g. "ชวนนัด").
 export function FeaturedAction({ tool }: { tool: Tool }) {
@@ -10,6 +11,7 @@ export function FeaturedAction({ tool }: { tool: Tool }) {
   return (
     <Link
       to={tool.to}
+      state={SHOW_BACK}
       className="flex items-center gap-3 rounded-xl border border-primary bg-accent p-3 text-accent-foreground transition-transform active:scale-[0.98]"
     >
       <span

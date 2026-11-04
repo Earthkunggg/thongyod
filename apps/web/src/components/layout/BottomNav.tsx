@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Home, PawPrint, Sparkles, User, Users, type LucideIcon } from 'lucide-react'
+import { useWaitingCount } from '@/features/meetups/useWaiting'
 import { cn } from '@/lib/utils'
 
 type TabKey = 'home' | 'gangs' | 'explore' | 'pet' | 'me'
@@ -17,6 +18,7 @@ const TABS: Tab[] = [
 // Bottom tab bar. The center tab ("ทำอะไรดี") is a raised, highlighted button.
 export function BottomNav() {
   const { t } = useTranslation()
+  const waiting = useWaitingCount()
   return (
     <nav
       aria-label={t('nav.label')}
@@ -42,9 +44,19 @@ export function BottomNav() {
                       <Icon className="size-6" aria-hidden="true" />
                     </span>
                   ) : (
-                    <Icon className="size-6" strokeWidth={isActive ? 2.4 : 1.8} aria-hidden="true" />
+                    <span className="relative">
+                      <Icon className="size-6" strokeWidth={isActive ? 2.4 : 1.8} aria-hidden="true" />
+                      {key === 'home' && waiting > 0 && (
+                        <span className="absolute -top-1 -right-2 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] leading-none font-medium text-white">
+                          {waiting > 9 ? '9+' : waiting}
+                        </span>
+                      )}
+                    </span>
                   )}
-                  <span>{t(`nav.${key}`)}</span>
+                  <span>
+                    {t(`nav.${key}`)}
+                    {key === 'home' && waiting > 0 && <span className="sr-only">{t('home.waitingTitle', { count: waiting })}</span>}
+                  </span>
                 </>
               )}
             </NavLink>

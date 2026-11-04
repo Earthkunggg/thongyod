@@ -13,6 +13,7 @@ import { formatBahtPlain } from './format'
 import { parseBaht } from './logic'
 import { usePersonName } from './names'
 import { PersonChip } from './PersonChip'
+import { TONE_TEXT } from '@/lib/tones'
 
 type Props = { bill: Bill; onChange: (change: (bill: Bill) => Bill) => void }
 
@@ -47,7 +48,7 @@ export function SplitTab({ bill, onChange }: Props) {
   return (
     <div className="flex flex-col gap-6 pb-8">
       <Step n={1} title={t('billSplit.step1')}>
-        {s.unpriced > 0 && <p className="text-xs text-amber-700 dark:text-amber-300">{t('billSplit.missingPrices', { count: s.unpriced })}</p>}
+        {s.unpriced > 0 && <p className={cn('text-xs', TONE_TEXT.warning)}>{t('billSplit.missingPrices', { count: s.unpriced })}</p>}
         <ul className="flex flex-col gap-2">
           {groups.map((g) => (
             <PriceRow key={g.key} group={g} onSave={(price) => onChange((b) => setPrice(b, g.key, price))} />
@@ -158,7 +159,7 @@ function PriceRow({ group, onSave }: { group: PriceGroup; onSave: (price: number
   const [text, setText] = useState(group.price !== null ? formatBahtPlain(group.price) : '')
   const invalid = text.trim() !== '' && parseBaht(text) === null
   return (
-    <li className={cn('flex items-center gap-2 rounded-xl border bg-card p-2 pl-3', group.price === null && 'border-amber-300 dark:border-amber-700')}>
+    <li className={cn('flex items-center gap-2 rounded-xl border bg-card p-2 pl-3', group.price === null && 'border-tone-warning-foreground/40')}>
       <span className="min-w-0 flex-1 truncate text-sm">
         {group.name} <span className="text-muted-foreground">×{group.qty}</span>
       </span>

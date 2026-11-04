@@ -4,6 +4,7 @@ import { Lock } from 'lucide-react'
 import { IconTile } from '@/components/common/IconTile'
 import type { Tool } from '@/config/tools'
 import { cn } from '@/lib/utils'
+import { SHOW_BACK } from '@/lib/nav'
 
 // One tool card on the Explore page. Group tools use the accent tone, solo tools neutral.
 // 'soon' tools are locked: dashed border, lock icon, not tappable.
@@ -31,6 +32,7 @@ export function ToolTile({ tool }: { tool: Tool }) {
   return (
     <Link
       to={tool.to}
+      state={SHOW_BACK}
       className={cn(
         'flex min-h-28 flex-col gap-1.5 rounded-xl border bg-card p-3 text-card-foreground',
         'transition-transform active:scale-[0.98]',

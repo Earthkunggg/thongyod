@@ -17,6 +17,32 @@
 @custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
 
 @theme inline {
+    --color-tone-warning: var(--tone-warning);
+    --color-tone-warning-foreground: var(--tone-warning-foreground);
+    --color-tone-success: var(--tone-success);
+    --color-tone-success-foreground: var(--tone-success-foreground);
+    --color-tone-info: var(--tone-info);
+    --color-tone-info-foreground: var(--tone-info-foreground);
+    --color-tone-danger: var(--tone-danger);
+    --color-tone-danger-foreground: var(--tone-danger-foreground);
+    --color-tone-accent: var(--tone-accent);
+    --color-tone-accent-foreground: var(--tone-accent-foreground);
+    --color-tint-1: var(--tint-1);
+    --color-tint-1-foreground: var(--tint-1-foreground);
+    --color-tint-2: var(--tint-2);
+    --color-tint-2-foreground: var(--tint-2-foreground);
+    --color-tint-3: var(--tint-3);
+    --color-tint-3-foreground: var(--tint-3-foreground);
+    --color-tint-4: var(--tint-4);
+    --color-tint-4-foreground: var(--tint-4-foreground);
+    --color-tint-5: var(--tint-5);
+    --color-tint-5-foreground: var(--tint-5-foreground);
+    --color-tint-6: var(--tint-6);
+    --color-tint-6-foreground: var(--tint-6-foreground);
+    --color-tint-7: var(--tint-7);
+    --color-tint-7-foreground: var(--tint-7-foreground);
+    --color-tint-8: var(--tint-8);
+    --color-tint-8-foreground: var(--tint-8-foreground);
     --font-sans: var(--app-font-sans);
     --font-heading: var(--app-font-heading);
     --color-sidebar-ring: var(--sidebar-ring);
@@ -108,6 +134,33 @@
     --sidebar-border: #e4e2da;
     --sidebar-ring: #ef9f27;
     color-scheme: light;
+    /* Tones (status) and tints (categories): see lib/tones.ts. Never hard-code Tailwind palette colors. */
+    --tone-warning: #faeeda;
+    --tone-warning-foreground: #854f0b;
+    --tone-success: #e1f5ee;
+    --tone-success-foreground: #0f6e56;
+    --tone-info: #e6f1fb;
+    --tone-info-foreground: #185fa5;
+    --tone-danger: #fcebeb;
+    --tone-danger-foreground: #a32d2d;
+    --tone-accent: #faeeda;
+    --tone-accent-foreground: #854f0b;
+    --tint-1: #ffe4e6;
+    --tint-1-foreground: #9f1239;
+    --tint-2: #d1fae5;
+    --tint-2-foreground: #065f46;
+    --tint-3: #fef3c7;
+    --tint-3-foreground: #92400e;
+    --tint-4: #ede9fe;
+    --tint-4-foreground: #5b21b6;
+    --tint-5: #e0f2fe;
+    --tint-5-foreground: #075985;
+    --tint-6: #fce7f3;
+    --tint-6-foreground: #9d174d;
+    --tint-7: #ecfccb;
+    --tint-7-foreground: #3f6212;
+    --tint-8: #ccfbf1;
+    --tint-8-foreground: #115e59;
 }
 
 /* ---------- Theme "ค่าเริ่มต้น" (default): dark ---------- */
@@ -136,6 +189,33 @@
     --sidebar-accent-foreground: #fac775;
     --sidebar-border: #34332e;
     color-scheme: dark;
+    /* Tones (status) and tints (categories): see lib/tones.ts. Never hard-code Tailwind palette colors. */
+    --tone-warning: #3f2c12;
+    --tone-warning-foreground: #fac775;
+    --tone-success: #0d3a2e;
+    --tone-success-foreground: #9fe1cb;
+    --tone-info: #10304f;
+    --tone-info-foreground: #b5d4f4;
+    --tone-danger: #4a1b1b;
+    --tone-danger-foreground: #f7c1c1;
+    --tone-accent: #3f2c12;
+    --tone-accent-foreground: #fac775;
+    --tint-1: #4c0519;
+    --tint-1-foreground: #fecdd3;
+    --tint-2: #064e3b;
+    --tint-2-foreground: #a7f3d0;
+    --tint-3: #451a03;
+    --tint-3-foreground: #fde68a;
+    --tint-4: #2e1065;
+    --tint-4-foreground: #ddd6fe;
+    --tint-5: #082f49;
+    --tint-5-foreground: #bae6fd;
+    --tint-6: #500724;
+    --tint-6-foreground: #fbcfe8;
+    --tint-7: #1a2e05;
+    --tint-7-foreground: #d9f99d;
+    --tint-8: #042f2e;
+    --tint-8-foreground: #99f6e4;
 }
 
 /* ---------- Theme "น่ารัก" (cute): light ---------- */
@@ -143,59 +223,113 @@
     --app-font-heading: "Mali", var(--app-font-sans); /* rounded Thai font for headings */
     --radius: 1rem; /* rounder: buttons 16px, cards ~22px */
 
-    --background: #fff5f8;         /* pastel pink */
-    --foreground: #4b1528;         /* deep plum */
+    --background: #faf8f7;         /* warm off-white (60%) */
+    --foreground: #3a2c33;         /* dark mauve-grey */
     --card: #ffffff;
-    --card-foreground: #4b1528;
+    --card-foreground: #3a2c33;
     --popover: #ffffff;
-    --popover-foreground: #4b1528;
-    --primary: #ed93b1;            /* pink */
-    --primary-foreground: #4b1528;
-    --secondary: #fbeaf0;
-    --secondary-foreground: #72243e;
-    --muted: #fbeaf0;
-    --muted-foreground: #993556;
-    --accent: #ffefd6;             /* soft gold, keeps the "Thongyod" link */
-    --accent-foreground: #854f0b;
+    --popover-foreground: #3a2c33;
+    --primary: #e8879f;            /* pink accent (10%) */
+    --primary-foreground: #3d0f1f;
+    --secondary: #f3eff1;
+    --secondary-foreground: #3a2c33;
+    --muted: #f3eff1;
+    --muted-foreground: #6e6168;
+    --accent: #efeafb;             /* lavender (no gold/orange in this theme) */
+    --accent-foreground: #5b4a9b;
     --destructive: #c93a39;
-    --border: #f6d5e0;
-    --input: #f6d5e0;
-    --ring: #ed93b1;
+    --border: #ece5e8;
+    --input: #e4dce0;
+    --ring: #e8879f;
     --sidebar: #ffffff;
-    --sidebar-foreground: #4b1528;
-    --sidebar-primary: #ed93b1;
-    --sidebar-primary-foreground: #4b1528;
-    --sidebar-accent: #fbeaf0;
-    --sidebar-accent-foreground: #72243e;
-    --sidebar-border: #f6d5e0;
-    --sidebar-ring: #ed93b1;
+    --sidebar-foreground: #3a2c33;
+    --sidebar-primary: #e8879f;
+    --sidebar-primary-foreground: #3d0f1f;
+    --sidebar-accent: #f3eff1;
+    --sidebar-accent-foreground: #3a2c33;
+    --sidebar-border: #ece5e8;
+    --sidebar-ring: #e8879f;
+    /* Tones (status) and tints (categories): see lib/tones.ts. Never hard-code Tailwind palette colors. */
+    --tone-warning: #fff4d6;
+    --tone-warning-foreground: #6b5000;
+    --tone-success: #e3f5ec;
+    --tone-success-foreground: #1f6b4a;
+    --tone-info: #e8f1fb;
+    --tone-info-foreground: #24558f;
+    --tone-danger: #fdecef;
+    --tone-danger-foreground: #a3324d;
+    --tone-accent: #efeafb;
+    --tone-accent-foreground: #5b4a9b;
+    --tint-1: #fbe4ea;
+    --tint-1-foreground: #8c2f4a;
+    --tint-2: #dff3ea;
+    --tint-2-foreground: #2b6650;
+    --tint-3: #fbf1d0;
+    --tint-3-foreground: #6b5617;
+    --tint-4: #ece6fa;
+    --tint-4-foreground: #4f3f8f;
+    --tint-5: #e2eefb;
+    --tint-5-foreground: #2c5482;
+    --tint-6: #f9e3f0;
+    --tint-6-foreground: #8a2e66;
+    --tint-7: #e6efdc;
+    --tint-7-foreground: #46603a;
+    --tint-8: #dcf1f1;
+    --tint-8-foreground: #2a6363;
 }
 
 /* ---------- Theme "น่ารัก" (cute): dark ---------- */
 [data-theme="cute"][data-mode="dark"] {
-    --background: #22121a;
-    --foreground: #fbeaf0;
-    --card: #2e1823;
-    --card-foreground: #fbeaf0;
-    --popover: #36202b;
-    --popover-foreground: #fbeaf0;
-    --primary: #ed93b1;
-    --primary-foreground: #4b1528;
-    --secondary: #3d2130;
-    --secondary-foreground: #fbeaf0;
-    --muted: #3d2130;
-    --muted-foreground: #e4a9bf;
-    --accent: #3f2c12;
-    --accent-foreground: #fac775;
+    --background: #1c1719;
+    --foreground: #f3ecef;
+    --card: #262022;
+    --card-foreground: #f3ecef;
+    --popover: #2d2629;
+    --popover-foreground: #f3ecef;
+    --primary: #f09ab1;
+    --primary-foreground: #3d0f1f;
+    --secondary: #2f282b;
+    --secondary-foreground: #f3ecef;
+    --muted: #2f282b;
+    --muted-foreground: #b8a9b0;
+    --accent: #2e2840;
+    --accent-foreground: #c9bdf5;
     --destructive: #f09595;
-    --border: #4a2a3a;
-    --input: #523042;
+    --border: #3a3236;
+    --input: #42393d;
     --ring: #ed93b1;
-    --sidebar: #2e1823;
-    --sidebar-foreground: #fbeaf0;
-    --sidebar-accent: #3d2130;
-    --sidebar-accent-foreground: #fbeaf0;
-    --sidebar-border: #4a2a3a;
+    --sidebar: #262022;
+    --sidebar-foreground: #f3ecef;
+    --sidebar-accent: #2f282b;
+    --sidebar-accent-foreground: #f3ecef;
+    --sidebar-border: #3a3236;
+    /* Tones (status) and tints (categories): see lib/tones.ts. Never hard-code Tailwind palette colors. */
+    --tone-warning: #3a3016;
+    --tone-warning-foreground: #f3dc9a;
+    --tone-success: #163a2c;
+    --tone-success-foreground: #a8e3c7;
+    --tone-info: #172c42;
+    --tone-info-foreground: #b9d6f2;
+    --tone-danger: #45202a;
+    --tone-danger-foreground: #f4b5c4;
+    --tone-accent: #2e2840;
+    --tone-accent-foreground: #c9bdf5;
+    --tint-1: #3d1d27;
+    --tint-1-foreground: #f5c1cf;
+    --tint-2: #173a2e;
+    --tint-2-foreground: #b6e6d0;
+    --tint-3: #3a3218;
+    --tint-3-foreground: #efdc9e;
+    --tint-4: #2c2545;
+    --tint-4-foreground: #d4c8f5;
+    --tint-5: #1a2c42;
+    --tint-5-foreground: #bcd5f1;
+    --tint-6: #3d1a33;
+    --tint-6-foreground: #f0bfdc;
+    --tint-7: #24301c;
+    --tint-7-foreground: #c8dcb5;
+    --tint-8: #173636;
+    --tint-8-foreground: #b2e1e1;
 }
 
 @layer base {

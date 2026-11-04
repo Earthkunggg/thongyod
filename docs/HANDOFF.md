@@ -552,3 +552,10 @@ Please fold these into phase 1 (they change tables you just created). Ask me if 
 - Sound effects (Kenney CC0 / ZzFX) for wheel and celebrations.
 - Home pet card still shows the old cat; switch it to the hatched pet.
 - หารบิล later: uneven shares (e.g. 2 portions), sync a bill with the gang (backend), receipt photo (uploads paused).
+
+## Frontend request for Codex — links for Home items (2026-11-04)
+
+Home v2 shows "ต้องจัดการ" (`PendingItem`) and "อัปเดตจากเพื่อน" (`FeedItem`) as cards, but they cannot open anything yet because the items carry no ids. Please propose (do not implement before the user approves):
+- `PendingItem`: add the target id(s) — `meetupId` for vote_time / vote_restaurant, `billId` (+ `gangId`) for pay_bill / confirm_payment.
+- `FeedItem`: add `actorUserId` and the target (`meetupId` / `billId` / `titleId`), so a card opens the profile or the meetup.
+- A gang detail endpoint (members, upcoming meetups, titles) for the planned gang page (frontend plan item 5).

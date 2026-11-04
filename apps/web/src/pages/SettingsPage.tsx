@@ -17,10 +17,13 @@ import { getMode, getTheme, setMode, setTheme, type Mode, type Theme } from '@/l
 
 const SECTION_LABEL = {
   waiting: 'settings.home.waiting',
+  highlights: 'settings.home.highlights',
+  tools: 'settings.home.tools',
+  missions: 'settings.home.missions',
   agenda: 'settings.home.agenda',
   pending: 'settings.home.pending',
-  pet: 'settings.home.pet',
   feed: 'settings.home.feed',
+  discover: 'settings.home.discover',
 } as const satisfies Record<HomeSectionId, string>
 
 // /settings — opened from the gear on "ฉัน" (decision #36).

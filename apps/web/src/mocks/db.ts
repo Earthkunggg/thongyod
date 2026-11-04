@@ -51,6 +51,10 @@ export const gangs: Gang[] = [
   { id: 'g1', name: 'แก๊งคอม 66', memberIds: ['u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u10'] },
   { id: 'g2', name: 'ทีมแบดวันพุธ', memberIds: ['u1', 'u2', 'u7', 'u8'] },
   { id: 'g3', name: 'เพื่อนมัธยม', memberIds: ['u1', 'u3', 'u5', 'u8'] },
+  // More gangs so lists, the gangs tab and "นัดของฉัน" have plenty to test with.
+  { id: 'g4', name: 'ชมรมถ่ายภาพ', memberIds: ['u1', 'u20', 'u21', 'u22', 'u23', 'u24', 'u25'] },
+  { id: 'g5', name: 'หอ B ชั้น 3', memberIds: ['u1', 'u26', 'u27', 'u28', 'u9'] },
+  { id: 'g6', name: 'โปรเจกต์จบ', memberIds: ['u1', 'u2', 'u29', 'u30'] },
 ]
 
 function dayAt(daysFromToday: number, hours: number, minutes = 0): Date {
@@ -96,6 +100,38 @@ const meetups: Meetup[] = [
     answers: answers([['u7', 'going'], ['u1', null, true]]),
   },
 ]
+
+// ---------- Generated test data (deterministic, so it is the same on every dev server start) ----------
+const TITLES = ['ชาบูหลังเลิกเรียน', 'ติวแคลคูลัส', 'ดูหนังรอบดึก', 'คาเฟ่เปิดใหม่', 'เล่นบอร์ดเกม', 'วิ่งรอบอ่าง', 'ประชุมโปรเจกต์', 'หมูกระทะวันศุกร์', 'ไปทะเลบางแสน', 'ร้องคาราโอเกะ', 'ตีแบดเช้า', 'ถ่ายรูปตลาดนัด', 'ปิ้งย่างที่หอ', 'ทำรายงานกลุ่ม', 'ส้มตำหน้ามอ']
+const RESPONSES: (MeetupResponse | null)[] = ['going', 'going', 'maybe', 'not_going', 'going', null]
+const GANG_IDS = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6']
+
+function generatedMeetups(): Meetup[] {
+  const out: Meetup[] = []
+  // Past 60 days: mostly answered, many "going" (fills "นัดที่ไปมาแล้ว").
+  for (let i = 0; i < 24; i++) {
+    const gang = gangs.find((g) => g.id === GANG_IDS[i % GANG_IDS.length])!
+    const mine: MeetupResponse = i % 4 === 3 ? 'not_going' : i % 5 === 4 ? 'maybe' : 'going'
+    out.push({
+      id: `mp${i}`, gangId: gang.id, title: TITLES[i % TITLES.length], startsAt: dayAt(-2 - i * 2, 12 + (i % 8)), createdBy: gang.memberIds[(i + 1) % gang.memberIds.length],
+      createdAt: dayAt(-5 - i * 2, 10), scheduleVersion: 1,
+      answers: answers(gang.memberIds.map((id, k) => [id, id === ME ? mine : RESPONSES[(i + k) % RESPONSES.length]] as [string, MeetupResponse | null])),
+    })
+  }
+  // Next 30 days: 8 not answered by me yet (the swipe deck), the rest answered.
+  for (let i = 0; i < 16; i++) {
+    const gang = gangs.find((g) => g.id === GANG_IDS[(i + 2) % GANG_IDS.length])!
+    const mine: MeetupResponse | null = i < 8 ? null : i % 3 === 0 ? 'maybe' : 'going'
+    out.push({
+      id: `mf${i}`, gangId: gang.id, title: TITLES[(i + 5) % TITLES.length], startsAt: dayAt(1 + Math.floor(i * 1.8), 9 + (i % 11), i % 2 ? 30 : 0),
+      createdBy: gang.memberIds[(i + 2) % gang.memberIds.length] === ME ? gang.memberIds[1] : gang.memberIds[(i + 2) % gang.memberIds.length],
+      createdAt: dayAt(-1 - (i % 3), 9), scheduleVersion: 1,
+      answers: answers(gang.memberIds.map((id, k) => [id, id === ME ? mine : RESPONSES[(i + k + 1) % RESPONSES.length]] as [string, MeetupResponse | null])),
+    })
+  }
+  return out
+}
+meetups.push(...generatedMeetups())
 
 export const userById = (id: string) => users.find((x) => x.id === id)
 export const person = (id: string): PersonRef => ({
@@ -267,16 +303,26 @@ export function createMeetup(body: { gangId: string; title: string; startsAt: st
 
 export function getHome(): HomeSummary {
   const now = Date.now()
+  const ago = (min: number) => new Date(now - min * 60_000).toISOString()
   return {
     pending: [
-      { id: 'p1', kind: 'vote_time', gangName: 'ทีมแบดวันพุธ', subject: 'แบดเย็นพุธ', dueAt: dayAt(0, 22).toISOString() },
+      { id: 'p1', kind: 'vote_time', gangName: 'ทีมแบดวันพุธ', subject: 'แบดเย็นพุธ', dueAt: dayAt(1, 22).toISOString() },
       { id: 'p2', kind: 'pay_bill', gangName: 'แก๊งคอม 66', subject: 'บิลชาบู', counterpartName: 'แอม', amountSatang: 18600 },
+      { id: 'p3', kind: 'vote_restaurant', gangName: 'หอ B ชั้น 3', subject: 'ปิ้งย่างที่หอ', dueAt: dayAt(2, 18).toISOString() },
+      { id: 'p4', kind: 'confirm_payment', gangName: 'เพื่อนมัธยม', subject: 'ค่าตั๋วหนัง', counterpartName: 'เบียร์', amountSatang: 22000 },
+      { id: 'p5', kind: 'pay_bill', gangName: 'ชมรมถ่ายภาพ', subject: 'ค่าเช่ารถตู้', counterpartName: 'ฟ้า', amountSatang: 35050 },
     ],
-    pet: null, // not activated yet: the pet card stays hidden (#35)
+    pet: null, // the pet now lives on this device (onboarding); the old card is not used on Home
     luckyColor: 'pink',
     feed: [
-      { id: 'f1', kind: 'meetup_created', actorName: 'ต้น', subject: 'แบดเย็นพุธ', gangName: 'ทีมแบดวันพุธ', createdAt: new Date(now - 20 * 60_000).toISOString() },
-      { id: 'f2', kind: 'title_earned', actorName: 'เบียร์', subject: 'นก', gangName: 'เพื่อนมัธยม', createdAt: new Date(now - 2 * 3_600_000).toISOString() },
+      { id: 'f1', kind: 'meetup_created', actorName: 'ต้น', subject: 'แบดเย็นพุธ', gangName: 'ทีมแบดวันพุธ', createdAt: ago(20) },
+      { id: 'f2', kind: 'title_earned', actorName: 'เบียร์', subject: 'นก', gangName: 'เพื่อนมัธยม', createdAt: ago(120) },
+      { id: 'f3', kind: 'bill_paid', actorName: 'แอม', subject: 'ค่าชาบู', gangName: 'แก๊งคอม 66', createdAt: ago(200) },
+      { id: 'f4', kind: 'meetup_created', actorName: 'ฟ้า', subject: 'ถ่ายรูปตลาดนัด', gangName: 'ชมรมถ่ายภาพ', createdAt: ago(300) },
+      { id: 'f5', kind: 'title_earned', actorName: 'พลอย', subject: 'สายมู', gangName: 'แก๊งคอม 66', createdAt: ago(600) },
+      { id: 'f6', kind: 'meetup_created', actorName: 'เจ', subject: 'ปิ้งย่างที่หอ', gangName: 'หอ B ชั้น 3', createdAt: ago(900) },
+      { id: 'f7', kind: 'bill_paid', actorName: 'บอส', subject: 'ค่าสนามแบด', gangName: 'ทีมแบดวันพุธ', createdAt: ago(1500) },
+      { id: 'f8', kind: 'title_earned', actorName: 'ปาล์ม', subject: 'ช่างภาพประจำแก๊ง', gangName: 'ชมรมถ่ายภาพ', createdAt: ago(2800) },
     ],
   }
 }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { HandCoins, Plus, RotateCw, Utensils, Vote, X } from 'lucide-react'
 import { SpinWheel } from '@/components/common/SpinWheel'
@@ -9,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { celebrate } from '@/lib/celebrate'
+import { markDone } from '@/features/daily/daily'
 import { getMyPet } from '@/features/onboarding/storage'
 import { MAX_OPTION_LENGTH, MAX_OPTIONS, MIN_OPTIONS, canSpin, normalizeOptions, spin } from '@/features/wheel/logic'
 import { loadOptions, saveOptions } from '@/features/wheel/storage'
@@ -24,7 +26,13 @@ type Phase = 'idle' | 'spinning' | 'result'
 // Wheel of names on one phone: type options (or pick a preset) → spin → result.
 export function WheelPage() {
   const { t } = useTranslation()
-  const [options, setOptions] = useState<string[]>(() => loadOptions() ?? splitList(t('wheel.presets.food.items')))
+  const [params] = useSearchParams()
+  // /wheel?preset=food (from Home "กินอะไรดี") starts with that preset.
+  const [options, setOptions] = useState<string[]>(() => {
+    const preset = PRESETS.find((p) => p === params.get('preset'))
+    if (preset) return normalizeOptions(splitList(t(`wheel.presets.${preset}.items`)))
+    return loadOptions() ?? splitList(t('wheel.presets.food.items'))
+  })
   const [draft, setDraft] = useState('')
   const [rotation, setRotation] = useState(0)
   const [duration, setDuration] = useState(SPIN_MS)
@@ -70,6 +78,7 @@ export function WheelPage() {
     if (!pending.current) return
     pending.current = 0
     setPhase('result')
+    markDone('tool')
     celebrate()
     navigator.vibrate?.(30)
     window.setTimeout(() => pet.current?.run('tap'), 150)

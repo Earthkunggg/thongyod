@@ -88,7 +88,7 @@ function Practice({ onNext }: { onNext: () => void }) {
   const [answer, setAnswer] = useState<SwipeDir | null>(null)
   const actions: SwipeAction[] = [
     { dir: 'left', label: t('meetup.notGoing'), icon: X, tone: 'border-muted-foreground/40 text-muted-foreground' },
-    { dir: 'up', label: t('meetup.maybe'), icon: HelpCircle, tone: 'border-amber-500 text-amber-600 dark:text-amber-400' },
+    { dir: 'up', label: t('meetup.maybe'), icon: HelpCircle, tone: 'border-tone-warning-foreground text-tone-warning-foreground' },
     { dir: 'right', label: t('meetup.going'), icon: Check, tone: 'border-primary text-primary' },
   ]
   const result = { right: t('meetup.going'), left: t('meetup.notGoing'), up: t('meetup.maybe') }

@@ -10,15 +10,18 @@ const DEFAULT_LAYOUT: HomeLayout = { order: DEFAULT_HOME_SECTIONS, hidden: [] }
 const listeners = new Set<() => void>()
 let cached: HomeLayout | null = null
 
-/** Keeps only known ids, adds new sections at the end (so app updates never lose a card). */
+/** Keeps only known ids; sections added in an app update go in at their default position. */
 function normalize(value: unknown): HomeLayout {
   const known = new Set<string>(DEFAULT_HOME_SECTIONS)
   const raw = (value ?? {}) as Partial<HomeLayout>
   const order = (Array.isArray(raw.order) ? raw.order : []).filter((id): id is HomeSectionId => known.has(id))
   const unique = [...new Set(order)]
-  const missing = DEFAULT_HOME_SECTIONS.filter((id) => !unique.includes(id))
+  const order2 = [...unique]
+  DEFAULT_HOME_SECTIONS.forEach((id, i) => {
+    if (!order2.includes(id)) order2.splice(Math.min(i, order2.length), 0, id)
+  })
   const hidden = (Array.isArray(raw.hidden) ? raw.hidden : []).filter((id): id is HomeSectionId => known.has(id))
-  return { order: [...unique, ...missing], hidden: [...new Set(hidden)] }
+  return { order: order2, hidden: [...new Set(hidden)] }
 }
 
 export function getHomeLayout(): HomeLayout {

@@ -25,11 +25,13 @@ type PetProps = {
   size?: number
   ref?: Ref<PetHandle>
   className?: string
+  /** Called when the user taps the pet (after its own reaction starts). */
+  onTap?: () => void
 }
 
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-export function Pet({ species, size = 240, ref, className }: PetProps) {
+export function Pet({ species, size = 240, ref, className, onTap: onTapProp }: PetProps) {
   const { t } = useTranslation()
   const spec = PET_SPECIES[species]
   const [pose, setPose] = useState<Pose>('main')
@@ -132,6 +134,7 @@ export function Pet({ species, size = 240, ref, className }: PetProps) {
     idleSince.current = Date.now()
     done.current.clear()
     run('tap')
+    onTapProp?.()
   }
 
   const sleeping = act === 'sleep'

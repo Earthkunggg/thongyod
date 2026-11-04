@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { markDone } from '@/features/daily/daily'
 import { HandoffScreen } from '@/features/quick-vote/HandoffScreen'
 import { createSession, quickVoteReducer, type QuickVoteAction, type QuickVoteSession } from '@/features/quick-vote/logic'
 import { ResultView } from '@/features/quick-vote/ResultView'
@@ -28,7 +29,14 @@ export function QuickVotePage() {
         backTo="/explore"
       />
 
-      {!session && <SetupForm onStart={(setup) => setSession(createSession(setup))} />}
+      {!session && (
+        <SetupForm
+          onStart={(setup) => {
+            setSession(createSession(setup))
+            markDone('tool')
+          }}
+        />
+      )}
 
       {session?.phase === 'voting' && (
         // key: a fresh screen (no leftover ticks) for every voter

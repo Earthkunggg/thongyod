@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { Award, Lock, Users } from 'lucide-react'
+import { Award, ChevronRight, Lock, Users } from 'lucide-react'
 import type { Profile } from '@/api/types'
 import { Avatar } from '@/components/common/Avatar'
 import { AvatarStack } from '@/components/common/AvatarStack'
@@ -10,6 +10,7 @@ import { PetCard } from '@/components/home/PetCard'
 import { MeetupRow } from '@/components/meetup/MeetupRow'
 import { Card } from '@/components/ui/card'
 import { formatMonthYear } from '@/lib/date'
+import { SHOW_BACK } from '@/lib/nav'
 
 type ProfileViewProps = {
   profile: Profile
@@ -48,17 +49,31 @@ export function ProfileView({ profile, actions }: ProfileViewProps) {
       <div className="flex justify-center gap-2 px-4">{actions}</div>
 
       {profile.stats && (
-        <Card className="mx-3 grid grid-cols-3 divide-x py-3 text-center">
+        <Card className="mx-3 grid grid-cols-3 divide-x overflow-hidden p-0 text-center">
           {[
-            { key: 'friends', value: profile.stats.friends, label: t('profile.stats.friends') },
-            { key: 'gangs', value: profile.stats.gangs, label: t('profile.stats.gangs') },
-            { key: 'attended', value: profile.stats.meetupsAttended, label: t('profile.stats.attended') },
-          ].map((s) => (
-            <div key={s.key}>
-              <div className="text-lg font-medium tabular-nums">{s.value}</div>
-              <div className="text-xs text-muted-foreground">{s.label}</div>
-            </div>
-          ))}
+            { key: 'friends', value: profile.stats.friends, label: t('profile.stats.friends'), to: isSelf ? '/gangs/friends' : profile.mutualFriends > 0 ? `/u/${profile.userId}/mutual` : null },
+            { key: 'gangs', value: profile.stats.gangs, label: t('profile.stats.gangs'), to: isSelf ? '/gangs' : null },
+            { key: 'attended', value: profile.stats.meetupsAttended, label: t('profile.stats.attended'), to: isSelf ? '/meetups?view=past' : null },
+          ].map((s) => {
+            const body = (
+              <>
+                <span className="block text-lg font-medium tabular-nums">{s.value}</span>
+                <span className="flex items-center justify-center gap-0.5 text-xs text-muted-foreground">
+                  {s.label}
+                  {s.to && <ChevronRight className="size-3" aria-hidden="true" />}
+                </span>
+              </>
+            )
+            return s.to ? (
+              <Link key={s.key} to={s.to} state={SHOW_BACK} className="py-3 active:bg-muted/60">
+                {body}
+              </Link>
+            ) : (
+              <div key={s.key} className="py-3">
+                {body}
+              </div>
+            )
+          })}
         </Card>
       )}
 
