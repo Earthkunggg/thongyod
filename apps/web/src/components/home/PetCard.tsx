@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import type { LuckyColorKey, PetMood, PetSummary } from '@thongyod/shared'
+import { LUCKY_HEX } from '@/config/luckyColors'
 import { PawPrint } from 'lucide-react'
 import { Pet } from '@/components/pet/Pet'
 import { asSpecies, type PetSpeciesId } from '@/components/pet/species'
@@ -12,20 +13,6 @@ const MOOD_HINT = {
   sulking: 'pet.hints.makeUp',
   wilting: 'pet.hints.makeUp',
 } as const satisfies Record<PetMood, string>
-
-/** Swatch color for each lucky color key. */
-const LUCKY_HEX: Record<LuckyColorKey, string> = {
-  red: '#e24b4a',
-  orange: '#f08a24',
-  yellow: '#f2c230',
-  green: '#3b9b4f',
-  blue: '#378add',
-  purple: '#7f77dd',
-  pink: '#d4537e',
-  black: '#2c2c2a',
-  white: '#ffffff',
-  gray: '#888780',
-}
 
 type PetCardProps = {
   pet: PetSummary

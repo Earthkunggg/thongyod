@@ -22,6 +22,7 @@ import { GangPage } from '@/pages/GangPage'
 import { GangsPage } from '@/pages/GangsPage'
 import { HeadsUpPage } from '@/pages/HeadsUpPage'
 import { HomePage } from '@/pages/HomePage'
+import { LuckyColorPage } from '@/pages/LuckyColorPage'
 import { InvitesPage } from '@/pages/InvitesPage'
 import { MeetupDetailPage } from '@/pages/MeetupDetailPage'
 import { MutualFriendsPage } from '@/pages/MutualFriendsPage'
@@ -48,7 +49,7 @@ const TAB_PATHS = ['/', '/gangs', '/explore', '/pet', '/me']
 
 // Ready tools without a real page yet get a placeholder.
 // When a tool page is built, add its route above this list and it will be skipped here.
-const BUILT_TOOL_PATHS: string[] = ['/flashcards', '/head-guess', '/quick-vote', '/meetups/new', '/wheel', '/bills', '/fortune', '/meetups']
+const BUILT_TOOL_PATHS: string[] = ['/lucky-color', '/flashcards', '/head-guess', '/quick-vote', '/meetups/new', '/wheel', '/bills', '/fortune', '/meetups']
 const placeholderToolRoutes: RouteObject[] = TOOLS.filter(
   (tool) => tool.status === 'ready' && tool.to && !TAB_PATHS.includes(tool.to) && !BUILT_TOOL_PATHS.includes(tool.to),
 ).map((tool) => ({ path: tool.to!.slice(1), element: <ToolPlaceholderPage toolId={tool.id} /> }))
@@ -84,6 +85,7 @@ export const router = createRouter([
       { path: 'head-guess', element: <HeadsUpPage /> },
       { path: 'flashcards', element: <FlashcardsPage /> },
       { path: 'pet/lab', element: <PetLabPage /> },
+      { path: 'lucky-color', element: <LuckyColorPage /> },
       { path: 'flashcards/:deckId', element: <FlashcardDeckPage /> },
       { path: 'flashcards/:deckId/study', element: <FlashcardStudyPage /> },
       { path: 'bills', element: <BillsPage /> },

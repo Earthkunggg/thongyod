@@ -86,6 +86,7 @@
 - `src/features/notifications/prefs.ts` (tested) + `storage.ts` → `useNotifyPrefs()` / `setNotifyPrefs()`: notification settings on this device.
 - `src/lib/promptpay.ts` → `parseTarget`, `promptPayPayload(target, satang)`, `targetFromPayload(qrText)`, `maskTarget` (tested against reference payloads). UI: `features/bill-split/PromptPayDialog.tsx` (reuse QrCodeCard + QrScanner).
 - `src/lib/id.ts` → `randomId()`: ids for device data; works on http (crypto.randomUUID does not).
+- `src/features/lucky-color/taksa.ts` → `taksa(day)`, `colorsFor(day)`, `bangkokDay(now)` (tested); `config/luckyColors.ts` → `LUCKY_HEX` swatches.
 - `src/lib/random.ts` → `secureRandomInt(max)`: the one fair random source for every game/tool (tests mock it by passing a `random` function).
 
 
