@@ -6,11 +6,15 @@ import type { Profile } from '@/api/types'
 import { Avatar } from '@/components/common/Avatar'
 import { AvatarStack } from '@/components/common/AvatarStack'
 import { SectionHeader } from '@/components/common/SectionHeader'
+import { SeeAllLink } from '@/components/common/SeeAllLink'
 import { PetCard } from '@/components/home/PetCard'
 import { MeetupRow } from '@/components/meetup/MeetupRow'
 import { Card } from '@/components/ui/card'
 import { formatMonthYear } from '@/lib/date'
 import { SHOW_BACK } from '@/lib/nav'
+
+/** Chip sections (titles, shared gangs) show this many; the rest are behind "ดูทั้งหมด". */
+const CHIP_PREVIEW = 6
 
 type ProfileViewProps = {
   profile: Profile
@@ -97,13 +101,17 @@ export function ProfileView({ profile, actions }: ProfileViewProps) {
 
       {profile.sharedGangs.length > 0 && (
         <section>
-          <SectionHeader title={t('profile.sharedGangs', { count: profile.sharedGangs.length })} />
+          <SectionHeader
+            title={t('profile.sharedGangs', { count: profile.sharedGangs.length })}
+            action={profile.sharedGangs.length > CHIP_PREVIEW && <SeeAllLink to={`/u/${profile.userId}/gangs`} />}
+          />
           <div className="flex flex-wrap gap-2 px-3">
-            {profile.sharedGangs.map((g) => (
-              <span key={g.id} className="flex items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 text-sm">
+            {profile.sharedGangs.slice(0, CHIP_PREVIEW).map((g) => (
+              <Link key={g.id} to={`/gangs/${g.id}`} className="flex min-h-9 items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 text-sm active:opacity-70">
                 <Users className="size-4 text-muted-foreground" aria-hidden="true" />
                 {g.name}
-              </span>
+                <ChevronRight className="-mr-1 size-3.5 text-muted-foreground" aria-hidden="true" />
+              </Link>
             ))}
           </div>
         </section>
@@ -113,11 +121,7 @@ export function ProfileView({ profile, actions }: ProfileViewProps) {
         <section>
           <SectionHeader
             title={t('profile.mutualTitle', { count: profile.mutualFriends })}
-            action={
-              <Link to={`/u/${profile.userId}/mutual`} className="text-xs font-medium text-primary">
-                {t('profile.seeAll')}
-              </Link>
-            }
+            action={<SeeAllLink to={`/u/${profile.userId}/mutual`} />}
           />
           <Link to={`/u/${profile.userId}/mutual`} className="mx-3 flex items-center gap-3 rounded-xl border bg-card p-3 active:opacity-80">
             <AvatarStack names={profile.mutualPreview.map((p) => p.displayName)} total={profile.mutualFriends} />
@@ -130,9 +134,12 @@ export function ProfileView({ profile, actions }: ProfileViewProps) {
 
       {profile.titles && profile.titles.length > 0 && (
         <section>
-          <SectionHeader title={t('profile.titles', { count: profile.titles.length })} />
+          <SectionHeader
+            title={t('profile.titles', { count: profile.titles.length })}
+            action={profile.titles.length > CHIP_PREVIEW && <SeeAllLink to={`/u/${profile.userId}/titles`} />}
+          />
           <div className="flex flex-wrap gap-2 px-3">
-            {profile.titles.map((title) => (
+            {profile.titles.slice(0, CHIP_PREVIEW).map((title) => (
               <span key={title.id} className="flex items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 text-sm">
                 <Award className="size-4 text-primary" aria-hidden="true" />
                 {title.name}

@@ -1,8 +1,6 @@
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { CalendarDays, CheckSquare, ChevronRight, Receipt, Utensils, type LucideIcon } from 'lucide-react'
-import type { PendingKind } from '@thongyod/shared'
 import { useHome } from '@/api/home'
 import { useMe } from '@/api/profile'
 import { useMeetupsInRange } from '@/api/meetups'
@@ -15,6 +13,8 @@ import { LoadingState } from '@/components/common/LoadingState'
 import { SectionHeader } from '@/components/common/SectionHeader'
 import { SwipeDeck } from '@/components/common/SwipeDeck'
 import { HScroll } from '@/components/common/HScroll'
+import { SeeAllLink } from '@/components/common/SeeAllLink'
+import { PENDING_ICONS } from '@/config/pending'
 import { DailyMissions } from '@/components/home/DailyMissions'
 import { DiscoverRow } from '@/components/home/DiscoverRow'
 import { Highlights } from '@/components/home/Highlights'
@@ -35,12 +35,8 @@ import { useHomeLayout } from '@/features/settings/homeLayout'
 import { addDays, formatDayLabel, formatTimeAgo, isSameDay, startOfWeek } from '@/lib/date'
 import { feedText, pendingSubtitle, pendingTitle } from '@/lib/describe'
 
-const PENDING_ICONS: Record<PendingKind, LucideIcon> = {
-  vote_time: CheckSquare,
-  vote_restaurant: Utensils,
-  pay_bill: Receipt,
-  confirm_payment: Receipt,
-}
+/** Sideways rows on Home show this many; the rest are behind "ดูทั้งหมด". */
+const ROW_PREVIEW = 4
 
 
 export function HomePage() {
@@ -82,10 +78,7 @@ export function HomePage() {
         <SectionHeader
           title={t('home.waitingTitle', { count: waiting.length })}
           action={
-            <Link to="/invites" className="flex items-center text-xs font-medium text-primary">
-              {t('common.seeAll')}
-              <ChevronRight className="size-3.5" aria-hidden="true" />
-            </Link>
+            <SeeAllLink to="/invites" />
           }
         />
         <SwipeDeck<MeetupListItem>
@@ -113,11 +106,7 @@ export function HomePage() {
         <SectionHeader
           title={t('home.subtitle', { count: weekMeetups.length })}
           action={
-            <Link to="/calendar" className="flex items-center gap-1 text-xs font-medium text-primary">
-              <CalendarDays className="size-3.5" aria-hidden="true" />
-              {t('calendar.open')}
-              <ChevronRight className="size-3.5" aria-hidden="true" />
-            </Link>
+            <SeeAllLink to="/calendar" label={t('calendar.open')} />
           }
         />
         <WeekStrip today={now} selected={selectedDay} onSelect={setSelectedDay} markedDays={weekMeetups.map((m) => new Date(m.startsAt))} />
@@ -144,9 +133,9 @@ export function HomePage() {
 
     pending: home && home.pending.length > 0 && (
       <section>
-        <SectionHeader title={t('home.pendingTitle', { count: home.pending.length })} />
+        <SectionHeader title={t('home.pendingTitle', { count: home.pending.length })} action={home.pending.length > ROW_PREVIEW && <SeeAllLink to="/pending" />} />
         <HScroll label={t('home.pendingTitle', { count: home.pending.length })}>
-          {home.pending.map((item) => {
+          {home.pending.slice(0, ROW_PREVIEW).map((item) => {
             const Icon = PENDING_ICONS[item.kind]
             return (
               <div key={item.id} className="flex w-56 shrink-0 snap-start items-start gap-3 rounded-xl border bg-card p-3">
@@ -164,9 +153,9 @@ export function HomePage() {
 
     feed: home && home.feed.length > 0 && (
       <section>
-        <SectionHeader title={t('home.friendsUpdates')} />
+        <SectionHeader title={t('home.friendsUpdates')} action={home.feed.length > ROW_PREVIEW && <SeeAllLink to="/updates" />} />
         <HScroll label={t('home.friendsUpdates')}>
-          {home.feed.map((item) => (
+          {home.feed.slice(0, ROW_PREVIEW).map((item) => (
             <div key={item.id} className="flex w-60 shrink-0 snap-start items-center gap-3 rounded-xl border bg-card p-3">
               <Avatar name={item.actorName} />
               <span className="min-w-0">

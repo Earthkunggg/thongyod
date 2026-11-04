@@ -34,6 +34,15 @@ export function bangkokDayKey(date: Date): string {
 
 export type Draw = { day: string; stick: StickNo }
 
+/** How many days of fortune history this device keeps. */
+export const HISTORY_DAYS = 60
+
+/** History with `draw` added: one entry per day (the newer one wins), newest first, at most `keep`. */
+export function addToHistory(history: Draw[], draw: Draw, keep: number = HISTORY_DAYS): Draw[] {
+  const others = history.filter((d) => d.day !== draw.day && isStickNo(d.stick))
+  return [draw, ...others].sort((a, b) => b.day.localeCompare(a.day)).slice(0, keep)
+}
+
 /** Today's stick: the saved one if it is from today, otherwise a new fair draw. */
 export function drawForToday(now: Date, saved: Draw | null, random: (max: number) => number = secureRandomInt): { draw: Draw; isNew: boolean } {
   const day = bangkokDayKey(now)

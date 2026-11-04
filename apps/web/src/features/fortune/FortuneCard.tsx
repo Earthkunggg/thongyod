@@ -3,11 +3,9 @@ import { BookOpen, Heart, Wallet } from 'lucide-react'
 import { IconTile } from '@/components/common/IconTile'
 import { levelOf, type StickNo } from './logic'
 import { Badge } from '@/components/common/Badge'
-import type { Tone } from '@/lib/tones'
+import { LEVEL_TONE } from './levelTone'
 
 const TOPIC_ICON = { study: BookOpen, money: Wallet, love: Heart } as const
-
-const LEVEL_TONE = { great: 'accent', good: 'success', fair: 'info', careful: 'danger' } as const satisfies Record<string, Tone>
 
 // The fortune paper: number, level, a 2-line verse and one line each for study / money / love.
 export function FortuneCard({ stick }: { stick: StickNo }) {

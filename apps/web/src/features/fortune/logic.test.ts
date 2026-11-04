@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { STICK_COUNT, bangkokDayKey, createShakeDetector, drawForToday, isStickNo, levelOf } from './logic'
+import { STICK_COUNT, addToHistory, bangkokDayKey, createShakeDetector, drawForToday, isStickNo, levelOf, type Draw } from './logic'
 
 describe('levels', () => {
   it('has a level for every stick, with the planned mix', () => {
@@ -64,5 +64,19 @@ describe('createShakeDetector', () => {
     let fired = false
     for (let i = 0; i < 6; i++) fired ||= feed(i % 2 ? 15 : -15, 9.8, 0, i * 1000)
     expect(fired).toBe(false)
+  })
+})
+
+describe('addToHistory', () => {
+  const d = (day: string, stick: number) => ({ day, stick }) as Draw
+  it('keeps one entry per day, newest first', () => {
+    const h = addToHistory([d('2026-11-03', 5), d('2026-11-01', 2)], d('2026-11-04', 9))
+    expect(h.map((x) => x.day)).toEqual(['2026-11-04', '2026-11-03', '2026-11-01'])
+    expect(addToHistory(h, d('2026-11-04', 9))).toHaveLength(3)
+  })
+  it('caps the length and drops broken entries', () => {
+    const many = Array.from({ length: 70 }, (_, i) => d(`2026-08-${String((i % 28) + 1).padStart(2, '0')}-${i}`, 1))
+    expect(addToHistory(many, d('2026-11-04', 1), 60)).toHaveLength(60)
+    expect(addToHistory([d('2026-11-01', 99)], d('2026-11-02', 3))).toEqual([d('2026-11-02', 3)])
   })
 })

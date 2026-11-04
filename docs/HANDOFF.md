@@ -600,3 +600,4 @@ Rules followed: user asked to push each feature straight to `main` only after li
 
 - **fix: tests + lint** — `i18n/index.ts` no longer touches `document` at import time in Node (the daily test failed); `eslint.config.js` ignores the generated `public/mockServiceWorker.js`. All tests pass.
 - **1. Calendar** (DECISIONS #58) — `/calendar`, `MonthGrid`, `features/calendar/month.ts` (+ tests), › on `MeetupRow`, Home "ปฏิทิน ›" link, calendar icon on นัดของฉัน, `/meetups/new?date=YYYY-MM-DD`. No API change: uses `GET /meetups?from&to` (≤ 42 days).
+- **2a. See-all pages** (DECISIONS #59) — `SeeAllLink`, `/pending`, `/updates`, `/u/:id/titles`, `/u/:id/gangs`, `/fortune/history` (+ `thongyod-fortune-history` on the device). Mock: 6 more titles for `u1` so the profile cuts the list.

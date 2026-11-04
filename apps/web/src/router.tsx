@@ -9,6 +9,7 @@ import { BillPage } from '@/pages/BillPage'
 import { BillsPage } from '@/pages/BillsPage'
 import { CalendarPage } from '@/pages/CalendarPage'
 import { CreateMeetupPage } from '@/pages/CreateMeetupPage'
+import { FortuneHistoryPage } from '@/pages/FortuneHistoryPage'
 import { FortunePage } from '@/pages/FortunePage'
 import { FriendQrPage } from '@/pages/FriendQrPage'
 import { FriendsPage } from '@/pages/FriendsPage'
@@ -21,10 +22,13 @@ import { MutualFriendsPage } from '@/pages/MutualFriendsPage'
 import { MyMeetupsPage } from '@/pages/MyMeetupsPage'
 import { MePage } from '@/pages/MePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
+import { PendingPage } from '@/pages/PendingPage'
 import { PetPage } from '@/pages/PetPage'
+import { ProfileListPage } from '@/pages/ProfileListPage'
 import { QuickVotePage } from '@/pages/QuickVotePage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { ToolPlaceholderPage } from '@/pages/ToolPlaceholderPage'
+import { UpdatesPage } from '@/pages/UpdatesPage'
 import { UserProfilePage } from '@/pages/UserProfilePage'
 import { WelcomePage } from '@/pages/WelcomePage'
 import { WheelPage } from '@/pages/WheelPage'
@@ -72,6 +76,9 @@ export const router = createRouter([
       { path: 'bills/new', element: <Navigate to="/bills" replace /> },
       { path: 'bills/:id', element: <BillPage /> },
       { path: 'fortune', element: <FortunePage /> },
+      { path: 'fortune/history', element: <FortuneHistoryPage /> },
+      { path: 'pending', element: <PendingPage /> },
+      { path: 'updates', element: <UpdatesPage /> },
       { path: 'meetups', element: <MyMeetupsPage /> },
       { path: 'calendar', element: <CalendarPage /> },
       { path: 'invites', element: <InvitesPage /> },
@@ -81,6 +88,8 @@ export const router = createRouter([
       { path: 'add/:code', element: <AddFriendPage /> },
       { path: 'u/:userId', element: <UserProfilePage /> },
       { path: 'u/:userId/mutual', element: <MutualFriendsPage /> },
+      { path: 'u/:userId/titles', element: <ProfileListPage kind="titles" /> },
+      { path: 'u/:userId/gangs', element: <ProfileListPage kind="gangs" /> },
       { path: 'me/edit', element: <EditProfilePage /> },
       { path: 'settings', element: <SettingsPage /> },
       { path: 'welcome', element: <WelcomePage /> },

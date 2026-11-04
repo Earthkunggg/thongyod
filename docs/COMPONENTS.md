@@ -30,6 +30,8 @@
 | MonthGrid | `src/components/common/MonthGrid.tsx` | ours | Full month grid (Mon first): today filled, selected ring, up to 3 dots per day (hollow first dot = waiting for my answer) + legend; swipe left/right = change month | month, today, selected, onSelect, marks (Map dayKey → {count, needsAnswer}), onSwipeMonth? | Logic in `features/calendar/month.ts` (tested). Reuse later for classes, exams, holy days. Page must also show ‹ › buttons (gesture rule). |
 | WeekStrip | `src/components/home/WeekStrip.tsx` | ours | Mon-Sun strip, today filled, selected ring, dot = has meetup | today, selected, onSelect, markedDays | Later: classes, exams, holy days as extra dots |
 | SwipeDeck | `src/components/common/SwipeDeck.tsx` | ours (no library: pointer events + CSS) | Stack of cards (2 visible behind) answered by swiping left / up / right or with the round buttons; stamps while dragging; rubber-band drag limit; tap = onOpen; keyboard ← ↑ → and Enter | items, getKey, renderCard, actions [{dir,label,icon,tone}], onSwipe, onOpen?, label, tall? | DECISIONS #46/#57. For invites use `useInviteActions()` + `SWIPE_TO_RESPONSE`. |
+| SeeAllLink | `src/components/common/SeeAllLink.tsx` | ours | "ดูทั้งหมด ›" link for a SectionHeader action | to, label? | Use whenever a section shows only part of a list (#59). |
+| FeedRow | `src/components/home/FeedRow.tsx` | ours | One friends' update in a vertical list (avatar, 2-line sentence, gang · time ago) | item, now | Not a link until FeedItem has target ids. |
 | HScroll | `src/components/common/HScroll.tsx` | ours | Sideways scrolling row with snap (cards peek from the right), hidden scrollbar | label, children (`shrink-0 snap-start`), onScroll | Use for any horizontal card row (Home highlights, pending, feed, discover). |
 | Badge | `src/components/common/Badge.tsx` | ours | Rounded pill with a meaning color | tone ('warning' \| 'success' \| 'info' \| 'danger' \| 'accent' \| 'neutral'), icon, children | Colors from `lib/tones.ts`; never write palette colors in components (DECISIONS #55). |
 | Home sections | `src/components/home/{HomeGreeting,Highlights,QuickTools,DailyMissions,DiscoverRow}.tsx` | ours | Building blocks of Home v2 (DECISIONS #54) | see files | Section order/visibility from `features/settings/homeLayout`. |
@@ -66,6 +68,8 @@
 - `src/lib/nav.ts` → `SHOW_BACK`: pass as Link `state` when linking INTO a tab page so it shows a back button.
 - `src/features/daily/daily.ts` → `markDone(mission)`, `useDaily()`, `streakOf()`: daily missions (call `markDone('tool')` when a new tool is used).
 - `src/lib/celebrate.ts` → `celebrate()`: confetti for peak moments only (result, all paid, hatch). canvas-confetti 1.9.4, ISC; off with reduced motion.
+- `src/config/pending.ts` → `PENDING_ICONS`: icon per "ต้องจัดการ" kind (Home + /pending).
+- `src/features/fortune/storage.ts` → `loadHistory()` (60 days, `addToHistory` tested); `features/fortune/levelTone.ts` → `LEVEL_TONE` badge color per level.
 - `src/lib/random.ts` → `secureRandomInt(max)`: the one fair random source for every game/tool (tests mock it by passing a `random` function).
 
 

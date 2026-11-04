@@ -23,6 +23,13 @@ const titles: Record<string, TitleSeed[]> = {
   u1: [
     { id: 't1', name: 'สายเปย์', gangId: 'g1', earnedAt: '2026-10-20T12:00:00.000Z' },
     { id: 't2', name: 'มาตรงเวลา', gangId: 'g2', earnedAt: '2026-09-02T12:00:00.000Z' },
+    // More titles so the profile cuts the list and shows "ดูทั้งหมด".
+    { id: 't7', name: 'เจ้าภาพ', gangId: 'g1', earnedAt: '2026-08-11T12:00:00.000Z' },
+    { id: 't8', name: 'โอนไวใจถึง', gangId: 'g3', earnedAt: '2026-07-30T12:00:00.000Z' },
+    { id: 't9', name: 'หนูทดลอง', gangId: 'g5', earnedAt: '2026-07-02T12:00:00.000Z' },
+    { id: 't10', name: 'เส้นสายดี', gangId: 'g4', earnedAt: '2026-06-18T12:00:00.000Z' },
+    { id: 't11', name: 'มือไวใจเร็ว', gangId: 'g6', earnedAt: '2026-06-01T12:00:00.000Z' },
+    { id: 't12', name: 'สายมู', gangId: null, earnedAt: '2026-05-20T12:00:00.000Z' },
   ],
   u2: [
     { id: 't3', name: 'ตัวตึงหมูกระทะ', gangId: 'g1', earnedAt: '2026-10-01T12:00:00.000Z' },

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Share2, UserPlus, Vibrate } from 'lucide-react'
+import { Link } from 'react-router'
+import { History, Share2, UserPlus, Vibrate } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { FortuneCard } from '@/features/fortune/FortuneCard'
@@ -69,7 +70,16 @@ export function FortunePage() {
 
   return (
     <>
-      <PageHeader title={t('fortune.title')} subtitle={t('fortune.subtitle')} backTo="/explore" />
+      <PageHeader
+        title={t('fortune.title')}
+        subtitle={t('fortune.subtitle')}
+        backTo="/explore"
+        action={
+          <Link to="/fortune/history" className={buttonVariants({ variant: 'ghost', size: 'icon' })} aria-label={t('fortune.history')}>
+            <History className="size-5" />
+          </Link>
+        }
+      />
 
       <div className="flex flex-col items-center gap-5 px-4 pb-8">
         {phase !== 'card' ? (
