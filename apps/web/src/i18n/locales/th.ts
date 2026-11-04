@@ -741,6 +741,8 @@ export const th = {
     paused: 'พักเกม',
     resume: 'เล่นต่อ',
     quit: 'จบรอบนี้',
+    fullscreen: 'เต็มจอ',
+    resumeFullscreen: 'เล่นต่อแบบเต็มจอ',
     timeLeft: 'เหลือ {{count}} วินาที',
     scoreLabel: 'ทายถูก',
     resultTitle: 'ทายถูก {{count}} คำ',

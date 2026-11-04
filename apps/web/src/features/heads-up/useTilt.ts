@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { enterFullscreen, exitFullscreen } from '@/lib/fullscreen'
 
 export type TiltSupport = 'unsupported' | 'needs-permission' | 'on' | 'denied'
 
@@ -76,10 +77,10 @@ export function useWakeLock(active: boolean) {
   }, [active])
 }
 
-/** Fullscreen + landscape lock where possible (Chrome Android). iPhone ignores both; the game asks to rotate instead. */
+/** Fullscreen + landscape lock where possible (Chrome Android, iPad). iPhone has neither; the game asks to rotate. */
 export async function enterLandscape(): Promise<void> {
+  await enterFullscreen()
   try {
-    if (!document.fullscreenElement && document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen({ navigationUI: 'hide' })
     const orientation = screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> }
     await orientation.lock?.('landscape')
   } catch {
@@ -90,8 +91,8 @@ export async function enterLandscape(): Promise<void> {
 export function leaveLandscape(): void {
   try {
     screen.orientation?.unlock?.()
-    if (document.fullscreenElement) void document.exitFullscreen()
   } catch {
     // Ignore.
   }
+  void exitFullscreen()
 }

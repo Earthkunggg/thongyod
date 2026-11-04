@@ -38,6 +38,7 @@
 | SoundToggle | `src/components/common/SoundToggle.tsx` | ours | 🔊/🔇 button for a game header, per game, default on | game | Read the value with `useGameSound(game)` (`lib/soundPrefs.ts`). |
 | ChipSelect | `src/components/common/ChipSelect.tsx` | ours | Wrap of chips, many (checkbox) or one (radio) | options {value,label,icon?}, value[], onChange, label, single? | Filters/categories. For 2–4 equal options use SegmentedChoice. |
 | RestaurantDialog | `src/components/restaurants/RestaurantDialog.tsx` | ours | Add/edit a pinned place | open, onOpenChange, restaurant | |
+| FitText | `src/components/common/FitText.tsx` | ours | Biggest font size (min–max) that fits its box in ≤ N lines; re-fits on resize/rotation | text, max, min?, maxLines? | Game words, big numbers. |
 | HScroll | `src/components/common/HScroll.tsx` | ours | Sideways scrolling row with snap (cards peek from the right), hidden scrollbar | label, children (`shrink-0 snap-start`), onScroll | Use for any horizontal card row (Home highlights, pending, feed, discover). |
 | Badge | `src/components/common/Badge.tsx` | ours | Rounded pill with a meaning color | tone ('warning' \| 'success' \| 'info' \| 'danger' \| 'accent' \| 'neutral'), icon, children | Colors from `lib/tones.ts`; never write palette colors in components (DECISIONS #55). |
 | Home sections | `src/components/home/{HomeGreeting,Highlights,QuickTools,DailyMissions,DiscoverRow}.tsx` | ours | Building blocks of Home v2 (DECISIONS #54) | see files | Section order/visibility from `features/settings/homeLayout`. |
@@ -90,6 +91,7 @@
 - `src/lib/id.ts` → `randomId()`: ids for device data; works on http (crypto.randomUUID does not).
 - `src/features/lucky-color/taksa.ts` → `taksa(day)`, `colorsFor(day)`, `bangkokDay(now)` (tested); `config/luckyColors.ts` → `LUCKY_HEX` swatches.
 - `src/features/restaurants/logic.ts` → `applyFilters`, `filterKey`, `drawNext`, `exclude`, `restart` (spec §8.4 rounds, tested); storage `useRestaurants()`; `useRestaurantSubtitle()`.
+- `src/lib/fullscreen.ts` → `useFullscreen()` (supported/active/enter/exit, incl. iPad webkit API), `enterFullscreen()`, `exitFullscreen()`.
 - `src/lib/random.ts` → `secureRandomInt(max)`: the one fair random source for every game/tool (tests mock it by passing a `random` function).
 
 

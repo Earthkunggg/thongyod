@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pause, Smartphone } from 'lucide-react'
+import { Maximize, Pause, Smartphone } from 'lucide-react'
+import { FitText } from '@/components/common/FitText'
+import { useFullscreen } from '@/lib/fullscreen'
 import { Button } from '@/components/ui/button'
 import { buzz, playSound, type SoundName } from '@/lib/sound'
 import { TONE_CLASS } from '@/lib/tones'
@@ -41,6 +43,13 @@ export function PlayScreen({ words, seconds, useTilt, inverted, sound, onFinish 
   const finished = useRef(false)
 
   const sfx = useCallback((name: SoundName) => sound && playSound(name), [sound])
+  const fullscreen = useFullscreen()
+  const wasFull = useRef(fullscreen.active)
+  // Leaving fullscreen with the browser's ✕ (iPad) pauses the round, so no time is lost; a button brings it back.
+  useEffect(() => {
+    if (wasFull.current && !fullscreen.active && phase === 'play') pause()
+    wasFull.current = fullscreen.active
+  })
   useWakeLock(phase !== 'paused')
 
   // Rotate → countdown as soon as the phone is sideways.
@@ -167,9 +176,16 @@ export function PlayScreen({ words, seconds, useTilt, inverted, sound, onFinish 
       {(phase === 'play' || phase === 'paused') && (
         <>
           <div className="relative z-10 flex items-center justify-between px-4 pt-[calc(env(safe-area-inset-top)+0.5rem)]">
-            <Button variant="ghost" size="icon" aria-label={t('headsUp.pause')} onClick={pause}>
-              <Pause />
-            </Button>
+            <span className="flex items-center">
+              <Button variant="ghost" size="icon" aria-label={t('headsUp.pause')} onClick={pause}>
+                <Pause />
+              </Button>
+              {fullscreen.supported && !fullscreen.active && (
+                <Button variant="ghost" size="icon" aria-label={t('headsUp.fullscreen')} onClick={() => void fullscreen.enter()}>
+                  <Maximize />
+                </Button>
+              )}
+            </span>
             <span
               className={cn('rounded-full px-3 py-1 text-lg font-medium tabular-nums', left <= LAST_SECONDS ? TONE_CLASS.warning : 'bg-muted')}
               aria-label={t('headsUp.timeLeft', { count: left })}
@@ -191,10 +207,10 @@ export function PlayScreen({ words, seconds, useTilt, inverted, sound, onFinish 
             </button>
           </div>
 
-          <div className="pointer-events-none relative flex flex-1 items-center justify-center px-6 text-center" aria-live="polite">
-            <span key={index} className="font-heading text-[clamp(2.5rem,13vmin,6.5rem)] leading-tight font-medium break-words motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95 motion-safe:duration-200">
-              {word}
-            </span>
+          <div className="pointer-events-none relative flex min-h-0 flex-1 items-center justify-center px-[4vw] py-2" aria-live="polite">
+            <div key={index} className="size-full font-heading font-medium motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-90 motion-safe:duration-200">
+              <FitText text={word} max={260} min={28} maxLines={2} />
+            </div>
           </div>
 
           {stuck && useTilt && <p className="pointer-events-none relative pb-10 text-center text-xs text-muted-foreground">{t('headsUp.sensorStuck')}</p>}
@@ -218,6 +234,19 @@ export function PlayScreen({ words, seconds, useTilt, inverted, sound, onFinish 
               <Button size="lg" className="w-56" onClick={resume}>
                 {t('headsUp.resume')}
               </Button>
+              {fullscreen.supported && !fullscreen.active && (
+                <Button
+                  variant="outline"
+                  className="w-56"
+                  onClick={() => {
+                    void fullscreen.enter()
+                    resume()
+                  }}
+                >
+                  <Maximize data-icon="inline-start" />
+                  {t('headsUp.resumeFullscreen')}
+                </Button>
+              )}
               <Button variant="outline" className="w-56" onClick={() => finish(answers)}>
                 {t('headsUp.quit')}
               </Button>

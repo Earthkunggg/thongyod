@@ -740,6 +740,8 @@ export const en: Messages = {
     paused: 'Paused',
     resume: 'Resume',
     quit: 'End this round',
+    fullscreen: 'Fullscreen',
+    resumeFullscreen: 'Resume in fullscreen',
     timeLeft: '{{count}} seconds left',
     scoreLabel: 'Correct',
     resultTitle: '{{count}} correct',
