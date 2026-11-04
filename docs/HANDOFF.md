@@ -545,3 +545,9 @@ Please fold these into phase 1 (they change tables you just created). Ask me if 
 - Blocked either way → 404 `USER_NOT_FOUND`.
 - `DELETE /friends/:userId` (unfriend, silent, 204). `POST /blocks {userId}` (204; also removes friendship and pending requests both ways), `DELETE /blocks/:userId`. In shared gangs both stay visible to each other (#44).
 
+
+## Not done yet (frontend backlog) — 2026-11-04
+
+- **PromptPay QR for หารบิล** — postponed by the user. The one-phone split (`/bills/new`) works without it. When built: payer enters their PromptPay ID once (kept on the device), each person gets a QR for their own amount. Verify the EMVCo/PromptPay payload format and any library license before building.
+- Sound effects (Kenney CC0 / ZzFX) for wheel and celebrations.
+- Home pet card still shows the old cat; switch it to the hatched pet.

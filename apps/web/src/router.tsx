@@ -5,6 +5,7 @@ import { TOOLS } from '@/config/tools'
 import { EditProfilePage } from '@/pages/EditProfilePage'
 import { ExplorePage } from '@/pages/ExplorePage'
 import { AddFriendPage } from '@/pages/AddFriendPage'
+import { BillSplitPage } from '@/pages/BillSplitPage'
 import { CreateMeetupPage } from '@/pages/CreateMeetupPage'
 import { FriendQrPage } from '@/pages/FriendQrPage'
 import { FriendsPage } from '@/pages/FriendsPage'
@@ -29,7 +30,7 @@ const TAB_PATHS = ['/', '/gangs', '/explore', '/pet', '/me']
 
 // Ready tools without a real page yet get a placeholder.
 // When a tool page is built, add its route above this list and it will be skipped here.
-const BUILT_TOOL_PATHS: string[] = ['/quick-vote', '/meetups/new', '/wheel']
+const BUILT_TOOL_PATHS: string[] = ['/quick-vote', '/meetups/new', '/wheel', '/bills/new']
 const placeholderToolRoutes: RouteObject[] = TOOLS.filter(
   (tool) => tool.status === 'ready' && tool.to && !TAB_PATHS.includes(tool.to) && !BUILT_TOOL_PATHS.includes(tool.to),
 ).map((tool) => ({ path: tool.to!.slice(1), element: <ToolPlaceholderPage toolId={tool.id} /> }))
@@ -61,6 +62,7 @@ export const router = createBrowserRouter([
     children: [
       { path: 'quick-vote', element: <QuickVotePage /> },
       { path: 'wheel', element: <WheelPage /> },
+      { path: 'bills/new', element: <BillSplitPage /> },
       { path: 'meetups/new', element: <CreateMeetupPage /> },
       { path: 'meetups/:id', element: <MeetupDetailPage /> },
       { path: 'friends/qr', element: <FriendQrPage /> },

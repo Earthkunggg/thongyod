@@ -8,6 +8,7 @@ import { Pet, type PetHandle } from '@/components/pet/Pet'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { celebrate } from '@/lib/celebrate'
 import { getMyPet } from '@/features/onboarding/storage'
 import { MAX_OPTION_LENGTH, MAX_OPTIONS, MIN_OPTIONS, canSpin, normalizeOptions, spin } from '@/features/wheel/logic'
 import { loadOptions, saveOptions } from '@/features/wheel/storage'
@@ -59,6 +60,7 @@ export function WheelPage() {
 
   function showResult() {
     setPhase('result')
+    celebrate()
     navigator.vibrate?.(30)
     window.setTimeout(() => pet.current?.run('tap'), 150)
   }
