@@ -61,5 +61,5 @@ export const TOOLS: Tool[] = [
   { id: 'myMeetups', icon: CalendarDays, group: 'solo', status: 'ready', to: '/meetups' },
   { id: 'gradeCalculator', icon: Calculator, group: 'solo', status: 'soon' },
   { id: 'focusTimer', icon: Timer, group: 'solo', status: 'soon' },
-  { id: 'flashcards', icon: Layers, group: 'solo', status: 'soon' },
+  { id: 'flashcards', icon: Layers, group: 'solo', status: 'ready', to: '/flashcards' },
 ]

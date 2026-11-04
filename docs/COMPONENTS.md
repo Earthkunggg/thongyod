@@ -64,6 +64,7 @@
 | NumberStepper | `src/components/common/NumberStepper.tsx` | ours | − value + for small whole numbers | value, onChange, min, max, label | |
 | Quick vote screens | `src/features/quick-vote/*.tsx` | ours | SetupForm, VoteScreen, HandoffScreen, ResultView, TieDialog | — | Feature-only; logic in `logic.ts` (tested) |
 
+| Flashcard pages | `src/pages/Flashcard{s,Deck,Study}Page.tsx` | ours | Deck list / editor / swipe study | — | Logic `features/flashcards/logic.ts` (tested), storage `useDecks()`, `saveDeck()`, `getDeck()`. Study reuses SwipeDeck with 2 actions. |
 | Heads-up screens | `src/features/heads-up/{SetupScreen,PlayScreen,ResultScreen}.tsx` | ours | ใบ้บนหัว setup / full-screen round / result | see files | Feature-only; logic in `logic.ts` (tested), sensors in `useTilt.ts`. |
 
 ## Shared hooks (not components, but reuse them the same way)
