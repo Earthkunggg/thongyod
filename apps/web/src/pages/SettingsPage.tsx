@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bell, ChevronDown, ChevronUp, Lock, MessageCircle } from 'lucide-react'
+import { Bell, ChevronDown, ChevronUp, Lock, MessageCircle, Sparkles } from 'lucide-react'
 import { IconTile } from '@/components/common/IconTile'
 import { ListRow } from '@/components/common/ListRow'
 import { SectionHeader } from '@/components/common/SectionHeader'
@@ -118,6 +118,7 @@ export function SettingsPage() {
           <ListRow leading={<IconTile icon={Bell} />} title={t('settings.notifications')} subtitle={t('explore.soon')} />
           <ListRow leading={<IconTile icon={Lock} />} title={t('settings.privacy')} subtitle={t('explore.soon')} />
           <ListRow leading={<IconTile icon={MessageCircle} />} title={t('settings.lineAccount')} subtitle={t('explore.soon')} />
+          <ListRow leading={<IconTile icon={Sparkles} />} title={t('settings.replayWelcome')} to="/welcome" />
         </Card>
       </section>
     </div>

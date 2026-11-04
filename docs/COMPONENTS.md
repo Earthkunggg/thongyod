@@ -24,8 +24,12 @@
 | ResponsePicker | `src/components/meetup/ResponsePicker.tsx` | ours | ไป / อาจจะ / ไม่ไป buttons for a meetup (built on SegmentedChoice) | value, onChange, label | Use everywhere a meetup can be answered |
 | SegmentedChoice | `src/components/common/SegmentedChoice.tsx` | ours | Pick one of 2-4 options as equal-width buttons (generic `<T>`) | options, value, onChange, label | Used by ResponsePicker, theme and language settings |
 | PetCat | `src/components/pet/PetCat.tsx` | ours | PLACEHOLDER pet drawing (SVG) | className | Replace with rendered images of the 3D model |
+| Pet | `src/components/pet/Pet.tsx` + `species.ts` + `pet.css` (art in `src/assets/pets/<species>/`) | ours; art traced from `image/*-sheet-v1.png` with vtracer (MIT), optimized with svgo (MIT) | Any pet species: always alive (breathe or float + blink); idle actions after 15 s (puff / bubbles), 30 s (fly / swim), 60 s (sleep); tap = reaction pose + squish + sparkles | species ('dragon' \| 'fish'), size, ref (`run(act)`) | Add a species = add art + one entry in `species.ts`. Pauses when hidden; reduced motion = no bounce/fly/swim. |
+| Egg | `src/components/pet/Egg.tsx` (+ `pet.css`) | ours (SVG) | Pet egg in 3 styles: fire (→ dragon), sleepy (→ fish), mystery (random) | style, state ('idle' \| 'wobble' \| 'crack'), className | Used in onboarding; reuse for future egg rewards. |
 | WeekStrip | `src/components/home/WeekStrip.tsx` | ours | Mon-Sun strip, today filled, selected ring, dot = has meetup | today, selected, onSelect, markedDays | Later: classes, exams, holy days as extra dots |
-| WaitingMeetupCard | `src/components/meetup/WaitingMeetupCard.tsx` | ours | Meetup I have not answered ("รอคุณตอบ"): title, countdown, counts, ResponsePicker, hide link | meetup, now, onAnswer, onHide, leaving | Replaces NextMeetupCard (removed). `leaving` plays the slide-away animation. |
+| SwipeDeck | `src/components/common/SwipeDeck.tsx` | ours (no library: pointer events + CSS) | Stack of cards answered by swiping left / up / right or with the round buttons below; stamps while dragging; keyboard ← ↑ → | items, getKey, renderCard, actions [{dir,label,icon,tone}], onSwipe, label | UX_GUIDELINES §3. Commit at 32% of the card or a fast fling. Use for invites, flashcards, tarot. |
+| SpinWheel | `src/components/common/SpinWheel.tsx` | ours (SVG + CSS transition) | Wheel of names with a fixed top pointer; animates to the `rotation` it is given; tap = spin / skip | options, rotation, durationMs, onSpinEnd, onTap, label | Draws only. Pick the winner with `features/wheel/logic` (`spin()` = secure random first, then the stop angle). Up to 12 slices; labels cut at 10 chars. |
+| InviteCard | `src/components/meetup/InviteCard.tsx` | ours | Face of an invite in the deck: gang, title, when + countdown, going avatars, hide link | meetup, now, onHide? | Replaces WaitingMeetupCard (removed). |
 | MeetupRow | `src/components/meetup/MeetupRow.tsx` | ours | One meetup in a day agenda: time, title, gang, going avatars, my answer; links to `/meetups/:id` | meetup | |
 | ResponseChip | `src/components/meetup/ResponseChip.tsx` | ours | Small label with my answer or "ยังไม่ตอบ" | response | |
 | HideMeetupButton | `src/components/meetup/HideMeetupButton.tsx` | ours | "ซ่อนนัดนี้ (ไม่บอกใคร)" quiet button (#32) | onClick, disabled | Never show to the meetup creator. |
@@ -51,6 +55,9 @@
 | Quick vote screens | `src/features/quick-vote/*.tsx` | ours | SetupForm, VoteScreen, HandoffScreen, ResultView, TieDialog | — | Feature-only; logic in `logic.ts` (tested) |
 
 ## Shared hooks (not components, but reuse them the same way)
+
+- `src/lib/random.ts` → `secureRandomInt(max)`: the one fair random source for every game/tool (tests mock it by passing a `random` function).
+
 
 | Hook | Path | Purpose |
 |---|---|---|

@@ -1,6 +1,6 @@
 import { Fragment, useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bell, CheckSquare, Receipt, Utensils, type LucideIcon } from 'lucide-react'
+import { Bell, Check, CheckSquare, HelpCircle, Receipt, Utensils, X, type LucideIcon } from 'lucide-react'
 import type { MeetupResponse, PendingKind } from '@thongyod/shared'
 import { useHome } from '@/api/home'
 import { useMe } from '@/api/profile'
@@ -13,11 +13,12 @@ import { IconTile } from '@/components/common/IconTile'
 import { ListRow } from '@/components/common/ListRow'
 import { LoadingState } from '@/components/common/LoadingState'
 import { SectionHeader } from '@/components/common/SectionHeader'
+import { SwipeDeck, type SwipeAction, type SwipeDir } from '@/components/common/SwipeDeck'
 import { PetCard } from '@/components/home/PetCard'
 import { WeekStrip } from '@/components/home/WeekStrip'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { MeetupRow } from '@/components/meetup/MeetupRow'
-import { WaitingMeetupCard } from '@/components/meetup/WaitingMeetupCard'
+import { InviteCard } from '@/components/meetup/InviteCard'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import type { HomeSectionId } from '@/config/home'
@@ -36,16 +37,12 @@ const PENDING_ICONS: Record<PendingKind, LucideIcon> = {
 
 /** How far ahead "รอคุณตอบ" looks. */
 const WAITING_DAYS_AHEAD = 14
-/** Matches the card's slide-away transition (duration-200). */
-const LEAVE_MS = 200
-
-const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+const SWIPE_TO_RESPONSE: Record<SwipeDir, MeetupResponse> = { right: 'going', left: 'not_going', up: 'maybe' }
 
 export function HomePage() {
   const { t } = useTranslation()
   const now = useMemo(() => new Date(), [])
   const [selectedDay, setSelectedDay] = useState(now)
-  const [leavingIds, setLeavingIds] = useState<string[]>([])
   const actions = useMeetupActions()
   const layout = useHomeLayout()
 
@@ -67,34 +64,29 @@ export function HomePage() {
   const dayMeetups = weekMeetups.filter((m) => isSameDay(new Date(m.startsAt), selectedDay))
   const agenda = dayMeetups.filter((m) => !waitingIds.has(m.id))
 
-  // Slide the card away first, then save (the card leaves the list and joins the agenda).
-  function answer(meetup: MeetupListItem, response: MeetupResponse) {
-    const delay = prefersReducedMotion() ? 0 : LEAVE_MS
-    setLeavingIds((ids) => [...ids, meetup.id])
-    window.setTimeout(() => {
-      actions.answer(meetup, response)
-      setLeavingIds((ids) => ids.filter((id) => id !== meetup.id))
-    }, delay)
-  }
+  // Swipe deck (DECISIONS #46): right = ไป, left = ไม่ไป, up = อาจจะ. Buttons do the same.
+  const swipeActions: SwipeAction[] = [
+    { dir: 'left', label: t('meetup.notGoing'), icon: X, tone: 'border-muted-foreground/40 text-muted-foreground' },
+    { dir: 'up', label: t('meetup.maybe'), icon: HelpCircle, tone: 'border-amber-500 text-amber-600 dark:text-amber-400' },
+    { dir: 'right', label: t('meetup.going'), icon: Check, tone: 'border-primary text-primary' },
+  ]
 
   const home = homeQuery.data
   const sections: Record<HomeSectionId, ReactNode> = {
     waiting: waiting.length > 0 && (
-      <section>
+      <section className="flex flex-col gap-1">
         <SectionHeader title={t('home.waitingTitle', { count: waiting.length })} />
-        <div className="flex flex-col gap-3 overflow-x-clip px-3">
-          {waiting.map((m) => (
-            <WaitingMeetupCard
-              key={m.id}
-              meetup={m}
-              now={now}
-              leaving={leavingIds.includes(m.id)}
-              onAnswer={(r) => answer(m, r)}
-              onHide={() => actions.hide(m, true)}
-              canHide={canHide(m, me.data?.userId)}
-            />
-          ))}
-        </div>
+        <SwipeDeck<MeetupListItem>
+          items={waiting}
+          getKey={(m) => m.id}
+          label={t('home.deckLabel')}
+          actions={swipeActions}
+          onSwipe={(m, dir) => actions.answer(m, SWIPE_TO_RESPONSE[dir])}
+          renderCard={(m) => (
+            <InviteCard meetup={m} now={now} onHide={canHide(m, me.data?.userId) ? () => actions.hide(m, true) : undefined} />
+          )}
+        />
+        <p className="pt-1 text-center text-xs text-muted-foreground">{t('home.swipeHint')}</p>
       </section>
     ),
 

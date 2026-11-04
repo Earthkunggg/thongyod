@@ -1,6 +1,11 @@
 // Quick vote (single device, pass the phone). Pure logic: no React, no DOM.
 // Everything that decides a result lives here so it can be unit-tested.
 
+import { secureRandomInt } from '@/lib/random'
+
+// Re-exported for older imports; the function lives in lib/random.
+export { secureRandomInt }
+
 export const MIN_OPTIONS = 2
 export const MAX_OPTIONS = 6
 export const MIN_VOTERS = 2
@@ -98,20 +103,6 @@ export function isValidBallot(session: QuickVoteSession, choices: number[]): boo
   if (!choices.every((c) => session.candidates.includes(c))) return false
   const multiple = session.multiple && session.round === 1
   return multiple || choices.length === 1
-}
-
-/**
- * Random integer in [0, max) from the browser's secure random source.
- * Uses rejection sampling so every value is equally likely.
- */
-export function secureRandomInt(max: number): number {
-  if (!Number.isInteger(max) || max <= 0) throw new Error(`max must be a positive integer, got ${max}`)
-  const limit = Math.floor(0x1_0000_0000 / max) * max
-  const buffer = new Uint32Array(1)
-  for (;;) {
-    crypto.getRandomValues(buffer)
-    if (buffer[0] < limit) return buffer[0] % max
-  }
 }
 
 function finishVoting(session: QuickVoteSession): QuickVoteSession {

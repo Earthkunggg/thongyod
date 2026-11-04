@@ -70,7 +70,8 @@
 }
 
 /* ---------- Theme "ค่าเริ่มต้น" (default): light ---------- */
-:root {
+:root,
+[data-theme="default"] {
     --app-font-sans: "Anuphan Variable", "Noto Sans Thai", system-ui, sans-serif;
     --app-font-heading: var(--app-font-sans);
     --radius: 0.5rem; /* buttons 8px, cards ~12px */

@@ -20,13 +20,16 @@ import { QuickVotePage } from '@/pages/QuickVotePage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { ToolPlaceholderPage } from '@/pages/ToolPlaceholderPage'
 import { UserProfilePage } from '@/pages/UserProfilePage'
+import { WelcomePage } from '@/pages/WelcomePage'
+import { WheelPage } from '@/pages/WheelPage'
+import { OnboardingGate } from '@/features/onboarding/OnboardingGate'
 
 /** Paths that already have their own page (tabs). */
 const TAB_PATHS = ['/', '/gangs', '/explore', '/pet', '/me']
 
 // Ready tools without a real page yet get a placeholder.
 // When a tool page is built, add its route above this list and it will be skipped here.
-const BUILT_TOOL_PATHS: string[] = ['/quick-vote', '/meetups/new']
+const BUILT_TOOL_PATHS: string[] = ['/quick-vote', '/meetups/new', '/wheel']
 const placeholderToolRoutes: RouteObject[] = TOOLS.filter(
   (tool) => tool.status === 'ready' && tool.to && !TAB_PATHS.includes(tool.to) && !BUILT_TOOL_PATHS.includes(tool.to),
 ).map((tool) => ({ path: tool.to!.slice(1), element: <ToolPlaceholderPage toolId={tool.id} /> }))
@@ -38,7 +41,7 @@ export const router = createBrowserRouter([
     path: '/',
     element: <AppShell />,
     children: [
-      { index: true, element: <HomePage /> },
+      { index: true, element: <OnboardingGate><HomePage /></OnboardingGate> },
       {
         path: 'gangs',
         element: <GangsLayout />,
@@ -57,6 +60,7 @@ export const router = createBrowserRouter([
     element: <SubPageShell />,
     children: [
       { path: 'quick-vote', element: <QuickVotePage /> },
+      { path: 'wheel', element: <WheelPage /> },
       { path: 'meetups/new', element: <CreateMeetupPage /> },
       { path: 'meetups/:id', element: <MeetupDetailPage /> },
       { path: 'friends/qr', element: <FriendQrPage /> },
@@ -65,6 +69,7 @@ export const router = createBrowserRouter([
       { path: 'u/:userId/mutual', element: <MutualFriendsPage /> },
       { path: 'me/edit', element: <EditProfilePage /> },
       { path: 'settings', element: <SettingsPage /> },
+      { path: 'welcome', element: <WelcomePage /> },
       ...placeholderToolRoutes,
       { path: '*', element: <NotFoundPage /> },
     ],

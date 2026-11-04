@@ -8,6 +8,7 @@ import {
   CalendarPlus,
   CheckSquare,
   Layers,
+  LoaderPinwheel,
   PawPrint,
   Palette,
   Receipt,
@@ -20,6 +21,7 @@ import {
 export type ToolId =
   | 'createMeetup'
   | 'quickVote'
+  | 'wheel'
   | 'restaurantVote'
   | 'splitBill'
   | 'randomRestaurant'
@@ -46,6 +48,7 @@ export const TOOLS: Tool[] = [
   { id: 'quickVote', icon: CheckSquare, group: 'friends', status: 'ready', to: '/quick-vote' },
   { id: 'restaurantVote', icon: ThumbsUp, group: 'friends', status: 'ready', to: '/restaurant-vote' },
   { id: 'splitBill', icon: Receipt, group: 'friends', status: 'ready', to: '/bills/new' },
+  { id: 'wheel', icon: LoaderPinwheel, group: 'solo', status: 'ready', to: '/wheel' },
   { id: 'randomRestaurant', icon: Shuffle, group: 'solo', status: 'ready', to: '/random-restaurant' },
   { id: 'playPet', icon: PawPrint, group: 'solo', status: 'ready', to: '/pet' },
   { id: 'luckyColor', icon: Palette, group: 'solo', status: 'ready', to: '/lucky-color' },
