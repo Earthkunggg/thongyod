@@ -38,7 +38,7 @@ export class SessionService {
     assertDevRequest(request)
     const token = randomBytes(32).toString('base64url')
     const previous = readSessionCookie(request)
-    const client = await this.database.connection.connect().catch(() => {
+    const client = await Promise.resolve().then(() => this.database.connection.connect()).catch(() => {
       throw new ServiceUnavailableException({ error: { code: 'AUTH_UNAVAILABLE' } })
     })
     try {
@@ -46,13 +46,13 @@ export class SessionService {
       if (previous) await client.query('UPDATE auth_sessions SET revoked_at=clock_timestamp() WHERE token_hash=$1 AND revoked_at IS NULL', [sessionHash(previous)])
       const result = await client.query<{ expiresAt: Date }>(
         `INSERT INTO auth_sessions(id,user_id,token_hash,source,created_at,expires_at)
-         VALUES($1,$2,$3,'local_dev',statement_timestamp(),statement_timestamp()+interval '30 days') RETURNING expires_at AS "expiresAt"`,
+         VALUES($1,$2,$3,'local_dev',statement_timestamp(),statement_timestamp()+interval '2592000 seconds') RETURNING expires_at AS "expiresAt"`,
         [randomUUID(), userId, sessionHash(token)],
       )
       await client.query('COMMIT')
       return { token, expiresAt: result.rows[0].expiresAt }
     } catch {
-      await client.query('ROLLBACK')
+      await client.query('ROLLBACK').catch(() => undefined)
       throw new ServiceUnavailableException({ error: { code: 'AUTH_UNAVAILABLE' } })
     } finally { client.release() }
   }

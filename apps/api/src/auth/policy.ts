@@ -17,6 +17,9 @@ export function devLoginEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
 
 export function assertProductionConfiguration(): void {
   if (devLoginEnabled()) throw new Error('Dev login is excluded from the production entry point')
+  if (process.env.NODE_ENV !== 'production' || process.env.APP_ENV === 'local') {
+    throw new Error('Production entry point requires production mode and a non-local app environment')
+  }
 }
 
 function deny(code: 'DEV_ACCESS_DENIED' | 'ORIGIN_NOT_ALLOWED'): never {

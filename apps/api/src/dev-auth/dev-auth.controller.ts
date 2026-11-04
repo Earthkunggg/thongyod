@@ -37,7 +37,8 @@ export class DevAuthController {
   @HttpCode(200)
   @Header('Cache-Control', 'no-store')
   async login(@Body() body: unknown, @Req() request: IncomingMessage, @Res({ passthrough: true }) response: ServerResponse): Promise<Me> {
-    if (!body || typeof body !== 'object' || Array.isArray(body)
+    if (!/^application\/json(?:;|$)/i.test(request.headers['content-type'] ?? '')
+      || !body || typeof body !== 'object' || Array.isArray(body)
       || Object.keys(body).length !== 1 || !('fixtureKey' in body) || typeof body.fixtureKey !== 'string') {
       throw new BadRequestException({ error: { code: 'INVALID_REQUEST' } })
     }

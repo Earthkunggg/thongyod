@@ -38,7 +38,7 @@ export type {
   SetMeetupHiddenResponse,
   SetMeetupResponseRequestV1,
   UpdateMeetupRequest,
-} from './meetup'
+} from './meetup.js'
 export type {
   FeedItem,
   FeedKind,
@@ -48,4 +48,4 @@ export type {
   PendingKind,
   PetMood,
   PetSummary,
-} from './home'
+} from './home.js'

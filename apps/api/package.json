@@ -8,12 +8,13 @@
     "build": "nest build",
     "build:prod": "nest build --path tsconfig.prod.json",
     "start": "node dist-prod/main.js",
-    "test": "npm run build && node --test test/*.test.mjs",
+    "test": "npm run build && npm run build:prod && node --test --test-concurrency=1 test/*.test.mjs",
     "db:generate": "drizzle-kit generate --config drizzle.config.ts",
     "db:migrate": "npm run build && node dist/db/migrate.js",
     "db:seed": "npm run build && node dist/db/seed.js"
   },
   "dependencies": {
+    "@thongyod/shared": "*",
     "@nestjs/common": "^12.3.2",
     "@nestjs/core": "^12.3.2",
     "@nestjs/platform-express": "^12.3.2",
