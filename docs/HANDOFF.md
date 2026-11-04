@@ -585,11 +585,11 @@ To do when there is a real domain (HTTPS):
 ## Next session — frontend plan (Claude, 2026-11-04 23:59)
 
 Done today: DECISIONS #48–#57 (onboarding, wheel, bill split v2, fortune, light/dark switch, home v2, theme tokens + cute v2, SEO basics, invite deck v2).
-Agreed, not started, in this order:
-1. Full-month calendar `/calendar` (dots on days, tap a day → list; open from Home "สัปดาห์นี้มี n นัด") + a › chevron on every meetup row.
-2. "ดูทั้งหมด" pages for long sections (pending, friends' updates, titles, shared gangs, fortune history) + gang detail page (members, gang meetups, titles).
-3. Notifications page (the bell does nothing yet).
-4. Pets as layered parts (smooth motion, not image swaps) from `image/00…12-*.png` (real alpha, 2×3 grids of 512 px cells; parts sheets have no white border). Start with the dragon, show the user before continuing.
+Agreed, in this order — **status 2026-11-05 (away session, all pushed to main):**
+1. ✅ Full-month calendar `/calendar` (#58).
+2. ✅ "ดูทั้งหมด" pages (#59) + gangs tab + gang page (#60).
+3. ✅ Notifications page + settings (#61).
+4. 🟡 Layered dragon built as a **preview** at `/pet/lab` (#67). Waiting for Earth before replacing `<Pet>` and doing the fish.
 Future idea (not approved, discuss later): meetups with strangers + gender/age filters and quotas — safety, verification, PDPA and chat need a decision first.
 Still open: run real vitest (`npm test -w apps/web`), PromptPay QR, backend auth/me connection.
 
@@ -623,3 +623,25 @@ Rules followed: user asked to push each feature straight to `main` only after li
 - **สีมงคลวันนี้** (DECISIONS #68) — `/lucky-color` replaces the placeholder. Device only. Later the backend `/home.luckyColor` can use the same `colorsFor()` rule.
 - **สุ่มร้าน** (DECISIONS #69) — `/random-restaurant`, `/restaurants`. Device only. Later: Gang pins + Google Places (M8) per spec §8.7/§8.8; the round logic is ready for that.
 - **ห้องโหวตร้าน** (DECISIONS #70) — `/restaurant-vote`, one phone. Online version needs a vote-room API (spec §17: real-time only on voting screens).
+
+## Next session — after the away session (Claude, 2026-11-05 03:00)
+
+Built and pushed to `main` while Earth was away (each commit = one feature, lint + 89→150+ tests + demo build passed first, every page checked at 375×812 in default/cute × light/dark): calendar, see-all pages, gangs tab + gang page, notifications + settings, ใบ้บนหัว, แฟลชการ์ด, game ideas doc, PromptPay QR, hatched pet on profiles, wheel/เซียมซี sounds, layered dragon preview, สีมงคล, สุ่มร้าน, ห้องโหวตร้าน. Every v1 tool on Explore now has a real page.
+
+**Deploy check needed (Claude could not):** the repo moved to `Exrthexrth225/thongyod`; this cloud session can push but cannot read GitHub Actions or open `*.github.io`. Please open the Actions tab and the Pages site once. If one commit broke the deploy, `git revert <sha>` that commit only.
+
+### รอพี่ตัดสิน (decisions for Earth)
+1. **Layered dragon** (`/pet/lab`): OK to replace `<Pet>` everywhere and build the fish the same way? Art gaps in the parts sheet: no wide-open round eyes (ตกใจ/เหงื่อตก reuse lidded eyes) and no eyebrows — redraw those parts?
+2. **สีมงคล card mapping** (proposal): เรียน/งาน = เดช, การเงิน = ศรี, มีคนช่วย = มนตรี, เพื่อนฝูง = บริวาร, เลี่ยง = กาลกิณี; ราหู = ดำ, เสาร์ = ม่วง. Keep, or change?
+3. **ใบ้บนหัว on a real phone**: nod down = ถูก / tilt back = ผ่าน is the convention; please try on iPhone + Android over https (the Pages demo is https). If the direction is reversed on one phone, there is a "สลับทิศเอียง" switch; tell me and I will fix the default.
+4. **Contracts to send to Codex** (all provisional, frontend mocks only): `GET /gangs/:id` (GangDetail), `GET /notifications` + `POST /notifications/read`, optional `PetSummary.species` (already added to `packages/shared`, backward compatible). Approve, then Codex implements.
+5. **Game ideas**: pick from `docs/GAME_IDEAS.md` (my order: ใครน่าจะ…/ไม่เคย… → สายลับ → ระเบิดเวลา/ลูกเต๋า → pet mini-games). Is a "แซวแรง" opt-in pack OK?
+6. **Sample content**: ร้านตัวอย่าง (made-up names) in สุ่มร้าน and the sample flashcard deck — keep or remove?
+7. **Device-only data** (until the backend): notification settings, flashcards, restaurants, PromptPay numbers (by person name), birth weekday. OK as the first version?
+8. **Old remote**: update `origin` to `https://github.com/Exrthexrth225/thongyod.git` on your PC (pushes still work through the redirect).
+
+### Next (after the decisions)
+- Replace `<Pet>` with `LayeredPet` + fish rig (if approved); pet moods from the API.
+- Games from GAME_IDEAS.md that Earth picks.
+- Home `PendingItem` / `FeedItem` target ids (backend) so those cards can open things.
+- Online rooms (phase C): restaurant vote, quick vote, bill sync.
