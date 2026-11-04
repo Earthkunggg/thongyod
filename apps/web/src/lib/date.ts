@@ -62,6 +62,12 @@ export function formatDayLabel(date: Date, now: Date = new Date()): string {
   return new Intl.DateTimeFormat(intlLocale(), { weekday: 'short', day: 'numeric', month: 'short' }).format(date)
 }
 
+/** "วันนี้" / "พรุ่งนี้" / "24 พ.ย." — compact, for narrow columns. */
+export function formatDayCompact(date: Date, now: Date = new Date()): string {
+  if (isSameDay(date, now) || isSameDay(date, addDays(now, 1))) return formatDayLabel(date, now)
+  return new Intl.DateTimeFormat(intlLocale(), { day: 'numeric', month: 'short' }).format(date)
+}
+
 /** "อีก 25 นาที" / "อีก 5 ชม." / "อีก 2 วัน". Returns null if `target` has passed. */
 export function formatTimeUntil(target: Date, now: Date = new Date()): string | null {
   const minutes = Math.floor((target.getTime() - now.getTime()) / 60_000)

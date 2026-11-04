@@ -111,6 +111,12 @@ export const handlers = [
     return HttpResponse.json(friends.page(listMyGangs(url.searchParams.get('q') ?? ''), url.searchParams.get('cursor'), limit))
   }),
 
+  http.get('/api/gangs/:id', async ({ params }) => {
+    await delay(LATENCY_MS)
+    const gang = profiles.getGangDetail(String(params.id))
+    return gang ? HttpResponse.json(gang) : errorBody(404, 'GANG_NOT_FOUND')
+  }),
+
   // ---------- Friends ----------
   http.get('/api/friends', async ({ request }) => {
     await delay(LATENCY_MS)

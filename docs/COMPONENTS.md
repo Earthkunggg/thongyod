@@ -32,12 +32,13 @@
 | SwipeDeck | `src/components/common/SwipeDeck.tsx` | ours (no library: pointer events + CSS) | Stack of cards (2 visible behind) answered by swiping left / up / right or with the round buttons; stamps while dragging; rubber-band drag limit; tap = onOpen; keyboard ← ↑ → and Enter | items, getKey, renderCard, actions [{dir,label,icon,tone}], onSwipe, onOpen?, label, tall? | DECISIONS #46/#57. For invites use `useInviteActions()` + `SWIPE_TO_RESPONSE`. |
 | SeeAllLink | `src/components/common/SeeAllLink.tsx` | ours | "ดูทั้งหมด ›" link for a SectionHeader action | to, label? | Use whenever a section shows only part of a list (#59). |
 | FeedRow | `src/components/home/FeedRow.tsx` | ours | One friends' update in a vertical list (avatar, 2-line sentence, gang · time ago) | item, now | Not a link until FeedItem has target ids. |
+| GangAvatar | `src/components/gang/GangAvatar.tsx` | ours | Gang picture placeholder: first letter in a stable tint (hash of id → tint 1–8) | id, name, className | Replace with the gang photo when gangs get pictures. |
 | HScroll | `src/components/common/HScroll.tsx` | ours | Sideways scrolling row with snap (cards peek from the right), hidden scrollbar | label, children (`shrink-0 snap-start`), onScroll | Use for any horizontal card row (Home highlights, pending, feed, discover). |
 | Badge | `src/components/common/Badge.tsx` | ours | Rounded pill with a meaning color | tone ('warning' \| 'success' \| 'info' \| 'danger' \| 'accent' \| 'neutral'), icon, children | Colors from `lib/tones.ts`; never write palette colors in components (DECISIONS #55). |
 | Home sections | `src/components/home/{HomeGreeting,Highlights,QuickTools,DailyMissions,DiscoverRow}.tsx` | ours | Building blocks of Home v2 (DECISIONS #54) | see files | Section order/visibility from `features/settings/homeLayout`. |
 | SpinWheel | `src/components/common/SpinWheel.tsx` | ours (SVG + CSS transition) | Wheel of names with a fixed top pointer; animates to the `rotation` it is given; tap = spin / skip | options, rotation, durationMs, onSpinEnd, onTap, label | Draws only. Pick the winner with `features/wheel/logic` (`spin()` = secure random first, then the stop angle). Up to 12 slices; labels cut at 10 chars. |
 | InviteCard | `src/components/meetup/InviteCard.tsx` | ours | Face of an invite in the deck: gang, title, when + countdown, going avatars, hide link | meetup, now, onHide? | Replaces WaitingMeetupCard (removed). |
-| MeetupRow | `src/components/meetup/MeetupRow.tsx` | ours | One meetup in a day agenda: time, title, gang, going avatars, my answer, › ; links to `/meetups/:id` | meetup | Used by Home agenda, Calendar, นัดของฉัน, profiles. |
+| MeetupRow | `src/components/meetup/MeetupRow.tsx` | ours | One meetup in a day agenda: time, title, gang, going avatars, my answer, › ; links to `/meetups/:id` | meetup, showDay? (adds the day above the time for mixed-day lists) | Used by Home agenda, Calendar, นัดของฉัน, profiles. |
 | ResponseChip | `src/components/meetup/ResponseChip.tsx` | ours | Small label with my answer or "ยังไม่ตอบ" | response | |
 | HideMeetupButton | `src/components/meetup/HideMeetupButton.tsx` | ours | "ซ่อนนัดนี้ (ไม่บอกใคร)" quiet button (#32) | onClick, disabled | Never show to the meetup creator. |
 | AvatarStack | `src/components/common/AvatarStack.tsx` | ours | Overlapping small avatars + "+N" | names, total | |
@@ -65,7 +66,8 @@
 
 - `src/features/fortune/useShake.ts` → `useShake(onShake, enabled)` + `createShakeDetector()` (pure, tested): phone-shake input with iOS permission handling. Reuse for any shake feature; the tilt game needs its own tilt detector (UX_GUIDELINES §4).
 - `src/lib/tones.ts` → `TONE_CLASS`, `TONE_TEXT`, `tintClass(n)`: theme-aware colors (DECISIONS #55).
-- `src/lib/nav.ts` → `SHOW_BACK`: pass as Link `state` when linking INTO a tab page so it shows a back button.
+- `src/lib/nav.ts` → `SHOW_BACK`: pass as Link `state` when linking INTO a tab page so it shows a back button. `profileLink(userId, myId)` → `/me` for me, `/u/:id` for others.
+- `src/lib/date.ts` → `formatDayCompact()`: "วันนี้" / "พรุ่งนี้" / "24 พ.ย." for narrow columns.
 - `src/features/daily/daily.ts` → `markDone(mission)`, `useDaily()`, `streakOf()`: daily missions (call `markDone('tool')` when a new tool is used).
 - `src/lib/celebrate.ts` → `celebrate()`: confetti for peak moments only (result, all paid, hatch). canvas-confetti 1.9.4, ISC; off with reduced motion.
 - `src/config/pending.ts` → `PENDING_ICONS`: icon per "ต้องจัดการ" kind (Home + /pending).
@@ -81,6 +83,7 @@
 | useFriends, useUserSearch, useMyFriendLink, useFriendLinkOwner, useRegenerateFriendLink, … | `src/api/friends.ts` | Friends data hooks. |
 | useFriendActions | `src/features/friends/useFriendActions.ts` | Send / accept / decline / cancel friend requests with toasts and error messages. |
 | useMe, useProfile, useUpdateMe | `src/api/profile.ts` | Profile data hooks. |
+| useMyGangs, useGangList, useGang | `src/api/gangs.ts` | All my gangs (pickers) / paged + search (tab) / one gang (provisional `GangDetail`). |
 | useHomeLayout, setHomeLayout | `src/features/settings/homeLayout.ts` | Home card order/visibility (localStorage until the preferences API). |
 | checkDisplayName | `src/features/profile/validation.ts` | App-name rules (#40), tested. |
 | isLocked, canHide | `src/features/meetups/derive.ts` | Meetup display rules from server data (`responseLocksAt`, creator). |

@@ -106,6 +106,25 @@ export type Profile = UserCard & {
 /** GET /gangs — gangs I am a member of. */
 export type GangSummary = { id: string; name: string; memberCount: number }
 
+/** A member as other members see them (#44: shared gangs stay visible even after a block). */
+export type GangMember = PersonCard & { title: string | null }
+
+/** A title earned inside this gang (spec §11: titles are per gang). */
+export type GangTitle = { id: string; name: string; holder: PersonRef; earnedAt: string }
+
+/**
+ * PROVISIONAL (frontend mock, not yet agreed with the backend — see HANDOFF).
+ * GET /gangs/:id → GangDetail; 404 GANG_NOT_FOUND when the gang does not exist or I am not a member.
+ * - members: every member (gang max 50, spec §16), sorted by display name; never people who left.
+ * - upcoming: up to 5 meetups of this gang that start in the future, visible to me (not hidden by me), soonest first.
+ * - titles: titles earned in this gang, newest first.
+ */
+export type GangDetail = GangSummary & {
+  members: GangMember[]
+  upcoming: MeetupSummaryV1[]
+  titles: GangTitle[]
+}
+
 // ---------- Paging (decision #43) ----------
 
 /** One page of a growing list. Pass `nextCursor` back as `cursor`; null = no more. Never parse a cursor. */

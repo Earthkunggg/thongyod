@@ -55,6 +55,8 @@ export const gangs: Gang[] = [
   { id: 'g4', name: 'ชมรมถ่ายภาพ', memberIds: ['u1', 'u20', 'u21', 'u22', 'u23', 'u24', 'u25'] },
   { id: 'g5', name: 'หอ B ชั้น 3', memberIds: ['u1', 'u26', 'u27', 'u28', 'u9'] },
   { id: 'g6', name: 'โปรเจกต์จบ', memberIds: ['u1', 'u2', 'u29', 'u30'] },
+  // A big gang (26 people) to test long member lists.
+  { id: 'g7', name: 'คอมฯ ปี 4 ทั้งรุ่น', memberIds: ['u1', ...Array.from({ length: 25 }, (_, i) => `u${20 + i}`)] },
 ]
 
 function dayAt(daysFromToday: number, hours: number, minutes = 0): Date {
@@ -273,6 +275,16 @@ export function upcomingTogether(otherId: string): MeetupListItem[] {
   return meetups
     .filter((m) => visibleToMe(m) && gangOf(m).memberIds.includes(otherId) && m.startsAt.getTime() > now)
     .filter((m) => [ME, otherId].every((id) => answerOf(m, id).response === 'going' && !answerOf(m, id).hidden))
+    .sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())
+    .slice(0, 5)
+    .map(toListItem)
+}
+
+/** Up to 5 future meetups of a gang that I can see (not hidden by me), soonest first. */
+export function gangUpcoming(gangId: string): MeetupListItem[] {
+  const now = Date.now()
+  return meetups
+    .filter((m) => m.gangId === gangId && visibleToMe(m) && !answerOf(m, ME).hidden && m.startsAt.getTime() > now)
     .sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())
     .slice(0, 5)
     .map(toListItem)

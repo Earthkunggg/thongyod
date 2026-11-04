@@ -6,3 +6,8 @@ export const SHOW_BACK = { showBack: true } as const
 export function wantsBack(state: unknown): boolean {
   return typeof state === 'object' && state !== null && (state as { showBack?: unknown }).showBack === true
 }
+
+/** Link to a person's profile: my own tab for me, /u/:id for others. */
+export function profileLink(userId: string, myId: string | undefined): string {
+  return userId === myId ? '/me' : `/u/${userId}`
+}

@@ -50,7 +50,7 @@ function saveLastGang(id: string) {
   }
 }
 
-/** Last used gang first, then the rest in server order. */
+/** The asked-for (?gang=) or last used gang first, then the rest in server order. */
 function sortGangs(gangs: GangSummary[], lastId: string | null): GangSummary[] {
   const last = gangs.find((g) => g.id === lastId)
   return last ? [last, ...gangs.filter((g) => g !== last)] : gangs
@@ -58,6 +58,7 @@ function sortGangs(gangs: GangSummary[], lastId: string | null): GangSummary[] {
 
 // /meetups/new — "ชวนนัด": gang → what → when → ชวนเลย. Then the detail page with a LINE share button.
 // /meetups/new?with=<userId> (from a friend's profile) offers only gangs we share (#44).
+// /meetups/new?gang=<id> (from a gang page) selects that gang; ?date=YYYY-MM-DD (calendar) picks the day.
 export function CreateMeetupPage() {
   const { t } = useTranslation()
   const [params] = useSearchParams()
@@ -87,7 +88,7 @@ export function CreateMeetupPage() {
           />
         </Card>
       ) : (
-        <CreateForm gangs={sortGangs(options, readLastGang())} requestedDate={params.get('date')} />
+        <CreateForm gangs={sortGangs(options, params.get('gang') ?? readLastGang())} requestedDate={params.get('date')} />
       )}
     </div>
   )

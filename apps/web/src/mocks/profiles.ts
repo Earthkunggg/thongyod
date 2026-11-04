@@ -1,6 +1,6 @@
 // In-memory profile data for the dev mock API (decisions #36, #44, #45).
-import type { EarnedTitle, Me, Profile, UpdateMeRequest } from '@/api/types'
-import { gangs, ME, personCard, sharedGangs, upcomingTogether, userById, users } from './db'
+import type { EarnedTitle, GangDetail, Me, Profile, UpdateMeRequest } from '@/api/types'
+import { gangs, gangUpcoming, ME, person, personCard, sharedGangs, upcomingTogether, userById, users } from './db'
 import { areFriends, cardOf, friendCount, friendsSince, mutualIds } from './friends'
 
 /** Same rules as the backend (decisions #40, #45). */
@@ -140,4 +140,18 @@ export async function setPhoto(kind: 'avatar' | 'cover', file: File | null): Pro
   if (kind === 'avatar') user.avatarUrl = url
   else user.coverUrl = url
   return { ok: true, me: getMe() }
+}
+
+/** GET /gangs/:id (provisional contract in api/types.ts). null = not found or I am not a member (404). */
+export function getGangDetail(gangId: string): GangDetail | null {
+  const gang = gangs.find((g) => g.id === gangId)
+  if (!gang || !gang.memberIds.includes(ME)) return null
+  const members = gang.memberIds
+    .map((id) => ({ ...personCard(id), title: userById(id)?.title ?? null }))
+    .sort((a, b) => a.displayName.localeCompare(b.displayName, 'th') || a.userId.localeCompare(b.userId))
+  const gangTitles = Object.entries(titles)
+    .flatMap(([userId, list]) => list.filter((x) => x.gangId === gangId && gang.memberIds.includes(userId)).map((x) => ({ x, userId })))
+    .sort((a, b) => b.x.earnedAt.localeCompare(a.x.earnedAt))
+    .map(({ x, userId }) => ({ id: x.id, name: x.name, holder: person(userId), earnedAt: x.earnedAt }))
+  return { id: gang.id, name: gang.name, memberCount: gang.memberIds.length, members, upcoming: gangUpcoming(gangId), titles: gangTitles }
 }

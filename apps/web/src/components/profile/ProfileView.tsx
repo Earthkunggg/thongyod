@@ -93,7 +93,7 @@ export function ProfileView({ profile, actions }: ProfileViewProps) {
           <SectionHeader title={t('profile.upcomingTogether')} />
           <Card className="mx-3 px-4 py-1">
             {profile.upcomingTogether.map((m) => (
-              <MeetupRow key={m.id} meetup={m} />
+              <MeetupRow key={m.id} meetup={m} showDay />
             ))}
           </Card>
         </section>

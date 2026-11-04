@@ -601,3 +601,8 @@ Rules followed: user asked to push each feature straight to `main` only after li
 - **fix: tests + lint** — `i18n/index.ts` no longer touches `document` at import time in Node (the daily test failed); `eslint.config.js` ignores the generated `public/mockServiceWorker.js`. All tests pass.
 - **1. Calendar** (DECISIONS #58) — `/calendar`, `MonthGrid`, `features/calendar/month.ts` (+ tests), › on `MeetupRow`, Home "ปฏิทิน ›" link, calendar icon on นัดของฉัน, `/meetups/new?date=YYYY-MM-DD`. No API change: uses `GET /meetups?from&to` (≤ 42 days).
 - **2a. See-all pages** (DECISIONS #59) — `SeeAllLink`, `/pending`, `/updates`, `/u/:id/titles`, `/u/:id/gangs`, `/fortune/history` (+ `thongyod-fortune-history` on the device). Mock: 6 more titles for `u1` so the profile cuts the list.
+- **2b. Gangs tab + gang page** (DECISIONS #60) — tab list (`GET /gangs?q&cursor&limit`, existing), `/gangs/:id`, `/gangs/:id/members`, `/meetups/new?gang=`. Mock: big gang `g7` (26 people).
+
+### Frontend request for Codex — gang detail (PROVISIONAL, please confirm or counter-propose)
+
+`GET /gangs/:id` → `GangDetail = GangSummary & { members: (PersonCard & { title })[], upcoming: MeetupSummaryV1[] (≤ 5, future, visible to me, not hidden by me, soonest first), titles: { id, name, holder: PersonRef, earnedAt }[] (newest first) }`. 404 `GANG_NOT_FOUND` when missing or I am not a member (same body as missing, like meetups). Members sorted by display name then id; max 50 (spec §16) so no paging. Blocked people still appear (#44). Types in `apps/web/src/api/types.ts`; please publish real ones in `packages/shared`. Later for the gang list (spec §6.1): latest event + unread flag per gang.
