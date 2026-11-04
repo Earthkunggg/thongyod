@@ -560,7 +560,7 @@ Please fold these into phase 1 (they change tables you just created). Ask me if 
 
 ## Not done yet (frontend backlog) — 2026-11-04
 
-- **PromptPay QR for หารบิล** — postponed by the user. The one-phone split (`/bills`, DECISIONS #53) works without it; the QR would sit on each "ใครโอนให้ใคร" row. When built: payer enters their PromptPay ID once (kept on the device), each person gets a QR for their own amount. Verify the EMVCo/PromptPay payload format and any library license before building.
+- ~~PromptPay QR for หารบิล~~ — **built 2026-11-05 (DECISIONS #64)**. Original note: The one-phone split (`/bills`, DECISIONS #53) works without it; the QR would sit on each "ใครโอนให้ใคร" row. When built: payer enters their PromptPay ID once (kept on the device), each person gets a QR for their own amount. Verify the EMVCo/PromptPay payload format and any library license before building.
 - Sound effects (Kenney CC0 / ZzFX) for wheel and celebrations.
 - Home pet card still shows the old cat; switch it to the hatched pet.
 - หารบิล later: uneven shares (e.g. 2 portions), sync a bill with the gang (backend), receipt photo (uploads paused).
@@ -616,3 +616,4 @@ Rules followed: user asked to push each feature straight to `main` only after li
 - **Game: ใบ้บนหัว** (DECISIONS #62) — `/head-guess`, on Explore (กับเพื่อน) and Home "ลองเล่นเลย". Device only, no API.
 - **Game: แฟลชการ์ด** (DECISIONS #63) — `/flashcards`, `/flashcards/:id`, `/flashcards/:id/study`. Device only (`thongyod-flashcards`); a sync API comes with phase C.
 - **Game ideas** — `docs/GAME_IDEAS.md`: 16 proposals (party, study, pet, online) + recommended order. Waiting for Earth's choice; nothing built.
+- **PromptPay QR** (DECISIONS #64) — QR button on each transfer in หารบิล. Device only. Also `lib/id.ts` replaces `crypto.randomUUID` (https-only) in flashcards.

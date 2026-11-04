@@ -2,6 +2,7 @@
 // then settle later: fill missing prices, pick who paid the shop, see who transfers to whom.
 // Pure logic: no React, no DOM. Money in satang.
 
+import { randomId } from '@/lib/id'
 import { applyTreats, splitEqual } from './logic'
 
 export const MAX_PEOPLE = 20
@@ -42,12 +43,8 @@ export function itemKey(name: string): string {
   return name.trim().replace(/\s+/g, ' ').toLowerCase()
 }
 
-/** Short random id. Works on plain http too (crypto.randomUUID needs https). */
-export function newId(): string {
-  const bytes = new Uint8Array(8)
-  crypto.getRandomValues(bytes)
-  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')
-}
+/** Short random id (lib/id). Works on plain http too. */
+export const newId = randomId
 
 export function newBill(title: string, me: string, now: Date = new Date()): Bill {
   const meId = newId()

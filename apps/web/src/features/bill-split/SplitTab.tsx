@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ArrowRight, Circle, CircleCheck, Share2, Wallet } from 'lucide-react'
+import { ArrowRight, Circle, CircleCheck, QrCode, Share2, Wallet } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { buttonVariants } from '@/components/ui/button'
 import { celebrate } from '@/lib/celebrate'
@@ -13,6 +13,7 @@ import { formatBahtPlain } from './format'
 import { parseBaht } from './logic'
 import { usePersonName } from './names'
 import { PersonChip } from './PersonChip'
+import { PromptPayDialog } from './PromptPayDialog'
 import { TONE_TEXT } from '@/lib/tones'
 
 type Props = { bill: Bill; onChange: (change: (bill: Bill) => Bill) => void }
@@ -24,6 +25,8 @@ export function SplitTab({ bill, onChange }: Props) {
   const s = settle(bill)
   const groups = priceGroups(bill)
   const ownPayers = bill.entries.some((e) => e.payerId !== null)
+  const [qrFor, setQrFor] = useState<string | null>(null)
+  const qrTransfer = s.transfers.find((tr) => tr.key === qrFor)
 
   function toggle(key: string) {
     const next = toggleSettled(bill, key)
@@ -77,12 +80,12 @@ export function SplitTab({ bill, onChange }: Props) {
                 .map((p) => p.name)
                 .join(', ')
               return (
-                <li key={tr.key}>
+                <li key={tr.key} className={cn('flex items-stretch overflow-hidden rounded-xl border bg-card', done && 'opacity-60')}>
                   <button
                     type="button"
                     aria-pressed={done}
                     onClick={() => toggle(tr.key)}
-                    className={cn('flex w-full items-center gap-2 rounded-xl border bg-card p-3 text-left active:bg-muted/50', done && 'opacity-60')}
+                    className="flex min-w-0 flex-1 items-center gap-2 p-3 text-left active:bg-muted/50"
                   >
                     <Face bill={bill} id={tr.from} className="size-9 text-sm" />
                     <ArrowRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -94,6 +97,16 @@ export function SplitTab({ bill, onChange }: Props) {
                     <span className={cn('text-base font-medium tabular-nums', done && 'line-through')}>{formatBaht(tr.amount)}</span>
                     {done ? <CircleCheck className="size-6 shrink-0 text-primary" aria-hidden="true" /> : <Circle className="size-6 shrink-0 text-muted-foreground/50" aria-hidden="true" />}
                   </button>
+                  {!done && (
+                    <button
+                      type="button"
+                      onClick={() => setQrFor(tr.key)}
+                      aria-label={`${t('billSplit.promptPay.open')} ${t('billSplit.transfer', { from: nameOf(tr.from), to: nameOf(tr.to) })}`}
+                      className="flex w-12 shrink-0 items-center justify-center border-l text-primary active:bg-muted/50"
+                    >
+                      <QrCode className="size-5" aria-hidden="true" />
+                    </button>
+                  )}
                 </li>
               )
             })}
@@ -107,6 +120,16 @@ export function SplitTab({ bill, onChange }: Props) {
           <p className="text-center text-sm font-medium text-primary" role="status">
             {t('billSplit.allDone')}
           </p>
+        )}
+        {qrTransfer && (
+          <PromptPayDialog
+            key={qrTransfer.key}
+            open
+            onOpenChange={(open) => !open && setQrFor(null)}
+            payeeName={nameOf(qrTransfer.to)}
+            payerName={nameOf(qrTransfer.from)}
+            amountSatang={qrTransfer.amount}
+          />
         )}
         <details className="rounded-xl border bg-card px-3 py-2 text-sm [&_summary]:cursor-pointer">
           <summary className="text-sm">{t('billSplit.details')}</summary>

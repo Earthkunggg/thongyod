@@ -83,6 +83,8 @@
 - `src/features/fortune/storage.ts` → `loadHistory()` (60 days, `addToHistory` tested); `features/fortune/levelTone.ts` → `LEVEL_TONE` badge color per level.
 - `src/lib/useInfiniteScroll.ts` → `useInfiniteScroll(query)`: ref for an element under a list; loads the next page near the bottom (used by InfiniteList and /notifications).
 - `src/features/notifications/prefs.ts` (tested) + `storage.ts` → `useNotifyPrefs()` / `setNotifyPrefs()`: notification settings on this device.
+- `src/lib/promptpay.ts` → `parseTarget`, `promptPayPayload(target, satang)`, `targetFromPayload(qrText)`, `maskTarget` (tested against reference payloads). UI: `features/bill-split/PromptPayDialog.tsx` (reuse QrCodeCard + QrScanner).
+- `src/lib/id.ts` → `randomId()`: ids for device data; works on http (crypto.randomUUID does not).
 - `src/lib/random.ts` → `secureRandomInt(max)`: the one fair random source for every game/tool (tests mock it by passing a `random` function).
 
 

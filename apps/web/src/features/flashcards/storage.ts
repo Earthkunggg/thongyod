@@ -47,7 +47,7 @@ export function useDecks(): Deck[] {
   )
 }
 
-export const newId = () => crypto.randomUUID()
+export { randomId as newId } from '@/lib/id'
 
 /** The deck as saved right now (for undo callbacks that run later). */
 export const getDeck = (id: string): Deck | undefined => decks.find((d) => d.id === id)
