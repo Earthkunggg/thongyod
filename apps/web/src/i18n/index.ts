@@ -22,10 +22,13 @@ void i18n.use(initReactI18next).init({
   interpolation: { escapeValue: false }, // React already escapes text
 })
 
-document.documentElement.lang = i18n.language
-i18n.on('languageChanged', (lng) => {
-  document.documentElement.lang = lng
-})
+// Guarded so logic tests (Node, no DOM) can import modules that use i18n.
+if (typeof document !== 'undefined') {
+  document.documentElement.lang = i18n.language
+  i18n.on('languageChanged', (lng) => {
+    document.documentElement.lang = lng
+  })
+}
 
 export function getLanguage(): Language {
   return i18n.language === 'en' ? 'en' : 'th'
