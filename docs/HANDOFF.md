@@ -645,3 +645,9 @@ Built and pushed to `main` while Earth was away (each commit = one feature, lint
 - Games from GAME_IDEAS.md that Earth picks.
 - Home `PendingItem` / `FeedItem` target ids (backend) so those cards can open things.
 - Online rooms (phase C): restaurant vote, quick vote, bill sync.
+
+## Feedback round — 2026-11-05 morning (Earth tested on iPad)
+
+- Fixed (DECISIONS #71): fullscreen ✕ during ใบ้บนหัว, bigger auto-fit words, pet clipped while moving (frame check on 3 device sizes).
+- Layered pet = **experiment only** (`/pet/lab`, labelled ทดลอง). Earth prefers the current pet; do not replace it without asking.
+- Next in this round: games category + all party games (big word banks), multi-device game rooms (friends / QR / link / room code), new เซียมซี art with more and longer fortunes, flashcard flip animation, animation pass.
