@@ -606,3 +606,10 @@ Rules followed: user asked to push each feature straight to `main` only after li
 ### Frontend request for Codex — gang detail (PROVISIONAL, please confirm or counter-propose)
 
 `GET /gangs/:id` → `GangDetail = GangSummary & { members: (PersonCard & { title })[], upcoming: MeetupSummaryV1[] (≤ 5, future, visible to me, not hidden by me, soonest first), titles: { id, name, holder: PersonRef, earnedAt }[] (newest first) }`. 404 `GANG_NOT_FOUND` when missing or I am not a member (same body as missing, like meetups). Members sorted by display name then id; max 50 (spec §16) so no paging. Blocked people still appear (#44). Types in `apps/web/src/api/types.ts`; please publish real ones in `packages/shared`. Later for the gang list (spec §6.1): latest event + unread flag per gang.
+- **3. Notifications** (DECISIONS #61) — `/notifications`, bell count, `/settings/notifications` (device-only prefs). Mock area `notifications` added to `VITE_API_MOCKS`.
+
+### Frontend request for Codex — notifications (PROVISIONAL, please confirm or counter-propose)
+
+- `GET /notifications?cursor&limit` → `NotificationPage = { items: AppNotification[], nextCursor, unreadCount }`, newest first (default 20, max 50). `AppNotification = { id, kind, createdAt, readAt|null, actor: PersonRef|null, gangName|null, subject|null (user content), startsAt|null, amountSatang|null, target }`, `target = {type:'meetup'|'user'|'gang', id} | {type:'friend_requests'} | null`. Kinds: `meetup_invite, meetup_time_changed, meetup_cancelled, meetup_reminder, friend_request, friend_accepted, bill_reminder, title_earned, gang_settings_changed`. Types in `apps/web/src/api/types.ts`.
+- `POST /notifications/read { ids?: string[] }` → 204 (no ids = all mine). Unknown ids ignored.
+- Server rules from spec §14 / DECISIONS #32: hidden meetups never notify the person who hid them; pets never notify; max 3 per day except time changes/cancellations; quiet hours; titles/teasing as one daily summary. Preferences API later (frontend shape: `features/notifications/prefs.ts`).

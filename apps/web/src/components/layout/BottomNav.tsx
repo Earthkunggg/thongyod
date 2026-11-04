@@ -2,6 +2,7 @@ import { NavLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Home, PawPrint, Sparkles, User, Users, type LucideIcon } from 'lucide-react'
 import { useWaitingCount } from '@/features/meetups/useWaiting'
+import { CountBadge } from '@/components/common/CountBadge'
 import { cn } from '@/lib/utils'
 
 type TabKey = 'home' | 'gangs' | 'explore' | 'pet' | 'me'
@@ -46,11 +47,7 @@ export function BottomNav() {
                   ) : (
                     <span className="relative">
                       <Icon className="size-6" strokeWidth={isActive ? 2.4 : 1.8} aria-hidden="true" />
-                      {key === 'home' && waiting > 0 && (
-                        <span className="absolute -top-1 -right-2 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] leading-none font-medium text-white">
-                          {waiting > 9 ? '9+' : waiting}
-                        </span>
-                      )}
+                      {key === 'home' && <CountBadge count={waiting} />}
                     </span>
                   )}
                   <span>

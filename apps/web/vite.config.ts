@@ -16,7 +16,7 @@ import { defineConfig, loadEnv, type Plugin } from 'vite'
  *   "friends,home"       → mock only these areas; the rest from the real backend
  * Areas: see MOCK_AREAS. Never part of a production build (apply: 'serve').
  */
-const MOCK_AREAS = ['auth', 'me', 'profiles', 'friends', 'gangs', 'meetups', 'home'] as const
+const MOCK_AREAS = ['auth', 'me', 'profiles', 'friends', 'gangs', 'meetups', 'home', 'notifications'] as const
 type MockArea = (typeof MOCK_AREAS)[number]
 
 /** Which area an /api path belongs to (order matters: specific paths first). */
@@ -35,6 +35,7 @@ function areaOf(path: string): MockArea | null {
   if (path === '/api/gangs' || path.startsWith('/api/gangs/')) return 'gangs'
   if (path === '/api/meetups' || path.startsWith('/api/meetups/')) return 'meetups'
   if (path === '/api/home') return 'home'
+  if (path === '/api/notifications' || path.startsWith('/api/notifications/')) return 'notifications'
   return null
 }
 

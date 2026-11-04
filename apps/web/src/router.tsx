@@ -24,6 +24,8 @@ import { MutualFriendsPage } from '@/pages/MutualFriendsPage'
 import { MyMeetupsPage } from '@/pages/MyMeetupsPage'
 import { MePage } from '@/pages/MePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
+import { NotificationSettingsPage } from '@/pages/NotificationSettingsPage'
+import { NotificationsPage } from '@/pages/NotificationsPage'
 import { PendingPage } from '@/pages/PendingPage'
 import { PetPage } from '@/pages/PetPage'
 import { ProfileListPage } from '@/pages/ProfileListPage'
@@ -80,6 +82,7 @@ export const router = createRouter([
       { path: 'fortune', element: <FortunePage /> },
       { path: 'fortune/history', element: <FortuneHistoryPage /> },
       { path: 'pending', element: <PendingPage /> },
+      { path: 'notifications', element: <NotificationsPage /> },
       { path: 'updates', element: <UpdatesPage /> },
       { path: 'meetups', element: <MyMeetupsPage /> },
       { path: 'calendar', element: <CalendarPage /> },
@@ -96,6 +99,7 @@ export const router = createRouter([
       { path: 'u/:userId/gangs', element: <ProfileListPage kind="gangs" /> },
       { path: 'me/edit', element: <EditProfilePage /> },
       { path: 'settings', element: <SettingsPage /> },
+      { path: 'settings/notifications', element: <NotificationSettingsPage /> },
       { path: 'welcome', element: <WelcomePage /> },
       ...placeholderToolRoutes,
       { path: '*', element: <NotFoundPage /> },

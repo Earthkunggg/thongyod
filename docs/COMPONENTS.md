@@ -33,6 +33,8 @@
 | SeeAllLink | `src/components/common/SeeAllLink.tsx` | ours | "ดูทั้งหมด ›" link for a SectionHeader action | to, label? | Use whenever a section shows only part of a list (#59). |
 | FeedRow | `src/components/home/FeedRow.tsx` | ours | One friends' update in a vertical list (avatar, 2-line sentence, gang · time ago) | item, now | Not a link until FeedItem has target ids. |
 | GangAvatar | `src/components/gang/GangAvatar.tsx` | ours | Gang picture placeholder: first letter in a stable tint (hash of id → tint 1–8) | id, name, className | Replace with the gang photo when gangs get pictures. |
+| CountBadge | `src/components/common/CountBadge.tsx` | ours | Red number on an icon ("9+" above 9), hidden at 0 | count, className | Tab bar (waiting invites) and Home bell. Wrap the icon in `relative`. |
+| NotificationRow | `src/components/notifications/NotificationRow.tsx` | ours | One notification: actor avatar + kind icon, sentence (`notificationText`), time ago, unread dot | item, now, onOpen | Kind → icon/tone map inside. |
 | HScroll | `src/components/common/HScroll.tsx` | ours | Sideways scrolling row with snap (cards peek from the right), hidden scrollbar | label, children (`shrink-0 snap-start`), onScroll | Use for any horizontal card row (Home highlights, pending, feed, discover). |
 | Badge | `src/components/common/Badge.tsx` | ours | Rounded pill with a meaning color | tone ('warning' \| 'success' \| 'info' \| 'danger' \| 'accent' \| 'neutral'), icon, children | Colors from `lib/tones.ts`; never write palette colors in components (DECISIONS #55). |
 | Home sections | `src/components/home/{HomeGreeting,Highlights,QuickTools,DailyMissions,DiscoverRow}.tsx` | ours | Building blocks of Home v2 (DECISIONS #54) | see files | Section order/visibility from `features/settings/homeLayout`. |
@@ -72,6 +74,8 @@
 - `src/lib/celebrate.ts` → `celebrate()`: confetti for peak moments only (result, all paid, hatch). canvas-confetti 1.9.4, ISC; off with reduced motion.
 - `src/config/pending.ts` → `PENDING_ICONS`: icon per "ต้องจัดการ" kind (Home + /pending).
 - `src/features/fortune/storage.ts` → `loadHistory()` (60 days, `addToHistory` tested); `features/fortune/levelTone.ts` → `LEVEL_TONE` badge color per level.
+- `src/lib/useInfiniteScroll.ts` → `useInfiniteScroll(query)`: ref for an element under a list; loads the next page near the bottom (used by InfiniteList and /notifications).
+- `src/features/notifications/prefs.ts` (tested) + `storage.ts` → `useNotifyPrefs()` / `setNotifyPrefs()`: notification settings on this device.
 - `src/lib/random.ts` → `secureRandomInt(max)`: the one fair random source for every game/tool (tests mock it by passing a `random` function).
 
 
@@ -82,6 +86,7 @@
 | useHome | `src/api/home.ts` | Home summary (pending, pet, lucky color, feed). |
 | useFriends, useUserSearch, useMyFriendLink, useFriendLinkOwner, useRegenerateFriendLink, … | `src/api/friends.ts` | Friends data hooks. |
 | useFriendActions | `src/features/friends/useFriendActions.ts` | Send / accept / decline / cancel friend requests with toasts and error messages. |
+| useNotifications, useUnreadNotifications, useMarkNotificationsRead | `src/api/notifications.ts` | Notifications list (paged, carries unreadCount), bell count, mark read (optimistic). |
 | useMe, useProfile, useUpdateMe | `src/api/profile.ts` | Profile data hooks. |
 | useMyGangs, useGangList, useGang | `src/api/gangs.ts` | All my gangs (pickers) / paged + search (tab) / one gang (provisional `GangDetail`). |
 | useHomeLayout, setHomeLayout | `src/features/settings/homeLayout.ts` | Home card order/visibility (localStorage until the preferences API). |

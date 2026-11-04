@@ -1,6 +1,7 @@
 // Turns API data (kind + fields) into text in the current UI language.
 // The API never sends UI sentences (see packages/shared/src/home.ts).
 import type { FeedItem, PendingItem } from '@thongyod/shared'
+import type { AppNotification } from '@/api/types'
 import i18n from '@/i18n'
 import { formatDayLabel, formatTime } from './date'
 import { formatBaht } from './money'
@@ -38,5 +39,37 @@ export function feedText(item: FeedItem): string {
       return i18n.t('feed.titleEarned', values)
     case 'bill_paid':
       return i18n.t('feed.billPaid', values)
+  }
+}
+
+/** One sentence for a notification. Missing fields become empty so the sentence never shows "undefined". */
+export function notificationText(item: AppNotification, now: Date = new Date()): string {
+  const start = item.startsAt ? new Date(item.startsAt) : null
+  const values = {
+    name: item.actor?.displayName ?? '',
+    subject: item.subject ?? '',
+    gang: item.gangName ?? '',
+    when: start ? `${formatDayLabel(start, now)} ${formatTime(start)}` : '',
+    amount: item.amountSatang !== null ? formatBaht(item.amountSatang) : '',
+  }
+  switch (item.kind) {
+    case 'meetup_invite':
+      return i18n.t('notifications.kinds.meetupInvite', values)
+    case 'meetup_time_changed':
+      return i18n.t('notifications.kinds.meetupTimeChanged', values)
+    case 'meetup_cancelled':
+      return i18n.t('notifications.kinds.meetupCancelled', values)
+    case 'meetup_reminder':
+      return i18n.t('notifications.kinds.meetupReminder', values)
+    case 'friend_request':
+      return i18n.t('notifications.kinds.friendRequest', values)
+    case 'friend_accepted':
+      return i18n.t('notifications.kinds.friendAccepted', values)
+    case 'bill_reminder':
+      return i18n.t('notifications.kinds.billReminder', values)
+    case 'title_earned':
+      return i18n.t('notifications.kinds.titleEarned', values)
+    case 'gang_settings_changed':
+      return i18n.t('notifications.kinds.gangSettingsChanged', values)
   }
 }

@@ -4,7 +4,10 @@ import { Bell, Flame } from 'lucide-react'
 import { Egg } from '@/components/pet/Egg'
 import { Pet } from '@/components/pet/Pet'
 import type { PetSpeciesId } from '@/components/pet/species'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
+import { CountBadge } from '@/components/common/CountBadge'
+import { useUnreadNotifications } from '@/api/notifications'
+import { cn } from '@/lib/utils'
 import { Badge } from '@/components/common/Badge'
 
 type Props = { name: string | null; species: PetSpeciesId | null; streak: number; onPetTap: () => void; now: Date }
@@ -19,6 +22,7 @@ function greetingKey(hour: number) {
 // Top of Home: my pet (always moving, tap to play), a greeting, the streak and notifications.
 export function HomeGreeting({ name, species, streak, onPetTap, now }: Props) {
   const { t } = useTranslation()
+  const unread = useUnreadNotifications()
   return (
     <header className="flex items-center gap-3 px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)]">
       {species ? (
@@ -39,9 +43,14 @@ export function HomeGreeting({ name, species, streak, onPetTap, now }: Props) {
           </Badge>
         </span>
       )}
-      <Button variant="ghost" size="icon" aria-label={t('common.notifications')}>
+      <Link
+        to="/notifications"
+        className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'relative')}
+        aria-label={unread > 0 ? `${t('common.notifications')} (${unread} ${t('notifications.unread')})` : t('common.notifications')}
+      >
         <Bell />
-      </Button>
+        <CountBadge count={unread} className="top-1.5 right-1" />
+      </Link>
     </header>
   )
 }

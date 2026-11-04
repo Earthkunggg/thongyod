@@ -5,6 +5,7 @@ import { http, HttpResponse } from 'msw/http'
 import type { MeetupResponse } from '@thongyod/shared'
 import { createMeetup, getHome, getMeetup, listMeetups, listMyGangs, ME, setHidden, setResponse, type MutationResult, type Visibility } from './db'
 import * as friends from './friends'
+import * as notifications from './notifications'
 import * as profiles from './profiles'
 
 const RESPONSES: MeetupResponse[] = ['going', 'maybe', 'not_going']
@@ -115,6 +116,23 @@ export const handlers = [
     await delay(LATENCY_MS)
     const gang = profiles.getGangDetail(String(params.id))
     return gang ? HttpResponse.json(gang) : errorBody(404, 'GANG_NOT_FOUND')
+  }),
+
+  // ---------- Notifications (provisional) ----------
+  http.get('/api/notifications', async ({ request }) => {
+    await delay(LATENCY_MS)
+    const url = new URL(request.url)
+    const limit = listLimit(url)
+    if (limit === null) return invalid('limit')
+    return HttpResponse.json(notifications.listNotifications(url.searchParams.get('cursor'), limit))
+  }),
+
+  http.post('/api/notifications/read', async ({ request }) => {
+    await delay(LATENCY_MS)
+    const body = (await request.json().catch(() => null)) as { ids?: unknown } | null
+    if (!body || (body.ids !== undefined && !(Array.isArray(body.ids) && body.ids.every((id) => typeof id === 'string')))) return invalid('ids')
+    notifications.markRead(body.ids as string[] | undefined)
+    return new HttpResponse(null, { status: 204 })
   }),
 
   // ---------- Friends ----------

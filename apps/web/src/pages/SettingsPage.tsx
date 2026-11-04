@@ -129,7 +129,7 @@ export function SettingsPage() {
       <section>
         <SectionHeader title={t('settings.more')} />
         <Card className="mx-3 px-4 py-1">
-          <ListRow leading={<IconTile icon={Bell} />} title={t('settings.notifications')} subtitle={t('explore.soon')} />
+          <ListRow leading={<IconTile icon={Bell} />} title={t('settings.notifications')} to="/settings/notifications" />
           <ListRow leading={<IconTile icon={Lock} />} title={t('settings.privacy')} subtitle={t('explore.soon')} />
           <ListRow leading={<IconTile icon={MessageCircle} />} title={t('settings.lineAccount')} subtitle={t('explore.soon')} />
           <ListRow leading={<IconTile icon={Sparkles} />} title={t('settings.replayWelcome')} to="/welcome" />

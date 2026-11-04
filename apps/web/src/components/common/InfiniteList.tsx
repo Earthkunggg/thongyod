@@ -1,10 +1,11 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query'
 import type { CursorPage } from '@/api/types'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
 import { ErrorState } from './ErrorState'
 import { LoadingState } from './LoadingState'
 
@@ -20,22 +21,8 @@ type InfiniteListProps<T> = {
 // Footer: loading row / error + "โหลดเพิ่ม" / "หมดแล้ว". Use with useCursorList().
 export function InfiniteList<T>({ query, renderItem, getKey, empty }: InfiniteListProps<T>) {
   const { t } = useTranslation()
-  const sentinel = useRef<HTMLDivElement>(null)
+  const sentinel = useInfiniteScroll(query)
   const { hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage } = query
-
-  useEffect(() => {
-    const element = sentinel.current
-    if (!element || !hasNextPage || isFetchNextPageError) return
-    // Start loading a bit before the user reaches the end.
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !isFetchingNextPage) void fetchNextPage()
-      },
-      { rootMargin: '400px 0px' },
-    )
-    observer.observe(element)
-    return () => observer.disconnect()
-  }, [hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage])
 
   if (query.isPending) return <LoadingState rows={3} />
   if (query.isError && !query.data) return <ErrorState onRetry={() => void query.refetch()} />

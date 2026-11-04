@@ -125,6 +125,44 @@ export type GangDetail = GangSummary & {
   titles: GangTitle[]
 }
 
+// ---------- Notifications (PROVISIONAL, frontend mock — see HANDOFF) ----------
+
+/** What happened. The UI builds the sentence (#23); the API sends only data. Spec §14: pets never notify. */
+export type NotificationKind =
+  | 'meetup_invite'
+  | 'meetup_time_changed'
+  | 'meetup_cancelled'
+  | 'meetup_reminder'
+  | 'friend_request'
+  | 'friend_accepted'
+  | 'bill_reminder'
+  | 'title_earned'
+  | 'gang_settings_changed'
+
+/** Where tapping a notification goes. null = nowhere (e.g. a cancelled meetup). */
+export type NotificationTarget = { type: 'meetup'; id: string } | { type: 'user'; id: string } | { type: 'gang'; id: string } | { type: 'friend_requests' } | null
+
+export type AppNotification = {
+  id: string
+  kind: NotificationKind
+  createdAt: string
+  /** null = unread. */
+  readAt: string | null
+  /** Who did it (null for reminders). */
+  actor: PersonRef | null
+  gangName: string | null
+  /** User content: meetup title, bill name or title name. */
+  subject: string | null
+  /** meetup_time_changed / meetup_reminder: the (new) start time. bill_reminder: none. */
+  startsAt: string | null
+  /** bill_reminder: amount I owe, in satang. */
+  amountSatang: number | null
+  target: NotificationTarget
+}
+
+/** GET /notifications?cursor&limit → newest first + my unread total (for the bell). */
+export type NotificationPage = CursorPage<AppNotification> & { unreadCount: number }
+
 // ---------- Paging (decision #43) ----------
 
 /** One page of a growing list. Pass `nextCursor` back as `cursor`; null = no more. Never parse a cursor. */
