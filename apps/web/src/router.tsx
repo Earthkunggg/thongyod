@@ -31,6 +31,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage'
 import { NotificationSettingsPage } from '@/pages/NotificationSettingsPage'
 import { NotificationsPage } from '@/pages/NotificationsPage'
 import { PendingPage } from '@/pages/PendingPage'
+import { PetLabPage } from '@/pages/PetLabPage'
 import { PetPage } from '@/pages/PetPage'
 import { ProfileListPage } from '@/pages/ProfileListPage'
 import { QuickVotePage } from '@/pages/QuickVotePage'
@@ -82,6 +83,7 @@ export const router = createRouter([
       { path: 'wheel', element: <WheelPage /> },
       { path: 'head-guess', element: <HeadsUpPage /> },
       { path: 'flashcards', element: <FlashcardsPage /> },
+      { path: 'pet/lab', element: <PetLabPage /> },
       { path: 'flashcards/:deckId', element: <FlashcardDeckPage /> },
       { path: 'flashcards/:deckId/study', element: <FlashcardStudyPage /> },
       { path: 'bills', element: <BillsPage /> },

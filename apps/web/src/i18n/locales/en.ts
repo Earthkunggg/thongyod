@@ -577,6 +577,17 @@ export const en: Messages = {
     backToDeck: 'Back to the deck',
     nothingToStudy: 'Nothing to study',
   },
+  petLab: {
+    title: 'Layered dragon',
+    subtitle: 'Preview · not replacing the current pet yet',
+    hint: 'Tap it, or move your finger: the eyes follow',
+    expressions: 'Faces',
+    faces: { sulky: 'Sulky', neutral: 'Calm', happy: 'Happy', excited: 'Excited', sleepy: 'Sleepy', sad: 'Sad', surprised: 'Surprised', angry: 'Angry', nervous: 'Nervous' },
+    react: 'Play',
+    sleep: 'Sleep',
+    compare: 'The current pet swaps whole pictures; the new one above moves part by part',
+    open: 'Try the new dragon (preview)',
+  },
   headsUp: {
     title: 'Forehead guess',
     subtitle: 'Friends give clues, you guess the word on your forehead',

@@ -62,6 +62,9 @@ export function PetPage() {
             ))}
           </div>
         )}
+        <Link to="/pet/lab" className={buttonVariants({ variant: 'outline', className: 'w-full bg-card' })}>
+          {t('petLab.open')}
+        </Link>
       </div>
     </>
   )
