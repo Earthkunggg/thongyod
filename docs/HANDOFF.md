@@ -621,3 +621,4 @@ Rules followed: user asked to push each feature straight to `main` only after li
 - **Sounds** (DECISIONS #66) — wheel + เซียมซี, `SoundToggle`, `tickTimes` (tested).
 - **4. Layered pets — dragon preview** (DECISIONS #67) — `/pet/lab` (button on the สัตว์เลี้ยง tab). Not used anywhere else yet. Fish not started (waiting for review). Tools used offline only: vtracer 0.6.15 (MIT), svgo 4.1.0 (MIT), OpenCV template matching to measure part positions. Art gap: no wide-open round eyes in the parts sheet (surprised/nervous reuse the lidded "open" eyes); no separate eyebrows.
 - **สีมงคลวันนี้** (DECISIONS #68) — `/lucky-color` replaces the placeholder. Device only. Later the backend `/home.luckyColor` can use the same `colorsFor()` rule.
+- **สุ่มร้าน** (DECISIONS #69) — `/random-restaurant`, `/restaurants`. Device only. Later: Gang pins + Google Places (M8) per spec §8.7/§8.8; the round logic is ready for that.

@@ -33,6 +33,8 @@ import { NotificationSettingsPage } from '@/pages/NotificationSettingsPage'
 import { NotificationsPage } from '@/pages/NotificationsPage'
 import { PendingPage } from '@/pages/PendingPage'
 import { PetLabPage } from '@/pages/PetLabPage'
+import { MyRestaurantsPage } from '@/pages/MyRestaurantsPage'
+import { RandomRestaurantPage } from '@/pages/RandomRestaurantPage'
 import { PetPage } from '@/pages/PetPage'
 import { ProfileListPage } from '@/pages/ProfileListPage'
 import { QuickVotePage } from '@/pages/QuickVotePage'
@@ -49,7 +51,7 @@ const TAB_PATHS = ['/', '/gangs', '/explore', '/pet', '/me']
 
 // Ready tools without a real page yet get a placeholder.
 // When a tool page is built, add its route above this list and it will be skipped here.
-const BUILT_TOOL_PATHS: string[] = ['/lucky-color', '/flashcards', '/head-guess', '/quick-vote', '/meetups/new', '/wheel', '/bills', '/fortune', '/meetups']
+const BUILT_TOOL_PATHS: string[] = ['/random-restaurant', '/lucky-color', '/flashcards', '/head-guess', '/quick-vote', '/meetups/new', '/wheel', '/bills', '/fortune', '/meetups']
 const placeholderToolRoutes: RouteObject[] = TOOLS.filter(
   (tool) => tool.status === 'ready' && tool.to && !TAB_PATHS.includes(tool.to) && !BUILT_TOOL_PATHS.includes(tool.to),
 ).map((tool) => ({ path: tool.to!.slice(1), element: <ToolPlaceholderPage toolId={tool.id} /> }))
@@ -86,6 +88,8 @@ export const router = createRouter([
       { path: 'flashcards', element: <FlashcardsPage /> },
       { path: 'pet/lab', element: <PetLabPage /> },
       { path: 'lucky-color', element: <LuckyColorPage /> },
+      { path: 'random-restaurant', element: <RandomRestaurantPage /> },
+      { path: 'restaurants', element: <MyRestaurantsPage /> },
       { path: 'flashcards/:deckId', element: <FlashcardDeckPage /> },
       { path: 'flashcards/:deckId/study', element: <FlashcardStudyPage /> },
       { path: 'bills', element: <BillsPage /> },

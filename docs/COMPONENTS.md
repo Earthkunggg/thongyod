@@ -36,6 +36,8 @@
 | CountBadge | `src/components/common/CountBadge.tsx` | ours | Red number on an icon ("9+" above 9), hidden at 0 | count, className | Tab bar (waiting invites) and Home bell. Wrap the icon in `relative`. |
 | NotificationRow | `src/components/notifications/NotificationRow.tsx` | ours | One notification: actor avatar + kind icon, sentence (`notificationText`), time ago, unread dot | item, now, onOpen | Kind → icon/tone map inside. |
 | SoundToggle | `src/components/common/SoundToggle.tsx` | ours | 🔊/🔇 button for a game header, per game, default on | game | Read the value with `useGameSound(game)` (`lib/soundPrefs.ts`). |
+| ChipSelect | `src/components/common/ChipSelect.tsx` | ours | Wrap of chips, many (checkbox) or one (radio) | options {value,label,icon?}, value[], onChange, label, single? | Filters/categories. For 2–4 equal options use SegmentedChoice. |
+| RestaurantDialog | `src/components/restaurants/RestaurantDialog.tsx` | ours | Add/edit a pinned place | open, onOpenChange, restaurant | |
 | HScroll | `src/components/common/HScroll.tsx` | ours | Sideways scrolling row with snap (cards peek from the right), hidden scrollbar | label, children (`shrink-0 snap-start`), onScroll | Use for any horizontal card row (Home highlights, pending, feed, discover). |
 | Badge | `src/components/common/Badge.tsx` | ours | Rounded pill with a meaning color | tone ('warning' \| 'success' \| 'info' \| 'danger' \| 'accent' \| 'neutral'), icon, children | Colors from `lib/tones.ts`; never write palette colors in components (DECISIONS #55). |
 | Home sections | `src/components/home/{HomeGreeting,Highlights,QuickTools,DailyMissions,DiscoverRow}.tsx` | ours | Building blocks of Home v2 (DECISIONS #54) | see files | Section order/visibility from `features/settings/homeLayout`. |
@@ -87,6 +89,7 @@
 - `src/lib/promptpay.ts` → `parseTarget`, `promptPayPayload(target, satang)`, `targetFromPayload(qrText)`, `maskTarget` (tested against reference payloads). UI: `features/bill-split/PromptPayDialog.tsx` (reuse QrCodeCard + QrScanner).
 - `src/lib/id.ts` → `randomId()`: ids for device data; works on http (crypto.randomUUID does not).
 - `src/features/lucky-color/taksa.ts` → `taksa(day)`, `colorsFor(day)`, `bangkokDay(now)` (tested); `config/luckyColors.ts` → `LUCKY_HEX` swatches.
+- `src/features/restaurants/logic.ts` → `applyFilters`, `filterKey`, `drawNext`, `exclude`, `restart` (spec §8.4 rounds, tested); storage `useRestaurants()`; `useRestaurantSubtitle()`.
 - `src/lib/random.ts` → `secureRandomInt(max)`: the one fair random source for every game/tool (tests mock it by passing a `random` function).
 
 
