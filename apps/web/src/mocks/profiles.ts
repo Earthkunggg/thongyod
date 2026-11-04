@@ -84,7 +84,7 @@ export function getProfile(userId: string): Profile | null {
         }
       : null,
     titles: full ? visibleTitles : null,
-    pet: full && !isSelf ? { name: null, mood: 'happy' } : null,
+    pet: full && !isSelf ? { name: null, mood: 'happy', species: Number(userId.slice(1)) % 2 ? 'fish' : 'dragon' } : null,
     upcomingTogether: full && !isSelf ? upcomingTogether(userId) : null,
   }
 }

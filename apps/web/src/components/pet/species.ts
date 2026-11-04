@@ -95,3 +95,8 @@ export const PET_SPECIES: Record<PetSpeciesId, PetSpecies> = {
     },
   },
 }
+
+/** Narrow an unknown species string from the API (null = not one we can draw). */
+export function asSpecies(value: string | null | undefined): PetSpeciesId | null {
+  return value === 'dragon' || value === 'fish' ? value : null
+}

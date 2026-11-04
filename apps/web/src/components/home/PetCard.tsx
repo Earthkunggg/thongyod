@@ -1,7 +1,9 @@
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import type { LuckyColorKey, PetMood, PetSummary } from '@thongyod/shared'
-import { PetCat } from '@/components/pet/PetCat'
+import { PawPrint } from 'lucide-react'
+import { Pet } from '@/components/pet/Pet'
+import { asSpecies, type PetSpeciesId } from '@/components/pet/species'
 
 const MOOD_HINT = {
   happy: 'pet.hints.play',
@@ -30,18 +32,27 @@ type PetCardProps = {
   luckyColor: LuckyColorKey | null
   /** Where tapping goes. null = not tappable (e.g. a friend's pet on their profile). */
   to?: string | null
+  /** Overrides pet.species (my own pet lives on this device until the pet API exists). */
+  species?: PetSpeciesId | null
 }
 
-// Small pet card on Home. Tapping opens the pet room.
-export function PetCard({ pet, luckyColor, to = '/pet' }: PetCardProps) {
+// Small pet card (profiles): the animated pet, its mood and the lucky color. Tapping opens the pet room.
+export function PetCard({ pet, luckyColor, to = '/pet', species }: PetCardProps) {
   const { t } = useTranslation()
+  const kind = species ?? asSpecies(pet.species)
   const classes = 'flex items-center gap-3 rounded-xl border bg-card p-3 text-card-foreground'
   const content = (
     <>
-      <PetCat />
+      {kind ? (
+        <Pet species={kind} size={56} className="shrink-0" />
+      ) : (
+        <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground" aria-hidden="true">
+          <PawPrint className="size-6" />
+        </span>
+      )}
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium">
-          {pet.name ?? t('pet.defaultName')} · {t(`pet.moods.${pet.mood}`)}
+          {pet.name ?? (kind ? t(`pet.species.${kind}`) : t('pet.defaultName'))} · {t(`pet.moods.${pet.mood}`)}
         </span>
         {to && <span className="block text-xs text-muted-foreground">{t(MOOD_HINT[pet.mood])}</span>}
       </span>

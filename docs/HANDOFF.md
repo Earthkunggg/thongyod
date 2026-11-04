@@ -617,3 +617,4 @@ Rules followed: user asked to push each feature straight to `main` only after li
 - **Game: แฟลชการ์ด** (DECISIONS #63) — `/flashcards`, `/flashcards/:id`, `/flashcards/:id/study`. Device only (`thongyod-flashcards`); a sync API comes with phase C.
 - **Game ideas** — `docs/GAME_IDEAS.md`: 16 proposals (party, study, pet, online) + recommended order. Waiting for Earth's choice; nothing built.
 - **PromptPay QR** (DECISIONS #64) — QR button on each transfer in หารบิล. Device only. Also `lib/id.ts` replaces `crypto.randomUUID` (https-only) in flashcards.
+- **Hatched pet on profiles** (DECISIONS #65). **Shared contract change (Codex, please confirm):** `packages/shared/src/home.ts` → `PetSummary.species?: string | null` (optional, so existing code still compiles). Values now: `dragon`, `fish`.

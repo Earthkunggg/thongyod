@@ -43,6 +43,8 @@ export interface PetSummary {
   /** null = user has not named the pet; the UI shows the default name. */
   name: string | null
   mood: PetMood
+  /** PROPOSED (frontend, 2026-11-05): which creature hatched ('dragon' | 'fish' for now). Absent/null = unknown → generic picture. */
+  species?: string | null
 }
 
 /** Lucky color key; the UI translates it and picks the swatch. */
