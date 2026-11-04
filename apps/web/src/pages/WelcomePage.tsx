@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Check, HelpCircle, X } from 'lucide-react'
 import { ModeChoice } from '@/components/common/ModeChoice'
@@ -25,7 +25,9 @@ const ALL_SPECIES: PetSpeciesId[] = ['dragon', 'fish']
 export function WelcomePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const [step, setStep] = useState(0)
+  const [params] = useSearchParams()
+  // /welcome?step=egg opens the egg screen directly (from the pet tab when no pet hatched yet).
+  const [step, setStep] = useState(params.get('step') === 'egg' ? STEPS - 1 : 0)
 
   function done() {
     finishOnboarding()

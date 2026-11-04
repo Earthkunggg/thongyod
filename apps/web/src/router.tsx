@@ -1,11 +1,12 @@
-import { createBrowserRouter, type RouteObject } from 'react-router'
+import { createBrowserRouter, Navigate, type RouteObject } from 'react-router'
 import { AppShell } from '@/components/layout/AppShell'
 import { SubPageShell } from '@/components/layout/SubPageShell'
 import { TOOLS } from '@/config/tools'
 import { EditProfilePage } from '@/pages/EditProfilePage'
 import { ExplorePage } from '@/pages/ExplorePage'
 import { AddFriendPage } from '@/pages/AddFriendPage'
-import { BillSplitPage } from '@/pages/BillSplitPage'
+import { BillPage } from '@/pages/BillPage'
+import { BillsPage } from '@/pages/BillsPage'
 import { CreateMeetupPage } from '@/pages/CreateMeetupPage'
 import { FortunePage } from '@/pages/FortunePage'
 import { FriendQrPage } from '@/pages/FriendQrPage'
@@ -31,7 +32,7 @@ const TAB_PATHS = ['/', '/gangs', '/explore', '/pet', '/me']
 
 // Ready tools without a real page yet get a placeholder.
 // When a tool page is built, add its route above this list and it will be skipped here.
-const BUILT_TOOL_PATHS: string[] = ['/quick-vote', '/meetups/new', '/wheel', '/bills/new', '/fortune']
+const BUILT_TOOL_PATHS: string[] = ['/quick-vote', '/meetups/new', '/wheel', '/bills', '/fortune']
 const placeholderToolRoutes: RouteObject[] = TOOLS.filter(
   (tool) => tool.status === 'ready' && tool.to && !TAB_PATHS.includes(tool.to) && !BUILT_TOOL_PATHS.includes(tool.to),
 ).map((tool) => ({ path: tool.to!.slice(1), element: <ToolPlaceholderPage toolId={tool.id} /> }))
@@ -63,7 +64,9 @@ export const router = createBrowserRouter([
     children: [
       { path: 'quick-vote', element: <QuickVotePage /> },
       { path: 'wheel', element: <WheelPage /> },
-      { path: 'bills/new', element: <BillSplitPage /> },
+      { path: 'bills', element: <BillsPage /> },
+      { path: 'bills/new', element: <Navigate to="/bills" replace /> },
+      { path: 'bills/:id', element: <BillPage /> },
       { path: 'fortune', element: <FortunePage /> },
       { path: 'meetups/new', element: <CreateMeetupPage /> },
       { path: 'meetups/:id', element: <MeetupDetailPage /> },

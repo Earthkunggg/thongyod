@@ -31,6 +31,9 @@ export function WheelPage() {
   const [phase, setPhase] = useState<Phase>('idle')
   const [winner, setWinner] = useState<number | null>(null)
   const pet = useRef<PetHandle>(null)
+  /** Id of the spin waiting for its result (0 = none). Makes sure each result shows exactly once. */
+  const pending = useRef(0)
+  const spinCount = useRef(0)
   const [species] = useState(() => getMyPet()?.species ?? 'dragon')
 
   useEffect(() => saveOptions(options), [options])
@@ -56,10 +59,16 @@ export function WheelPage() {
     const instant = reducedMotion()
     setDuration(instant ? 0 : SPIN_MS)
     setRotation(next.rotation)
+    const id = ++spinCount.current
+    pending.current = id
     if (instant) showResult()
+    // Safety net: the animation-end event can be skipped when the app goes to the background mid-spin.
+    else window.setTimeout(() => pending.current === id && showResult(), SPIN_MS + 400)
   }
 
   function showResult() {
+    if (!pending.current) return
+    pending.current = 0
     setPhase('result')
     celebrate()
     navigator.vibrate?.(30)
@@ -103,7 +112,7 @@ export function WheelPage() {
             options={options}
             rotation={rotation}
             durationMs={duration}
-            onSpinEnd={() => phase === 'spinning' && showResult()}
+            onSpinEnd={showResult}
             onTap={startSpin}
             label={locked ? t('wheel.skip') : t('wheel.spin')}
           />

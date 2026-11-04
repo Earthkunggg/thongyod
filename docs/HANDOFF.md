@@ -548,6 +548,7 @@ Please fold these into phase 1 (they change tables you just created). Ask me if 
 
 ## Not done yet (frontend backlog) — 2026-11-04
 
-- **PromptPay QR for หารบิล** — postponed by the user. The one-phone split (`/bills/new`) works without it. When built: payer enters their PromptPay ID once (kept on the device), each person gets a QR for their own amount. Verify the EMVCo/PromptPay payload format and any library license before building.
+- **PromptPay QR for หารบิล** — postponed by the user. The one-phone split (`/bills`, DECISIONS #53) works without it; the QR would sit on each "ใครโอนให้ใคร" row. When built: payer enters their PromptPay ID once (kept on the device), each person gets a QR for their own amount. Verify the EMVCo/PromptPay payload format and any library license before building.
 - Sound effects (Kenney CC0 / ZzFX) for wheel and celebrations.
 - Home pet card still shows the old cat; switch it to the hatched pet.
+- หารบิล later: uneven shares (e.g. 2 portions), sync a bill with the gang (backend), receipt photo (uploads paused).

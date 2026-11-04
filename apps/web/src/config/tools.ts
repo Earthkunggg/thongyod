@@ -49,7 +49,7 @@ export const TOOLS: Tool[] = [
   { id: 'createMeetup', icon: CalendarPlus, group: 'friends', status: 'ready', to: '/meetups/new', featured: true },
   { id: 'quickVote', icon: CheckSquare, group: 'friends', status: 'ready', to: '/quick-vote' },
   { id: 'restaurantVote', icon: ThumbsUp, group: 'friends', status: 'ready', to: '/restaurant-vote' },
-  { id: 'splitBill', icon: Receipt, group: 'friends', status: 'ready', to: '/bills/new' },
+  { id: 'splitBill', icon: Receipt, group: 'friends', status: 'ready', to: '/bills' },
   { id: 'wheel', icon: LoaderPinwheel, group: 'solo', status: 'ready', to: '/wheel' },
   { id: 'fortune', icon: Sparkles, group: 'solo', status: 'ready', to: '/fortune' },
   { id: 'randomRestaurant', icon: Shuffle, group: 'solo', status: 'ready', to: '/random-restaurant' },
