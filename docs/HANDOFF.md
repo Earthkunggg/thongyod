@@ -1,5 +1,17 @@
 # Backend handoff
 
+## GitHub Pages frontend demo — 2026-11-05
+
+- User approved a mock-only deployed frontend while local development can still use the backend. This is a deployment demo, not a production API deployment.
+- `.github/workflows/static.yml` installs Node from `.nvmrc`, runs `npm ci`, tests deployment links, then builds the web workspace with `VITE_DEPLOY_MOCKS=true` and base `/<repository-name>/`. Only `apps/web/dist` is published. Configure repository Pages source as GitHub Actions (`build_type: workflow`).
+- Demo bootstrap awaits the MSW browser worker before rendering. It reuses the existing frontend handlers/data, not PostgreSQL or NestJS. Unmatched `/api` calls get a mock 501 `DEMO_API_NOT_IMPLEMENTED`, never a real backend request. API mock changes reset on reload; existing theme/tool localStorage behavior is unchanged.
+- Demo routes use hash URLs, e.g. `/thongyod/#/gangs/friends`, so nested-page reload works on static hosting. Shared app links and friend QR parsing support these demo URLs as well as existing local clean paths.
+- New `src/mocks/browser.ts` is dynamically imported only when `VITE_DEPLOY_MOCKS=true`. `public/mockServiceWorker.js` is generated from the installed MSW 3.0.3 CLI, scoped beneath Vite's BASE_URL. No new dependency or API contract change.
+- Local development leaves VITE_DEPLOY_MOCKS unset/false. Existing `VITE_API_MOCKS=off` connects through the Vite `/api` proxy to the local backend; `all` or selected areas continue using the existing Vite mocks. No local env file was changed.
+- Local verification: demo production build passed; 3 deployment link tests passed; Chrome mobile-size browser loaded profile/home mocks, returned 501 for an unknown API, reloaded a nested route, and made zero real `/api` network requests. Local Vite with VITE_API_MOCKS=off reached real backend health (200) and unauthenticated Me (401). Changed-file lint checked separately.
+- Existing full frontend suite currently fails in `features/daily/daily.test.ts` because its Node environment imports i18n's `document` access. 65 other tests passed. This unrelated test is not changed here; the Pages workflow runs deployment-specific tests plus the full TypeScript/Vite build.
+
+
 ## Local setup
 
 - Backend: `apps/api` (NestJS, TypeScript strict, npm workspace).

@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate, type RouteObject } from 'react-router'
+import { createBrowserRouter, createHashRouter, Navigate, type RouteObject } from 'react-router'
 import { AppShell } from '@/components/layout/AppShell'
 import { SubPageShell } from '@/components/layout/SubPageShell'
 import { TOOLS } from '@/config/tools'
@@ -40,7 +40,8 @@ const placeholderToolRoutes: RouteObject[] = TOOLS.filter(
 ).map((tool) => ({ path: tool.to!.slice(1), element: <ToolPlaceholderPage toolId={tool.id} /> }))
 
 // Paths are English; labels shown to users come from i18n.
-export const router = createBrowserRouter([
+const createRouter = import.meta.env.VITE_DEPLOY_MOCKS === 'true' ? createHashRouter : createBrowserRouter
+export const router = createRouter([
   {
     // Tab pages: with the bottom tab bar.
     path: '/',

@@ -1,6 +1,6 @@
 import { appUrl } from '@/lib/share'
 
-// Friend links look like <origin>/add/<code>. The QR code contains the same URL.
+// Local links use /add/<code>; static demo links use <base>/#/add/<code>.
 
 export function friendLinkUrl(code: string): string {
   return appUrl(`/add/${encodeURIComponent(code)}`)
@@ -12,7 +12,9 @@ export function friendLinkUrl(code: string): string {
  */
 export function parseFriendLink(text: string): string | null {
   try {
-    const match = new URL(text).pathname.match(/^\/add\/([A-Za-z0-9_-]{4,64})\/?$/)
+    const url = new URL(text)
+    const path = url.hash.startsWith('#/') ? url.hash.slice(1).split('?')[0] : url.pathname
+    const match = path.match(/^\/add\/([A-Za-z0-9_-]{4,64})\/?$/)
     return match ? match[1] : null
   } catch {
     return null

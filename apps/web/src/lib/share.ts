@@ -7,5 +7,8 @@ export function lineShareUrl(text: string): string {
 
 /** Full URL of an app page, e.g. appUrl('/meetups/m1'). */
 export function appUrl(path: string): string {
+  if (import.meta.env.VITE_DEPLOY_MOCKS === 'true') {
+    return `${window.location.origin}${import.meta.env.BASE_URL}#${path}`
+  }
   return `${window.location.origin}${path}`
 }
