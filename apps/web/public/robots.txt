@@ -1,0 +1,13 @@
+# Thongyod. Public pages may be indexed; signed-in app pages hold personal data and must not be.
+# At deploy, add:  Sitemap: https://<domain>/sitemap.xml   (see docs/HANDOFF.md "Deploy checklist")
+User-agent: *
+Allow: /
+Disallow: /u/
+Disallow: /add/
+Disallow: /me
+Disallow: /settings
+Disallow: /bills
+Disallow: /meetups
+Disallow: /friends
+Disallow: /gangs
+Disallow: /welcome

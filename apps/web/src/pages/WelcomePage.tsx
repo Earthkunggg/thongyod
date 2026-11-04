@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { Check, HelpCircle, X } from 'lucide-react'
 import { ModeChoice } from '@/components/common/ModeChoice'
-import { SwipeDeck, type SwipeAction, type SwipeDir } from '@/components/common/SwipeDeck'
+import { SwipeDeck, type SwipeDir } from '@/components/common/SwipeDeck'
 import { Egg, type EggStyle } from '@/components/pet/Egg'
 import { Pet } from '@/components/pet/Pet'
 import type { PetSpeciesId } from '@/components/pet/species'
 import { Button } from '@/components/ui/button'
+import { useInviteActions } from '@/features/meetups/useInviteActions'
 import { finishOnboarding, getMyPet, saveMyPet } from '@/features/onboarding/storage'
 import { secureRandomInt } from '@/lib/random'
 import { getMode, getTheme, setMode, setTheme, type Mode, type Theme } from '@/lib/theme'
@@ -86,11 +86,7 @@ function Intro({ onNext }: { onNext: () => void }) {
 function Practice({ onNext }: { onNext: () => void }) {
   const { t } = useTranslation()
   const [answer, setAnswer] = useState<SwipeDir | null>(null)
-  const actions: SwipeAction[] = [
-    { dir: 'left', label: t('meetup.notGoing'), icon: X, tone: 'border-muted-foreground/40 text-muted-foreground' },
-    { dir: 'up', label: t('meetup.maybe'), icon: HelpCircle, tone: 'border-tone-warning-foreground text-tone-warning-foreground' },
-    { dir: 'right', label: t('meetup.going'), icon: Check, tone: 'border-primary text-primary' },
-  ]
+  const actions = useInviteActions()
   const result = { right: t('meetup.going'), left: t('meetup.notGoing'), up: t('meetup.maybe') }
   return (
     <>

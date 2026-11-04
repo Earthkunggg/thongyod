@@ -350,3 +350,20 @@
     @apply font-heading;
   }
 }
+
+/* Invite card opened full page (Tinder-style): the page grows out of the card. */
+.invite-expand {
+    animation: invite-expand 0.22s ease-out;
+    transform-origin: 50% 30%;
+}
+@keyframes invite-expand {
+    from {
+        opacity: 0;
+        transform: scale(0.94);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .invite-expand {
+        animation: none;
+    }
+}

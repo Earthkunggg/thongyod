@@ -1,7 +1,8 @@
-import { Fragment, useMemo, useState, type ReactNode } from 'react'
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { Link, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { Check, CheckSquare, HelpCircle, Receipt, Utensils, X, type LucideIcon } from 'lucide-react'
-import type { MeetupResponse, PendingKind } from '@thongyod/shared'
+import { CheckSquare, ChevronRight, Receipt, Utensils, type LucideIcon } from 'lucide-react'
+import type { PendingKind } from '@thongyod/shared'
 import { useHome } from '@/api/home'
 import { useMe } from '@/api/profile'
 import { useMeetupsInRange } from '@/api/meetups'
@@ -12,7 +13,7 @@ import { ErrorState } from '@/components/common/ErrorState'
 import { IconTile } from '@/components/common/IconTile'
 import { LoadingState } from '@/components/common/LoadingState'
 import { SectionHeader } from '@/components/common/SectionHeader'
-import { SwipeDeck, type SwipeAction, type SwipeDir } from '@/components/common/SwipeDeck'
+import { SwipeDeck } from '@/components/common/SwipeDeck'
 import { HScroll } from '@/components/common/HScroll'
 import { DailyMissions } from '@/components/home/DailyMissions'
 import { DiscoverRow } from '@/components/home/DiscoverRow'
@@ -25,6 +26,7 @@ import { InviteCard } from '@/components/meetup/InviteCard'
 import { Card } from '@/components/ui/card'
 import type { HomeSectionId } from '@/config/home'
 import { canHide, isLocked } from '@/features/meetups/derive'
+import { SWIPE_TO_RESPONSE, useInviteActions } from '@/features/meetups/useInviteActions'
 import { useMeetupActions } from '@/features/meetups/useMeetupActions'
 import { homeRange } from '@/features/meetups/useWaiting'
 import { markDone, streakOf, useDaily } from '@/features/daily/daily'
@@ -40,15 +42,19 @@ const PENDING_ICONS: Record<PendingKind, LucideIcon> = {
   confirm_payment: Receipt,
 }
 
-const SWIPE_TO_RESPONSE: Record<SwipeDir, MeetupResponse> = { right: 'going', left: 'not_going', up: 'maybe' }
 
 export function HomePage() {
   const { t } = useTranslation()
   const now = useMemo(() => new Date(), [])
   const [selectedDay, setSelectedDay] = useState(now)
   const actions = useMeetupActions()
+  const navigate = useNavigate()
   const layout = useHomeLayout()
   const daily = useDaily()
+
+  useEffect(() => {
+    document.title = t('app.title')
+  }, [t])
   const [myPet] = useState(getMyPet)
 
   // One request covers this week (week strip + agenda) and the next 2 weeks ("รอคุณตอบ").
@@ -65,26 +71,37 @@ export function HomePage() {
   const dayMeetups = weekMeetups.filter((m) => isSameDay(new Date(m.startsAt), selectedDay))
   const agenda = dayMeetups.filter((m) => !waitingIds.has(m.id))
 
-  // Swipe deck (DECISIONS #46): right = ไป, left = ไม่ไป, up = อาจจะ. Buttons do the same.
-  const swipeActions: SwipeAction[] = [
-    { dir: 'left', label: t('meetup.notGoing'), icon: X, tone: 'border-muted-foreground/40 text-muted-foreground' },
-    { dir: 'up', label: t('meetup.maybe'), icon: HelpCircle, tone: 'border-tone-warning-foreground text-tone-warning-foreground' },
-    { dir: 'right', label: t('meetup.going'), icon: Check, tone: 'border-primary text-primary' },
-  ]
+  // Swipe deck (DECISIONS #46, #57): right = ไป, left = ไม่ไป, up = อาจจะ. Buttons do the same; tap = full details.
+  const swipeActions = useInviteActions()
+  const openInvite = (id: string) => void navigate(`/meetups/${id}?invite=1`)
 
   const home = homeQuery.data
   const sections: Record<HomeSectionId, ReactNode> = {
     waiting: waiting.length > 0 && (
       <section className="flex flex-col gap-1">
-        <SectionHeader title={t('home.waitingTitle', { count: waiting.length })} />
+        <SectionHeader
+          title={t('home.waitingTitle', { count: waiting.length })}
+          action={
+            <Link to="/invites" className="flex items-center text-xs font-medium text-primary">
+              {t('common.seeAll')}
+              <ChevronRight className="size-3.5" aria-hidden="true" />
+            </Link>
+          }
+        />
         <SwipeDeck<MeetupListItem>
           items={waiting}
           getKey={(m) => m.id}
           label={t('home.deckLabel')}
           actions={swipeActions}
           onSwipe={(m, dir) => actions.answer(m, SWIPE_TO_RESPONSE[dir])}
+          onOpen={(m) => openInvite(m.id)}
           renderCard={(m) => (
-            <InviteCard meetup={m} now={now} onHide={canHide(m, me.data?.userId) ? () => actions.hide(m, true) : undefined} />
+            <InviteCard
+              meetup={m}
+              now={now}
+              onOpen={() => openInvite(m.id)}
+              onHide={canHide(m, me.data?.userId) ? () => actions.hide(m, true) : undefined}
+            />
           )}
         />
         <p className="pt-1 text-center text-xs text-muted-foreground">{t('home.swipeHint')}</p>

@@ -1,4 +1,4 @@
-import { useParams } from 'react-router'
+import { useNavigate, useParams, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { CalendarDays, Clock, EyeOff, Send, Users } from 'lucide-react'
 import type { MeetupResponse } from '@thongyod/shared'
@@ -18,7 +18,9 @@ import { ResponsePicker } from '@/components/meetup/ResponsePicker'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { canHide, isLocked } from '@/features/meetups/derive'
+import { SWIPE_TO_RESPONSE, useInviteActions } from '@/features/meetups/useInviteActions'
 import { useMeetupActions } from '@/features/meetups/useMeetupActions'
+import { cn } from '@/lib/utils'
 import { formatDayLabel, formatFullDay, formatTime, formatTimeUntil } from '@/lib/date'
 import { appUrl, lineShareUrl } from '@/lib/share'
 
@@ -38,6 +40,11 @@ export function MeetupDetailPage() {
   const actions = useMeetupActions()
   const me = useMe()
   const now = new Date()
+  const navigate = useNavigate()
+  const [params] = useSearchParams()
+  // Opened from an invite card (Tinder-style full view): answer buttons stay at the bottom.
+  const fromInvite = params.get('invite') === '1'
+  const inviteActions = useInviteActions()
 
   if (query.isPending) {
     return (
@@ -74,105 +81,130 @@ export function MeetupDetailPage() {
   const listed = meetup.members.filter((m) => !(isMe(m) && hidden))
   const groupOf = (m: MeetupMember): GroupKey => m.response ?? 'none'
 
+  const showAnswerBar = fromInvite && !hidden && !locked && meetup.myResponse === null
+
   return (
-    <div className="flex flex-col gap-3 pb-6">
-      <PageHeader title={meetup.title} subtitle={meetup.gangName} backTo="/" />
+    <>
+      <div className={cn('flex flex-col gap-3 pb-6', fromInvite && 'invite-expand', showAnswerBar && 'pb-28')}>
+        <PageHeader title={meetup.title} subtitle={meetup.gangName} backTo="/" />
 
-      <Card className="mx-3 flex flex-col gap-2 p-4 text-sm">
-        <p className="flex items-center gap-2">
-          <CalendarDays className="size-4 text-muted-foreground" aria-hidden="true" />
-          {formatFullDay(startsAt)}
-        </p>
-        <p className="flex items-center gap-2">
-          <Clock className="size-4 text-muted-foreground" aria-hidden="true" />
-          {formatTime(startsAt)}
-          {countdown && (
-            <span className="rounded-md bg-accent px-2 text-xs font-medium text-accent-foreground">{countdown}</span>
-          )}
-        </p>
-        <p className="flex items-center gap-2 text-muted-foreground">
-          <Users className="size-4" aria-hidden="true" />
-          {t('meetup.createdBy', { name: meetup.createdBy.displayName })}
-        </p>
-        <a
-          href={lineShareUrl(
-            t('meetup.shareText', {
-              title: meetup.title,
-              when: `${formatDayLabel(startsAt, now)} ${formatTime(startsAt)}`,
-              url: appUrl(`/meetups/${meetup.id}`),
-            }),
-          )}
-          target="_blank"
-          rel="noreferrer"
-          className={buttonVariants({ variant: 'outline', size: 'sm', className: 'mt-1' })}
-        >
-          <Send aria-hidden="true" />
-          {t('meetup.shareLine')}
-        </a>
-      </Card>
-
-      <section>
-        <SectionHeader title={t('meetup.myAnswer')} />
-        <Card className="mx-3 p-4">
-          {hidden ? (
-            <div className="flex flex-col items-center gap-2 text-center">
-              <EyeOff className="size-5 text-muted-foreground" aria-hidden="true" />
-              <p className="text-sm text-muted-foreground">{t('meetup.hiddenNotice')}</p>
-              {locked ? (
-                <p className="text-xs text-muted-foreground">{t('meetup.locked')}</p>
-              ) : (
-                <Button variant="outline" size="sm" onClick={() => actions.hide(meetup, false)}>
-                  {t('meetup.unhide')}
-                </Button>
-              )}
-            </div>
-          ) : (
-            <>
-              <ResponsePicker
-                value={meetup.myResponse}
-                onChange={(r) => actions.answer(meetup, r)}
-                label={meetup.title}
-                disabled={locked}
-              />
-              <p className="mt-2 text-center text-xs text-muted-foreground">
-                {locked
-                  ? t('meetup.locked')
-                  : t('meetup.editableUntil', { when: `${formatDayLabel(lockAt, now)} ${formatTime(lockAt)}` })}
-              </p>
-              {canHide(meetup, myId) && !locked && (
-                <div className="-mb-2 flex justify-center">
-                  <HideMeetupButton onClick={() => actions.hide(meetup, true)} />
-                </div>
-              )}
-            </>
-          )}
+        <Card className="mx-3 flex flex-col gap-2 p-4 text-sm">
+          <p className="flex items-center gap-2">
+            <CalendarDays className="size-4 text-muted-foreground" aria-hidden="true" />
+            {formatFullDay(startsAt)}
+          </p>
+          <p className="flex items-center gap-2">
+            <Clock className="size-4 text-muted-foreground" aria-hidden="true" />
+            {formatTime(startsAt)}
+            {countdown && (
+              <span className="rounded-md bg-accent px-2 text-xs font-medium text-accent-foreground">{countdown}</span>
+            )}
+          </p>
+          <p className="flex items-center gap-2 text-muted-foreground">
+            <Users className="size-4" aria-hidden="true" />
+            {t('meetup.createdBy', { name: meetup.createdBy.displayName })}
+          </p>
+          <a
+            href={lineShareUrl(
+              t('meetup.shareText', {
+                title: meetup.title,
+                when: `${formatDayLabel(startsAt, now)} ${formatTime(startsAt)}`,
+                url: appUrl(`/meetups/${meetup.id}`),
+              }),
+            )}
+            target="_blank"
+            rel="noreferrer"
+            className={buttonVariants({ variant: 'outline', size: 'sm', className: 'mt-1' })}
+          >
+            <Send aria-hidden="true" />
+            {t('meetup.shareLine')}
+          </a>
         </Card>
-      </section>
 
-      <section>
-        <SectionHeader title={t('meetup.members')} />
-        <div className="flex flex-col gap-3">
-          {GROUPS.map(({ key, label }) => {
-            const people = listed.filter((m) => groupOf(m) === key)
-            if (people.length === 0) return null
-            return (
-              <Card key={key} className="mx-3 px-4 py-1">
-                <h3 className="pt-2 text-xs font-medium text-muted-foreground">
-                  {t('meetup.groupCount', { label: t(label), count: people.length })}
-                </h3>
-                {people.map((p) => (
-                  <ListRow
-                    key={p.participantId}
-                    leading={<Avatar name={p.displayName} />}
-                    title={`${p.displayName}${isMe(p) ? t('meetup.youSuffix') : ''}`}
-                    subtitle={p.isGuest ? t('meetup.guest') : undefined}
-                  />
-                ))}
-              </Card>
-            )
-          })}
+        <section>
+          <SectionHeader title={t('meetup.myAnswer')} />
+          <Card className="mx-3 p-4">
+            {hidden ? (
+              <div className="flex flex-col items-center gap-2 text-center">
+                <EyeOff className="size-5 text-muted-foreground" aria-hidden="true" />
+                <p className="text-sm text-muted-foreground">{t('meetup.hiddenNotice')}</p>
+                {locked ? (
+                  <p className="text-xs text-muted-foreground">{t('meetup.locked')}</p>
+                ) : (
+                  <Button variant="outline" size="sm" onClick={() => actions.hide(meetup, false)}>
+                    {t('meetup.unhide')}
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <>
+                <ResponsePicker
+                  value={meetup.myResponse}
+                  onChange={(r) => actions.answer(meetup, r)}
+                  label={meetup.title}
+                  disabled={locked}
+                />
+                <p className="mt-2 text-center text-xs text-muted-foreground">
+                  {locked
+                    ? t('meetup.locked')
+                    : t('meetup.editableUntil', { when: `${formatDayLabel(lockAt, now)} ${formatTime(lockAt)}` })}
+                </p>
+                {canHide(meetup, myId) && !locked && (
+                  <div className="-mb-2 flex justify-center">
+                    <HideMeetupButton onClick={() => actions.hide(meetup, true)} />
+                  </div>
+                )}
+              </>
+            )}
+          </Card>
+        </section>
+
+        <section>
+          <SectionHeader title={t('meetup.members')} />
+          <div className="flex flex-col gap-3">
+            {GROUPS.map(({ key, label }) => {
+              const people = listed.filter((m) => groupOf(m) === key)
+              if (people.length === 0) return null
+              return (
+                <Card key={key} className="mx-3 px-4 py-1">
+                  <h3 className="pt-2 text-xs font-medium text-muted-foreground">
+                    {t('meetup.groupCount', { label: t(label), count: people.length })}
+                  </h3>
+                  {people.map((p) => (
+                    <ListRow
+                      key={p.participantId}
+                      leading={<Avatar name={p.displayName} />}
+                      title={`${p.displayName}${isMe(p) ? t('meetup.youSuffix') : ''}`}
+                      subtitle={p.isGuest ? t('meetup.guest') : undefined}
+                    />
+                  ))}
+                </Card>
+              )
+            })}
+          </div>
+        </section>
+      </div>
+      {showAnswerBar && (
+        <div className="fixed inset-x-0 bottom-0 z-30 mx-auto flex max-w-md items-center justify-center gap-5 border-t bg-background/95 px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur">
+          {inviteActions
+            .slice()
+            .sort((a, b) => ({ left: 0, up: 1, right: 2 })[a.dir] - ({ left: 0, up: 1, right: 2 })[b.dir])
+            .map(({ dir, label, icon: Icon, tone }) => (
+              <button
+                key={dir}
+                type="button"
+                aria-label={label}
+                onClick={() => {
+                  actions.answer(meetup, SWIPE_TO_RESPONSE[dir])
+                  void navigate(-1)
+                }}
+                className={cn('flex size-14 items-center justify-center rounded-full border-2 bg-card shadow-sm transition-transform active:scale-90', dir === 'up' && 'size-12', tone)}
+              >
+                <Icon className="size-6" aria-hidden="true" />
+              </button>
+            ))}
         </div>
-      </section>
-    </div>
+      )}
+    </>
   )
 }

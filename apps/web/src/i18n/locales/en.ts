@@ -10,7 +10,12 @@ export const en: Messages = {
     pet: 'Pet',
     me: 'Me',
   },
+  app: {
+    title: 'Thongyod – the student toolbox',
+    pageTitle: '{{page}} · Thongyod',
+  },
   common: {
+    seeAll: 'See all',
     decrease: 'Decrease',
     increase: 'Increase',
     underConstruction: 'This page is being built',
@@ -50,6 +55,8 @@ export const en: Messages = {
     maybe: 'Maybe',
     notGoing: "Can't go",
     respondTo: 'Respond to {{title}}',
+    openDetails: 'Details of {{title}}',
+    tapForDetails: "Tap the card to see who's going",
     countsShort: '{{going}} going, {{maybe}} maybe',
     notAnswered: 'No answer',
     answered: 'Answered "{{response}}"',
@@ -488,6 +495,10 @@ export const en: Messages = {
     past: 'Attended',
     emptyUpcoming: 'No meetups coming up',
     emptyPast: 'No meetups attended lately',
+  },
+  invites: {
+    allDone: 'All invites answered',
+    allDoneHint: 'New invites show up here and on Home.',
   },
   welcome: {
     progress: 'Step {{step}} of {{total}}',

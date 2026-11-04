@@ -13,10 +13,16 @@ export function homeRange(now: Date): { from: string; to: string } {
   return { from: from.toISOString(), to: to.toISOString() }
 }
 
-/** Invites I have not answered yet (for the red number on the Home tab). */
-export function useWaitingCount(): number {
+/** Invites I have not answered yet, soonest first (Home deck, /invites, tab badge). Shares Home's cached request. */
+export function useWaitingMeetups() {
   const now = useMemo(() => new Date(), [])
   const range = useMemo(() => homeRange(now), [now])
   const query = useMeetupsInRange(range.from, range.to)
-  return (query.data ?? []).filter((m) => !m.myState.hidden && m.myResponse === null && !isLocked(m, now)).length
+  const items = (query.data ?? []).filter((m) => !m.myState.hidden && m.myResponse === null && !isLocked(m, now))
+  return { items, query, now }
+}
+
+/** Number of invites waiting (for the red number on the Home tab). */
+export function useWaitingCount(): number {
+  return useWaitingMeetups().items.length
 }

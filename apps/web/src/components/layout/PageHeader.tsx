@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { ChevronLeft } from 'lucide-react'
@@ -20,6 +20,11 @@ export function PageHeader({ title, subtitle, action, backTo }: PageHeaderProps)
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
+
+  // Each page gets its own browser/search title (Google: unique titles per page).
+  useEffect(() => {
+    document.title = t('app.pageTitle', { page: title })
+  }, [t, title])
 
   // Sub-pages always have a back button; tab pages only when another page linked to them.
   const showBack = Boolean(backTo) || wantsBack(location.state)

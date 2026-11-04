@@ -14,6 +14,7 @@ import { FriendsPage } from '@/pages/FriendsPage'
 import { GangsLayout } from '@/pages/GangsLayout'
 import { GangsPage } from '@/pages/GangsPage'
 import { HomePage } from '@/pages/HomePage'
+import { InvitesPage } from '@/pages/InvitesPage'
 import { MeetupDetailPage } from '@/pages/MeetupDetailPage'
 import { MutualFriendsPage } from '@/pages/MutualFriendsPage'
 import { MyMeetupsPage } from '@/pages/MyMeetupsPage'
@@ -70,6 +71,7 @@ export const router = createBrowserRouter([
       { path: 'bills/:id', element: <BillPage /> },
       { path: 'fortune', element: <FortunePage /> },
       { path: 'meetups', element: <MyMeetupsPage /> },
+      { path: 'invites', element: <InvitesPage /> },
       { path: 'meetups/new', element: <CreateMeetupPage /> },
       { path: 'meetups/:id', element: <MeetupDetailPage /> },
       { path: 'friends/qr', element: <FriendQrPage /> },

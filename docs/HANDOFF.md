@@ -559,3 +559,13 @@ Home v2 shows "ต้องจัดการ" (`PendingItem`) and "อัปเ
 - `PendingItem`: add the target id(s) — `meetupId` for vote_time / vote_restaurant, `billId` (+ `gangId`) for pay_bill / confirm_payment.
 - `FeedItem`: add `actorUserId` and the target (`meetupId` / `billId` / `titleId`), so a card opens the profile or the meetup.
 - A gang detail endpoint (members, upcoming meetups, titles) for the planned gang page (frontend plan item 5).
+
+## Deploy checklist — SEO and link previews (2026-11-04, DECISIONS #56)
+
+Done in code: Thai `<title>` + meta description + Open Graph basics in `apps/web/index.html`, per-page titles (PageHeader), `noindex` on the not-found page, `public/robots.txt` (signed-in pages disallowed).
+To do when there is a real domain (HTTPS):
+1. `<link rel="canonical">` and `og:url` with the real domain; `og:image` 1200×630 (our own art) for LINE / Facebook previews.
+2. `public/sitemap.xml` with the public pages only (landing page, later public tool pages), and add `Sitemap:` to robots.txt.
+3. Google Search Console: add the domain (DNS TXT record is the most robust; HTML meta tag also works), then submit the sitemap and use URL Inspection on the home page.
+4. A public landing page that is pre-rendered (static HTML) so crawlers and LINE previews see real content without JavaScript; the signed-in app stays out of the index.
+5. Per-invite link previews (`/add/:code`, shared meetups) need server-rendered OG tags (see UX_GUIDELINES); plan with the backend.

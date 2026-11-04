@@ -10,7 +10,12 @@ export const th = {
     pet: 'สัตว์เลี้ยง',
     me: 'ฉัน',
   },
+  app: {
+    title: 'ทองหยอด (Thongyod) – กล่องเครื่องมือของเด็กมหาลัย',
+    pageTitle: '{{page}} · ทองหยอด',
+  },
   common: {
+    seeAll: 'ดูทั้งหมด',
     decrease: 'ลด',
     increase: 'เพิ่ม',
     underConstruction: 'หน้านี้กำลังสร้าง',
@@ -51,6 +56,8 @@ export const th = {
     maybe: 'อาจจะ',
     notGoing: 'ไม่ไป',
     respondTo: 'ตอบรับนัด {{title}}',
+    openDetails: 'ดูรายละเอียด {{title}}',
+    tapForDetails: 'แตะการ์ดเพื่อดูว่าใครไปบ้าง',
     countsShort: 'ไป {{going}} อาจจะ {{maybe}}',
     notAnswered: 'ยังไม่ตอบ',
     answered: 'ตอบ "{{response}}" แล้ว',
@@ -489,6 +496,10 @@ export const th = {
     past: 'ที่ไปมาแล้ว',
     emptyUpcoming: 'ยังไม่มีนัดเร็วๆ นี้',
     emptyPast: 'ยังไม่มีนัดที่ไปในช่วงนี้',
+  },
+  invites: {
+    allDone: 'ตอบครบทุกคำชวนแล้ว',
+    allDoneHint: 'คำชวนใหม่จะมาที่นี่และหน้าหลัก',
   },
   welcome: {
     progress: 'ขั้นที่ {{step}} จาก {{total}}',
