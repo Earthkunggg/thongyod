@@ -31,6 +31,12 @@ type PetProps = {
 
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+/**
+ * Room around the art for its moves, as a share of the art size: fly goes up to 24% above, swim 14% to each side,
+ * swim rotates while moving sideways, puffs and z float above the head. `size` is the whole footprint, so callers never get clipped or covered.
+ */
+const ROOM = { top: 0.34, side: 0.27, bottom: 0.06 }
+
 export function Pet({ species, size = 240, ref, className, onTap: onTapProp }: PetProps) {
   const { t } = useTranslation()
   const spec = PET_SPECIES[species]
@@ -156,8 +162,18 @@ export function Pet({ species, size = 240, ref, className, onTap: onTapProp }: P
       onClick={onTap}
       aria-label={t('pet.tapLabel', { name: t(`pet.species.${species}`) })}
       className={cn('relative block touch-manipulation select-none', paused && 'pet-paused', className)}
-      style={{ width: size, aspectRatio: `${spec.box.w} / ${spec.box.h}` }}
+      style={{ width: size, aspectRatio: `${spec.box.w * (1 + 2 * ROOM.side)} / ${spec.box.h * (1 + ROOM.top + ROOM.bottom)}` }}
     >
+      {/* The art sits inside a stage with room for every move (fly, swim, puff, z), so nothing leaves the box. */}
+      <span
+        className="absolute"
+        style={{
+          left: `${(ROOM.side / (1 + 2 * ROOM.side)) * 100}%`,
+          width: `${(1 / (1 + 2 * ROOM.side)) * 100}%`,
+          top: `${(ROOM.top / (1 + ROOM.top + ROOM.bottom)) * 100}%`,
+          height: `${(1 / (1 + ROOM.top + ROOM.bottom)) * 100}%`,
+        }}
+      >
       <span
         aria-hidden="true"
         className={cn(
@@ -222,6 +238,7 @@ export function Pet({ species, size = 240, ref, className, onTap: onTapProp }: P
             </g>
           )}
         </svg>
+      </span>
       </span>
     </button>
   )

@@ -52,7 +52,7 @@ export function PetLabPage() {
       </section>
 
       <Card className="mx-3 flex items-center gap-3 p-3">
-        <Pet species="dragon" size={88} />
+        <Pet species="dragon" size={104} />
         <p className="text-xs text-muted-foreground">{t('petLab.compare')}</p>
       </Card>
     </div>

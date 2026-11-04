@@ -51,7 +51,7 @@ export function PetPage() {
             ]}
           />
         </div>
-        <Pet key={species} species={species} size={280} ref={pet} onTap={() => markDone('pet')} />
+        <Pet key={species} species={species} size={343} ref={pet} onTap={() => markDone('pet')} />
         {/* Development only: jump to each idle action instead of waiting. */}
         {import.meta.env.DEV && (
           <div className="grid w-full grid-cols-2 gap-2">

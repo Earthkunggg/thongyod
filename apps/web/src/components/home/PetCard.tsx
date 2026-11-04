@@ -31,7 +31,7 @@ export function PetCard({ pet, luckyColor, to = '/pet', species }: PetCardProps)
   const content = (
     <>
       {kind ? (
-        <Pet species={kind} size={56} className="shrink-0" />
+        <Pet species={kind} size={72} className="shrink-0" />
       ) : (
         <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground" aria-hidden="true">
           <PawPrint className="size-6" />

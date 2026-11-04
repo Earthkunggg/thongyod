@@ -208,7 +208,7 @@ export function WheelPage() {
 
       <Dialog open={phase === 'result'} onOpenChange={(open) => !open && setPhase('idle')}>
         <DialogContent title={t('wheel.resultTitle')} className="items-center text-center">
-          <Pet ref={pet} species={species} size={120} />
+          <Pet ref={pet} species={species} size={170} />
           <p className="text-3xl font-medium break-words" role="status">
             {winner !== null ? options[winner] : ''}
           </p>

@@ -68,8 +68,8 @@ function Intro({ onNext }: { onNext: () => void }) {
   return (
     <>
       <div className="flex items-end justify-center gap-2">
-        <Pet species="dragon" size={150} />
-        <Pet species="fish" size={120} />
+        <Pet species="dragon" size={170} />
+        <Pet species="fish" size={140} />
       </div>
       <div className="text-center">
         <h1 className="text-2xl font-medium">{t('welcome.introTitle')}</h1>
@@ -226,7 +226,7 @@ function Hatch({ onDone }: { onDone: () => void }) {
     return (
       <>
         <div className="pet-hatch flex justify-center">
-          <Pet species={species} size={240} />
+          <Pet species={species} size={330} />
         </div>
         <div className="text-center" role="status">
           <h1 className="text-2xl font-medium">{t(existing ? 'welcome.yourPet' : 'welcome.bornTitle', { name: t(`pet.species.${species}`) })}</h1>

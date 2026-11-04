@@ -26,7 +26,7 @@ export function HomeGreeting({ name, species, streak, onPetTap, now }: Props) {
   return (
     <header className="flex items-center gap-3 px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)]">
       {species ? (
-        <Pet species={species} size={64} onTap={onPetTap} className="shrink-0" />
+        <Pet species={species} size={88} onTap={onPetTap} className="shrink-0" />
       ) : (
         <Link to="/welcome?step=egg" aria-label={t('pet.hatchNow')} className="shrink-0">
           <Egg style="mystery" className="h-14" />

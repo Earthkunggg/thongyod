@@ -88,7 +88,7 @@ export function LuckyColorPage() {
       <div className="relative mx-auto mt-2 flex size-52 items-center justify-center">
         <span className="absolute inset-4 rounded-full opacity-90" style={{ backgroundColor: LUCKY_HEX[colors.study] }} aria-hidden="true" />
         <span className="absolute inset-0 rounded-full border-8 opacity-50" style={{ borderColor: LUCKY_HEX[colors.money] }} aria-hidden="true" />
-        <Pet species={species} size={150} />
+        <Pet species={species} size={190} />
       </div>
       <p className="text-center text-sm text-muted-foreground">{t('luckyColor.for', { day: t(`luckyColor.days.${start}`) })}</p>
 
