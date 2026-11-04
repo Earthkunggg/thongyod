@@ -615,3 +615,4 @@ Rules followed: user asked to push each feature straight to `main` only after li
 - Server rules from spec §14 / DECISIONS #32: hidden meetups never notify the person who hid them; pets never notify; max 3 per day except time changes/cancellations; quiet hours; titles/teasing as one daily summary. Preferences API later (frontend shape: `features/notifications/prefs.ts`).
 - **Game: ใบ้บนหัว** (DECISIONS #62) — `/head-guess`, on Explore (กับเพื่อน) and Home "ลองเล่นเลย". Device only, no API.
 - **Game: แฟลชการ์ด** (DECISIONS #63) — `/flashcards`, `/flashcards/:id`, `/flashcards/:id/study`. Device only (`thongyod-flashcards`); a sync API comes with phase C.
+- **Game ideas** — `docs/GAME_IDEAS.md`: 16 proposals (party, study, pet, online) + recommended order. Waiting for Earth's choice; nothing built.
