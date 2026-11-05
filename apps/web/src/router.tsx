@@ -23,6 +23,7 @@ import { GangsPage } from '@/pages/GangsPage'
 import { BombPage } from '@/pages/BombPage'
 import { GamesPage } from '@/pages/GamesPage'
 import { SpyPage } from '@/pages/SpyPage'
+import { TabooPage } from '@/pages/TabooPage'
 import { MostLikelyPage, NeverHavePage } from '@/pages/PartyGamePages'
 import { HeadsUpPage } from '@/pages/HeadsUpPage'
 import { HomePage } from '@/pages/HomePage'
@@ -93,6 +94,7 @@ export const router = createRouter([
       { path: 'games/never', element: <NeverHavePage /> },
       { path: 'games/spy', element: <SpyPage /> },
       { path: 'games/bomb', element: <BombPage /> },
+      { path: 'games/taboo', element: <TabooPage /> },
       { path: 'head-guess', element: <HeadsUpPage /> },
       { path: 'flashcards', element: <FlashcardsPage /> },
       { path: 'lucky-color', element: <LuckyColorPage /> },
