@@ -13,25 +13,10 @@ import { NotificationRow } from '@/components/notifications/NotificationRow'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { targetPath } from '@/features/notifications/target'
 import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
 
-/** Where a notification opens. null = stay (e.g. a cancelled meetup has nothing to open). */
-function targetPath(item: AppNotification): string | null {
-  const target = item.target
-  if (!target) return null
-  switch (target.type) {
-    case 'meetup':
-      return `/meetups/${target.id}`
-    case 'user':
-      return `/u/${target.id}`
-    case 'gang':
-      return `/gangs/${target.id}`
-    case 'friend_requests':
-      return '/gangs/friends'
-  }
-}
-
-// /notifications — opened from the bell on Home. New (unread) first, then earlier ones; paged (#43).
+// /notifications — "ดูทั้งหมด" from the notifications sheet on Home (#75). New (unread) first, then earlier ones; paged (#43).
 // Tap = mark read + open. "อ่านทั้งหมด" in the header.
 export function NotificationsPage() {
   const { t } = useTranslation()
