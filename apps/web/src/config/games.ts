@@ -29,7 +29,7 @@ export const GAMES: Game[] = [
   { id: 'mostLikely', icon: Pointer, tint: 5, mode: 'onePhone', players: [3, 20], status: 'ready', to: '/games/most-likely' },
   { id: 'neverHave', icon: Hand, tint: 7, mode: 'onePhone', players: [2, 20], status: 'ready', to: '/games/never' },
   { id: 'dice', icon: Dices, tint: 4, mode: 'onePhone', players: [1, 20], status: 'ready', to: '/games/dice' },
-  { id: 'cups', icon: CupSoda, tint: 6, mode: 'solo', players: [1, 1], status: 'soon', to: '/games/cups' },
+  { id: 'cups', icon: CupSoda, tint: 6, mode: 'solo', players: [1, 1], status: 'ready', to: '/games/cups' },
   { id: 'wheel', icon: LoaderPinwheel, tint: 3, mode: 'solo', players: [1, 20], status: 'ready', to: '/wheel' },
   { id: 'fortune', icon: Sparkles, tint: 4, mode: 'solo', players: [1, 1], status: 'ready', to: '/fortune' },
 ]
