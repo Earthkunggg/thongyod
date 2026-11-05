@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { SoundToggle } from '@/components/common/SoundToggle'
+import { GameHeaderActions } from '@/components/games/HowToPlay'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { BombGame } from '@/features/bomb/BombGame'
 
@@ -8,7 +8,7 @@ export function BombPage() {
   const { t } = useTranslation()
   return (
     <>
-      <PageHeader title={t('games.list.bomb.title')} subtitle={t('games.list.bomb.desc')} backTo="/games" action={<SoundToggle game="bomb" />} />
+      <PageHeader title={t('games.list.bomb.title')} subtitle={t('games.list.bomb.desc')} backTo="/games" action={<GameHeaderActions game="bomb" />} />
       <BombGame />
     </>
   )

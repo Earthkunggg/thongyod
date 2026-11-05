@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { HandCoins, Plus, RotateCw, Utensils, Vote, X } from 'lucide-react'
 import { SpinWheel } from '@/components/common/SpinWheel'
 import { SuggestionChips } from '@/components/common/SuggestionChips'
+import { GameHeaderActions } from '@/components/games/HowToPlay'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
@@ -11,7 +12,6 @@ import { Input } from '@/components/ui/input'
 import { celebrate } from '@/lib/celebrate'
 import { markDone } from '@/features/daily/daily'
 import { MAX_OPTION_LENGTH, MAX_OPTIONS, MIN_OPTIONS, canSpin, normalizeOptions, spin, tickTimes } from '@/features/wheel/logic'
-import { SoundToggle } from '@/components/common/SoundToggle'
 import { playSound, unlockSound } from '@/lib/sound'
 import { useGameSound } from '@/lib/soundPrefs'
 import { loadOptions, saveOptions } from '@/features/wheel/storage'
@@ -128,7 +128,7 @@ export function WheelPage() {
 
   return (
     <>
-      <PageHeader title={t('wheel.title')} subtitle={t('wheel.subtitle')} backTo="/explore" action={<SoundToggle game="wheel" />} />
+      <PageHeader title={t('wheel.title')} subtitle={t('wheel.subtitle')} backTo="/games" action={<GameHeaderActions game="wheel" />} />
 
       <div className="flex flex-col gap-5 px-4 pb-8">
         <div className="mx-auto w-full max-w-[320px]">

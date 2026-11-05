@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { History, Share2, UserPlus, Vibrate } from 'lucide-react'
+import { HowToButton } from '@/components/games/HowToPlay'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { FortuneCard } from '@/features/fortune/FortuneCard'
@@ -89,9 +90,10 @@ export function FortunePage() {
       <PageHeader
         title={t('fortune.title')}
         subtitle={t('fortune.subtitle')}
-        backTo="/explore"
+        backTo="/games"
         action={
           <span className="flex items-center">
+            <HowToButton game="fortune" />
             <SoundToggle game="fortune" />
             <Link to="/fortune/history" className={buttonVariants({ variant: 'ghost', size: 'icon' })} aria-label={t('fortune.history')}>
             <History className="size-5" />

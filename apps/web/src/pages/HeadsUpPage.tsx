@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { GameHeaderActions } from '@/components/games/HowToPlay'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { WORD_PACKS, wordPack } from '@/config/wordPacks'
 import { markDone } from '@/features/daily/daily'
@@ -85,7 +86,7 @@ export function HeadsUpPage() {
 
   return (
     <>
-      <PageHeader title={t('headsUp.title')} subtitle={stage === 'setup' ? t('headsUp.subtitle') : undefined} backTo="/explore" />
+      <PageHeader title={t('headsUp.title')} subtitle={stage === 'setup' ? t('headsUp.subtitle') : undefined} backTo="/games" action={<GameHeaderActions game="headsUp" sound={false} />} />
       {stage === 'setup' && <SetupScreen saved={saved} onChange={setSaved} tilt={tilt} onStart={() => void start()} />}
       {stage === 'play' && (
         <PlayScreen
