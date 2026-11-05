@@ -22,12 +22,12 @@ export type Game = {
 
 export const GAMES: Game[] = [
   { id: 'headsUp', icon: Smartphone, tint: 8, mode: 'onePhone', players: [2, 20], status: 'ready', to: '/head-guess' },
-  { id: 'spy', icon: VenetianMask, tint: 6, mode: 'onePhone', rooms: true, players: [3, 12], status: 'soon', to: '/games/spy' },
+  { id: 'spy', icon: VenetianMask, tint: 6, mode: 'onePhone', rooms: true, players: [3, 12], status: 'ready', to: '/games/spy' },
   { id: 'taboo', icon: MessageSquareOff, tint: 1, mode: 'onePhone', players: [4, 20], status: 'soon', to: '/games/taboo' },
   { id: 'draw', icon: Brush, tint: 2, mode: 'onePhone', players: [2, 20], status: 'soon', to: '/games/draw' },
   { id: 'bomb', icon: Bomb, tint: 3, mode: 'onePhone', players: [2, 20], status: 'soon', to: '/games/bomb' },
-  { id: 'mostLikely', icon: Pointer, tint: 5, mode: 'onePhone', players: [3, 20], status: 'soon', to: '/games/most-likely' },
-  { id: 'neverHave', icon: Hand, tint: 7, mode: 'onePhone', players: [2, 20], status: 'soon', to: '/games/never' },
+  { id: 'mostLikely', icon: Pointer, tint: 5, mode: 'onePhone', players: [3, 20], status: 'ready', to: '/games/most-likely' },
+  { id: 'neverHave', icon: Hand, tint: 7, mode: 'onePhone', players: [2, 20], status: 'ready', to: '/games/never' },
   { id: 'dice', icon: Dices, tint: 4, mode: 'onePhone', players: [1, 20], status: 'soon', to: '/games/dice' },
   { id: 'cups', icon: CupSoda, tint: 6, mode: 'solo', players: [1, 1], status: 'soon', to: '/games/cups' },
   { id: 'wheel', icon: LoaderPinwheel, tint: 3, mode: 'solo', players: [1, 20], status: 'ready', to: '/wheel' },

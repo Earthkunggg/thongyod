@@ -13,3 +13,19 @@ export function secureRandomInt(max: number): number {
     if (buffer[0] < limit) return buffer[0] % max
   }
 }
+
+/** Shuffled copy (Fisher–Yates with the fair random source). */
+export function shuffle<T>(items: readonly T[], random: (max: number) => number = secureRandomInt): T[] {
+  const out = [...items]
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = random(i + 1)
+    ;[out[i], out[j]] = [out[j], out[i]]
+  }
+  return out
+}
+
+/** One item, fairly. */
+export function pickOne<T>(items: readonly T[], random: (max: number) => number = secureRandomInt): T {
+  if (!items.length) throw new Error('pickOne needs at least one item')
+  return items[random(items.length)]
+}

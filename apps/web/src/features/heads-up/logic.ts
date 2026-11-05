@@ -1,5 +1,7 @@
 // ใบ้บนหัว (UX_GUIDELINES §4). Pure logic: no React, no DOM. Tested in logic.test.ts.
-import { secureRandomInt } from '@/lib/random'
+import { secureRandomInt, shuffle } from '@/lib/random'
+
+export { shuffle }
 
 export type Verdict = 'correct' | 'pass'
 export type Answer = { word: string; verdict: Verdict }
@@ -9,16 +11,6 @@ export const MIX_PACK = 'mix'
 
 export const ROUND_SECONDS = [60, 90] as const
 export type RoundSeconds = (typeof ROUND_SECONDS)[number]
-
-/** Shuffled copy (Fisher–Yates with the fair random source). */
-export function shuffle<T>(items: readonly T[], random: (max: number) => number = secureRandomInt): T[] {
-  const out = [...items]
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = random(i + 1)
-    ;[out[i], out[j]] = [out[j], out[i]]
-  }
-  return out
-}
 
 /**
  * Words for one round: no repeats inside a session. Words already used this session go last,

@@ -22,6 +22,12 @@
 | ListRow | `src/components/common/ListRow.tsx` | ours | One row in a list card: leading + title + subtitle (+ chevron when linked) | leading?, title, subtitle?, to?, trailing? | Rows add a top border between each other automatically. `trailing` = buttons on the right (not with `to`). |
 | Avatar | `src/components/common/Avatar.tsx` | ours | Circle with the first letter of a name (skips Thai leading vowels) | name | Photos later |
 | ResponsePicker | `src/components/meetup/ResponsePicker.tsx` | ours | ไป / อาจจะ / ไม่ไป buttons for a meetup (built on SegmentedChoice) | value, onChange, label | Use everywhere a meetup can be answered |
+| GameCard | `src/components/games/GameCard.tsx` | ours | The big party-game card: text as large as fits (FitText), new card dealt in with a 3D turn (`back` = from the left) | cardKey, text, tint, eyebrow, onTap, back | ใครน่าจะ…, ไม่เคย…, later ระเบิดเวลา / คำต้องห้าม |
+| FlipCard | `src/components/games/FlipCard.tsx` | ours | Card that turns over in 3D between two faces (secret roles, the word to draw) | flipped, front, back, className (size) | สายลับ role reveal |
+| PassPhone | `src/components/games/PassPhone.tsx` | ours | Full cover "ส่งมือถือให้ X" between players on one phone; tap anywhere to continue | title, hint, action, onContinue | Every pass-the-phone game |
+| PackPicker | `src/components/games/PackPicker.tsx` | ours | Content packs as tinted tiles; single (radio) or `multiple` (checkbox, one always stays on) | packs, value[], onChange, multiple, label | Party games, สายลับ; use for any game content picker |
+| BottomAction | `src/components/games/BottomAction.tsx` | ours | The fixed hero button bar in the thumb zone (safe-area aware) | children | Setup screens (leave `pb-28` on the page) |
+| TimerBar | `src/components/games/TimerBar.tsx` | ours | Time-left bar + m:ss, warning tone in the last 10 s | left, total | With `useCountdown` |
 | GameTile | `src/components/games/GameTile.tsx` | ours | One game card (tint, icon, name, one line, players, "หลายเครื่อง" badge); not tappable while `soon` | game, className | Used on /games and the Explore เกม section. Add games in `config/games.ts`. |
 | SegmentedChoice | `src/components/common/SegmentedChoice.tsx` | ours | Pick one of 2-4 options as equal-width buttons (generic `<T>`) | options, value, onChange, label | Used by ResponsePicker, theme and language settings |
 | ModeChoice | `src/components/common/ModeChoice.tsx` | ours (wraps SegmentedChoice) | Light / dark / follow device picker | value, onChange | Use with `getMode` / `setMode` from `lib/theme`. |
@@ -85,6 +91,11 @@
 - `src/lib/celebrate.ts` → `celebrate()`: confetti for peak moments only (result, all paid, hatch). canvas-confetti 1.9.4, ISC; off with reduced motion.
 - `src/config/pending.ts` → `PENDING_ICONS`: icon per "ต้องจัดการ" kind (Home + /pending).
 - `src/features/fortune/storage.ts` → `loadHistory()` (60 days, `addToHistory` tested); `features/fortune/levelTone.ts` → `LEVEL_TONE` badge color per level.
+- `src/lib/deck.ts` → `gameDeck(game)`: play order for game content where things already seen on this phone (also on earlier visits) come last; `markSeen(keys)` after showing. Use for every word/card game (#74).
+- `src/lib/gameSettings.ts` → `useGameSettings(game, defaults, fix)`: a game's setup remembered on this phone, cleaned by `fix`.
+- `src/lib/useCountdown.ts` → `useCountdown(seconds, running, onEnd)`: pausable wall-clock timer; `reset(seconds)` restarts it.
+- `src/lib/random.ts` → `secureRandomInt`, `shuffle`, `pickOne` (fair random for every game).
+- `src/components/games/games.css` → shared game motion classes: `game-card-in/back`, `game-pop`, `game-breathe`, `game-shake`, `game-count`, `flip-card*` (all off for reduced motion).
 - `src/lib/useInfiniteScroll.ts` → `useInfiniteScroll(query)`: ref for an element under a list; loads the next page near the bottom (used by InfiniteList and /notifications).
 - `src/features/notifications/prefs.ts` (tested) + `storage.ts` → `useNotifyPrefs()` / `setNotifyPrefs()`: notification settings on this device.
 - `src/lib/promptpay.ts` → `parseTarget`, `promptPayPayload(target, satang)`, `targetFromPayload(qrText)`, `maskTarget` (tested against reference payloads). UI: `features/bill-split/PromptPayDialog.tsx` (reuse QrCodeCard + QrScanner).

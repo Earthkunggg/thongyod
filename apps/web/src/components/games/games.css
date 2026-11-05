@@ -1,0 +1,73 @@
+/* Shared game motion (UX_GUIDELINES motion tokens). Every animation stops for prefers-reduced-motion. */
+
+/* A new card turns in from the right like a card being dealt, with depth. */
+@keyframes game-card-in {
+  from { opacity: 0; transform: perspective(900px) translateX(38%) rotateY(-48deg) scale(0.92); }
+  60% { opacity: 1; }
+  to { opacity: 1; transform: perspective(900px) translateX(0) rotateY(0) scale(1); }
+}
+.game-card-in { animation: game-card-in 420ms cubic-bezier(0.2, 0.9, 0.25, 1.08) both; }
+
+/* Going back: the card comes from the left. */
+@keyframes game-card-back {
+  from { opacity: 0; transform: perspective(900px) translateX(-38%) rotateY(48deg) scale(0.92); }
+  to { opacity: 1; transform: none; }
+}
+.game-card-back { animation: game-card-back 380ms cubic-bezier(0.2, 0.9, 0.25, 1.05) both; }
+
+/* 3D flip card (front ↔ back). */
+.flip-card { perspective: 1100px; }
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 560ms cubic-bezier(0.3, 1.25, 0.4, 1);
+}
+.flip-card[data-flipped='true'] .flip-card-inner { transform: rotateY(180deg); }
+.flip-card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-card-back { transform: rotateY(180deg); }
+
+/* Something important lands (result, "ชี้!"). */
+@keyframes game-pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  60% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.game-pop { animation: game-pop 460ms cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+
+/* Gentle breathing for "tap me" covers. */
+@keyframes game-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+.game-breathe { animation: game-breathe 1800ms ease-in-out infinite; }
+
+/* Screen shake (bomb, wrong). */
+@keyframes game-shake {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  15% { transform: translate(-10px, 4px) rotate(-3deg); }
+  30% { transform: translate(9px, -5px) rotate(3deg); }
+  45% { transform: translate(-7px, 3px) rotate(-2deg); }
+  60% { transform: translate(6px, -2px) rotate(2deg); }
+  80% { transform: translate(-3px, 1px) rotate(-1deg); }
+}
+.game-shake { animation: game-shake 520ms ease-out both; }
+
+/* Count-down number: each digit zooms out. */
+@keyframes game-count {
+  from { transform: scale(1.8); opacity: 0; }
+  30% { opacity: 1; }
+  to { transform: scale(0.9); opacity: 1; }
+}
+.game-count { animation: game-count 900ms cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .game-card-in, .game-card-back, .game-pop, .game-breathe, .game-shake, .game-count { animation: none; }
+  .flip-card-inner { transition: none; }
+}

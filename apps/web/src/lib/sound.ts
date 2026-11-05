@@ -3,7 +3,7 @@
 // and we never change navigator.audioSession, so silent stays silent.
 // Browsers start audio only after a tap: call unlockSound() from the "start" button.
 
-export type SoundName = 'tick' | 'countdown' | 'go' | 'correct' | 'pass' | 'end' | 'pop'
+export type SoundName = 'tick' | 'countdown' | 'go' | 'correct' | 'pass' | 'end' | 'pop' | 'boom' | 'flip' | 'roll' | 'wrong'
 
 let context: AudioContext | null = null
 
@@ -38,6 +38,25 @@ const SOUNDS: Record<SoundName, Note[]> = {
     { freq: 784, at: 0.26, dur: 0.3, type: 'triangle', gain: 0.18 },
   ],
   pop: [{ freq: 600, at: 0, dur: 0.08, type: 'sine', gain: 0.14, slideTo: 900 }],
+  // Cartoon "poof" for ระเบิดเวลา (soft, not a real explosion).
+  boom: [
+    { freq: 180, at: 0, dur: 0.45, type: 'sawtooth', gain: 0.16, slideTo: 40 },
+    { freq: 520, at: 0, dur: 0.18, type: 'square', gain: 0.06, slideTo: 120 },
+  ],
+  // Card turning over.
+  flip: [{ freq: 300, at: 0, dur: 0.07, type: 'triangle', gain: 0.1, slideTo: 700 }],
+  // Dice rattle.
+  roll: [
+    { freq: 900, at: 0, dur: 0.03, type: 'square', gain: 0.04 },
+    { freq: 700, at: 0.06, dur: 0.03, type: 'square', gain: 0.04 },
+    { freq: 1000, at: 0.11, dur: 0.03, type: 'square', gain: 0.04 },
+    { freq: 800, at: 0.17, dur: 0.03, type: 'square', gain: 0.04 },
+  ],
+  // Low double buzz (taboo word said).
+  wrong: [
+    { freq: 200, at: 0, dur: 0.12, type: 'square', gain: 0.07 },
+    { freq: 170, at: 0.14, dur: 0.16, type: 'square', gain: 0.07 },
+  ],
 }
 
 /** Plays a short sound. Does nothing when audio is not available or still locked. */
