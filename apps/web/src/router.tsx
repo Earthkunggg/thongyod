@@ -20,6 +20,7 @@ import { GangsLayout } from '@/pages/GangsLayout'
 import { GangMembersPage } from '@/pages/GangMembersPage'
 import { GangPage } from '@/pages/GangPage'
 import { GangsPage } from '@/pages/GangsPage'
+import { GamesPage } from '@/pages/GamesPage'
 import { HeadsUpPage } from '@/pages/HeadsUpPage'
 import { HomePage } from '@/pages/HomePage'
 import { LuckyColorPage } from '@/pages/LuckyColorPage'
@@ -84,6 +85,7 @@ export const router = createRouter([
     children: [
       { path: 'quick-vote', element: <QuickVotePage /> },
       { path: 'wheel', element: <WheelPage /> },
+      { path: 'games', element: <GamesPage /> },
       { path: 'head-guess', element: <HeadsUpPage /> },
       { path: 'flashcards', element: <FlashcardsPage /> },
       { path: 'lucky-color', element: <LuckyColorPage /> },

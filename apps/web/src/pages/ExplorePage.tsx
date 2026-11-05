@@ -4,6 +4,12 @@ import { FeaturedAction } from '@/components/explore/FeaturedAction'
 import { ToolTile } from '@/components/explore/ToolTile'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { TOOLS, type Tool } from '@/config/tools'
+import { SeeAllLink } from '@/components/common/SeeAllLink'
+import { GameTile } from '@/components/games/GameTile'
+import { GAMES } from '@/config/games'
+
+/** Games shown on Explore; the rest are on /games. */
+const GAME_PREVIEW = 4
 
 function ToolGrid({ tools }: { tools: Tool[] }) {
   return (
@@ -36,6 +42,17 @@ export function ExplorePage() {
             </div>
           ))}
           <ToolGrid tools={friends} />
+        </div>
+      </section>
+
+      <section>
+        <SectionHeader title={t('games.title')} action={<SeeAllLink to="/games" />} />
+        <div className="grid grid-cols-2 gap-2 px-3">
+          {GAMES.filter((g) => g.status === 'ready')
+            .slice(0, GAME_PREVIEW)
+            .map((g) => (
+              <GameTile key={g.id} game={g} />
+            ))}
         </div>
       </section>
 

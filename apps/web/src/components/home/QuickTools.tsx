@@ -13,8 +13,8 @@ export function QuickTools() {
   const tiles: Tile[] = [
     { key: 'meet', to: '/meetups/new', icon: CalendarPlus, label: t('tools.createMeetup.title'), tone: tintClass(1) },
     { key: 'bill', to: '/bills', icon: Receipt, label: t('tools.splitBill.title'), tone: tintClass(2) },
-    { key: 'wheel', to: '/wheel', icon: LoaderPinwheel, label: t('tools.wheel.title'), tone: tintClass(3) },
-    { key: 'fortune', to: '/fortune', icon: Sparkles, label: t('tools.fortune.title'), tone: tintClass(4) },
+    { key: 'wheel', to: '/wheel', icon: LoaderPinwheel, label: t('games.list.wheel.title'), tone: tintClass(3) },
+    { key: 'fortune', to: '/fortune', icon: Sparkles, label: t('games.list.fortune.title'), tone: tintClass(4) },
     { key: 'vote', to: '/quick-vote', icon: CheckSquare, label: t('tools.quickVote.title'), tone: tintClass(5) },
     { key: 'eat', to: '/wheel?preset=food', icon: Utensils, label: t('home.tools.eat'), tone: tintClass(6) },
     { key: 'pet', to: '/pet', icon: PawPrint, label: t('home.tools.pet'), tone: tintClass(7) },
