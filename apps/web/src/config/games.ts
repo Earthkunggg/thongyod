@@ -25,7 +25,7 @@ export const GAMES: Game[] = [
   { id: 'spy', icon: VenetianMask, tint: 6, mode: 'onePhone', rooms: true, players: [3, 12], status: 'ready', to: '/games/spy' },
   { id: 'taboo', icon: MessageSquareOff, tint: 1, mode: 'onePhone', players: [4, 20], status: 'soon', to: '/games/taboo' },
   { id: 'draw', icon: Brush, tint: 2, mode: 'onePhone', players: [2, 20], status: 'soon', to: '/games/draw' },
-  { id: 'bomb', icon: Bomb, tint: 3, mode: 'onePhone', players: [2, 20], status: 'soon', to: '/games/bomb' },
+  { id: 'bomb', icon: Bomb, tint: 3, mode: 'onePhone', players: [2, 20], status: 'ready', to: '/games/bomb' },
   { id: 'mostLikely', icon: Pointer, tint: 5, mode: 'onePhone', players: [3, 20], status: 'ready', to: '/games/most-likely' },
   { id: 'neverHave', icon: Hand, tint: 7, mode: 'onePhone', players: [2, 20], status: 'ready', to: '/games/never' },
   { id: 'dice', icon: Dices, tint: 4, mode: 'onePhone', players: [1, 20], status: 'soon', to: '/games/dice' },
