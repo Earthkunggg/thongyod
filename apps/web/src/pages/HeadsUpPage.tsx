@@ -3,17 +3,21 @@ import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { WORD_PACKS, wordPack } from '@/config/wordPacks'
 import { markDone } from '@/features/daily/daily'
-import { MIX_PACK, pickWords, score, toggleAnswer, type Answer } from '@/features/heads-up/logic'
+import { MIX_PACK, score, toggleAnswer, type Answer } from '@/features/heads-up/logic'
 import { PlayScreen } from '@/features/heads-up/PlayScreen'
 import { ResultScreen } from '@/features/heads-up/ResultScreen'
 import { SetupScreen } from '@/features/heads-up/SetupScreen'
 import { loadHeadsUp, saveHeadsUp, type HeadsUpSaved } from '@/features/heads-up/storage'
 import { enterLandscape, leaveLandscape, requestTiltPermission, tiltSupport, type TiltSupport } from '@/features/heads-up/useTilt'
 import { celebrate } from '@/lib/celebrate'
+import { gameDeck } from '@/lib/deck'
 import { appUrl } from '@/lib/share'
 import { unlockSound } from '@/lib/sound'
 
 type Stage = 'setup' | 'play' | 'result'
+
+/** Words seen on this phone, also on earlier visits, come last (DECISIONS #74). */
+const deck = gameDeck('headsUp')
 
 // /head-guess — ใบ้บนหัว (UX_GUIDELINES §4, our own name and word packs). One phone, played in a group.
 export function HeadsUpPage() {
@@ -43,7 +47,9 @@ export function HeadsUpPage() {
     }
     void enterLandscape()
     const source = saved.pack === MIX_PACK ? WORD_PACKS.flatMap((p) => p.words) : (wordPack(saved.pack) ?? WORD_PACKS[0]).words
-    const list = pickWords(source, used.current)
+    const order = deck.order(source, (w) => w)
+    // Words used this visit go last as well (the deck only knows rounds that finished).
+    const list = [...order.filter((w) => !used.current.has(w)), ...order.filter((w) => used.current.has(w))]
     setWords(list)
     setAnswers([])
     setRound((r) => r + 1)
@@ -54,6 +60,7 @@ export function HeadsUpPage() {
   function finish(list: Answer[]) {
     leaveLandscape()
     for (const a of list) used.current.add(a.word)
+    deck.markSeen(list.map((a) => a.word))
     setAnswers(list)
     const total = score(list)
     const best = saved.best[saved.pack] ?? 0

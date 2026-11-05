@@ -69,3 +69,13 @@ describe('secondsLeft', () => {
     expect(secondsLeft(0, 60, 61_000, 5_000)).toBe(4)
   })
 })
+
+describe('word packs', () => {
+  it('are big and have no duplicate words anywhere', async () => {
+    const { WORD_PACKS } = await import('@/config/wordPacks')
+    const all = WORD_PACKS.flatMap((p) => p.words)
+    expect(all.length).toBeGreaterThanOrEqual(700)
+    expect(new Set(all).size).toBe(all.length)
+    for (const p of WORD_PACKS) expect(p.words.length).toBeGreaterThanOrEqual(80)
+  })
+})
