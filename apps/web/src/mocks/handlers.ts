@@ -7,6 +7,7 @@ import { createMeetup, getHome, getMeetup, listMeetups, listMyGangs, ME, setHidd
 import * as friends from './friends'
 import * as notifications from './notifications'
 import * as profiles from './profiles'
+import * as rooms from './rooms'
 
 const RESPONSES: MeetupResponse[] = ['going', 'maybe', 'not_going']
 const LATENCY_MS = 300 // small delay so loading states are visible during development
@@ -23,6 +24,10 @@ const errorBody = (status: number, code: string) => HttpResponse.json({ error: {
 function replyFriend(result: friends.FriendResult, okStatus = 200) {
   if (!result.ok) return errorBody(result.status, result.code)
   return result.data === null ? new HttpResponse(null, { status: 204 }) : HttpResponse.json(result.data, { status: okStatus })
+}
+
+function replyRoom(result: rooms.RoomResult) {
+  return result.ok ? HttpResponse.json(result.room) : errorBody(result.status, result.code)
 }
 
 function replyMe(result: profiles.ProfileResult) {
@@ -212,6 +217,37 @@ export const handlers = [
   }),
 
   // ---------- Profile ----------
+  // ---------- Game rooms (provisional, DECISIONS #76) ----------
+  http.post('/api/rooms', async ({ request }) => {
+    await delay(LATENCY_MS)
+    const body = (await request.json().catch(() => null)) as { game?: string; settings?: Record<string, unknown> } | null
+    if (body?.game !== 'spy') return invalid('game')
+    return replyRoom(rooms.createRoom('spy', body.settings))
+  }),
+  http.get('/api/rooms/:code', async ({ params }) => replyRoom(rooms.getRoom(String(params.code)))),
+  http.post('/api/rooms/:code/join', async ({ params }) => {
+    await delay(LATENCY_MS)
+    return replyRoom(rooms.joinRoom(String(params.code)))
+  }),
+  http.post('/api/rooms/:code/leave', async ({ params }) => replyRoom(rooms.leaveRoom(String(params.code)))),
+  http.patch('/api/rooms/:code/settings', async ({ params, request }) => {
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>
+    return replyRoom(rooms.updateSettings(String(params.code), body))
+  }),
+  http.post('/api/rooms/:code/start', async ({ params }) => {
+    await delay(LATENCY_MS)
+    return replyRoom(rooms.startRound(String(params.code)))
+  }),
+  http.post('/api/rooms/:code/reveal', async ({ params }) => replyRoom(rooms.revealRound(String(params.code)))),
+  http.post('/api/rooms/:code/lobby', async ({ params }) => replyRoom(rooms.backToLobby(String(params.code)))),
+  http.post('/api/rooms/:code/invite', async ({ params, request }) => {
+    await delay(LATENCY_MS)
+    const body = (await request.json().catch(() => null)) as { userIds?: unknown } | null
+    if (!Array.isArray(body?.userIds) || !body.userIds.length) return invalid('userIds')
+    const found = rooms.getRoom(String(params.code))
+    return found.ok ? new HttpResponse(null, { status: 204 }) : errorBody(found.status, found.code)
+  }),
+
   http.get('/api/me', async () => {
     await delay(LATENCY_MS)
     return HttpResponse.json(profiles.getMe())

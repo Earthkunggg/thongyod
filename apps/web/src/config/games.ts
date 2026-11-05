@@ -13,7 +13,7 @@ export type Game = {
   /** Category color 1–8 (lib/tones tint). */
   tint: number
   mode: GameMode
-  /** Also playable with each friend on their own phone (room). */
+  /** Also playable with each friend on their own phone (room, DECISIONS #76). The card then shows both tags and asks which way. */
   rooms?: boolean
   players: [min: number, max: number]
   status: 'ready' | 'soon'

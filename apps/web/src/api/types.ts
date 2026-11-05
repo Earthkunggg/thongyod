@@ -138,9 +138,10 @@ export type NotificationKind =
   | 'bill_reminder'
   | 'title_earned'
   | 'gang_settings_changed'
+  | 'game_invite'
 
 /** Where tapping a notification goes. null = nowhere (e.g. a cancelled meetup). */
-export type NotificationTarget = { type: 'meetup'; id: string } | { type: 'user'; id: string } | { type: 'gang'; id: string } | { type: 'friend_requests' } | null
+export type NotificationTarget = { type: 'meetup'; id: string } | { type: 'user'; id: string } | { type: 'gang'; id: string } | { type: 'friend_requests' } | { type: 'room'; id: string } | null
 
 export type AppNotification = {
   id: string
@@ -167,3 +168,45 @@ export type NotificationPage = CursorPage<AppNotification> & { unreadCount: numb
 
 /** One page of a growing list. Pass `nextCursor` back as `cursor`; null = no more. Never parse a cursor. */
 export type CursorPage<T> = { items: T[]; nextCursor: string | null }
+
+// ---------- Game rooms: many phones (PROVISIONAL, DECISIONS #76, contract in docs/HANDOFF.md) ----------
+
+/** Games that can be played with each friend on their own phone. */
+export type RoomGame = 'spy'
+export type RoomState = 'lobby' | 'playing' | 'revealed'
+
+/** สายลับ settings chosen by the host. */
+export type SpyRoomSettings = { mode: 'places' | 'pairs'; spies: number; minutes: 3 | 5 | 8; packs: string[] }
+
+export type RoomPlayer = PersonRef & { isHost: boolean }
+
+/** What only I can see this round. */
+export type SpySecret = { isSpy: boolean; /** The place / my word; null for the spy in places mode. */ text: string | null }
+
+export type RoomRound = {
+  number: number
+  startedAt: string
+  endsAt: string
+  /** Who asks first. */
+  firstPlayerId: string
+  /** Set after the host reveals: who the spies were and the words. */
+  reveal: { spyIds: string[]; secret: string; spyWord: string | null } | null
+}
+
+/** GET /rooms/:code — poll every ~1.5 s while open (real-time push can replace polling later). */
+export type Room = {
+  /** 6 digits; also used in the join link /games/rooms/:code. */
+  code: string
+  game: RoomGame
+  state: RoomState
+  hostId: string
+  players: RoomPlayer[]
+  maxPlayers: number
+  settings: SpyRoomSettings
+  round: RoomRound | null
+  /** Private to the caller. null outside a round or when not a player. */
+  mySecret: SpySecret | null
+  /** Am I in this room? false = I opened a link and can join. */
+  joined: boolean
+  expiresAt: string
+}

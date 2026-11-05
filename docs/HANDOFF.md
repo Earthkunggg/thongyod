@@ -652,3 +652,19 @@ Built and pushed to `main` while Earth was away (each commit = one feature, lint
 - Layered pet = **experiment only** (`/pet/lab`, labelled ทดลอง). Earth prefers the current pet; do not replace it without asking.
 - Next in this round: games category + all party games (big word banks), multi-device game rooms (friends / QR / link / room code), new เซียมซี art with more and longer fortunes, flashcard flip animation, animation pass.
 - Pet only on Home header + pet tab; layered pet removed (DECISIONS #72). `PetSummary.species` is no longer used by the UI (harmless if Codex keeps it null).
+- Games category (#73): `/games` hub + Explore "เกม" section. Built (all one phone, device only, no API): ใครน่าจะ…, ไม่เคย…, สายลับ, ระเบิดเวลา, คำต้องห้าม, วาดแล้วทาย, ลูกเต๋า & ปั่นขวด, ขนมอยู่ไหน. Content never repeats until a pool is used up (#74, `lib/deck.ts`). Every game has a "วิธีเล่น" tutorial (? button).
+- Notifications bottom sheet + slim sticky Home bar (#75).
+- Multi-device rooms (#76): `/games/rooms` zone, `/games/rooms/new?game=spy`, `/games/rooms/:code` (also the join link + QR). สายลับ works in rooms. Game cards show tags เครื่องเดียว / หลายเครื่อง; a game with both asks which way.
+
+### Frontend request for Codex — game rooms (PROVISIONAL, please confirm or counter-propose)
+
+Many phones in one game. Only the server knows everyone's role; each phone gets its own secret. Types in `apps/web/src/api/types.ts` (`Room`, `RoomPlayer`, `RoomRound`, `SpySecret`, `SpyRoomSettings`); mock in `apps/web/src/mocks/rooms.ts` (shows the rules).
+
+- `POST /rooms { game: 'spy', settings: { mode: 'places'|'pairs', minutes: 3|5|8, spies: 1–3, packs: string[] } }` → `Room` (caller = host, first player). Code = 6 random digits, unique among open rooms. Rooms expire 3 h after creation (or when empty).
+- `GET /rooms/:code` → `Room` for the caller: `joined` false when not a player (they see players + game, can join). `mySecret` only for the caller (`{ isSpy, text }`, text null for the spy in places mode). `round.reveal` only after the host reveals. The web polls every 1.5 s; a push channel (SSE/WebSocket) can replace polling later (spec §17: real-time only on game/vote screens).
+- `POST /rooms/:code/join` → `Room`; 404 `ROOM_NOT_FOUND`, 409 `ROOM_FULL` (max 12), 409 `ROOM_STARTED` (join only in lobby). Joining twice = no-op.
+- `POST /rooms/:code/leave` → `Room`; host leaving passes host to the earliest player; empty room is deleted.
+- Host only (403 `HOST_ONLY`): `PATCH /rooms/:code/settings` (lobby only; changing mode resets packs to all of that mode), `POST /rooms/:code/start` (needs ≥ 3 players, 409 `NOT_ENOUGH_PLAYERS`; deals with a CSPRNG: spies = min(settings.spies, 1 if ≤5 players, 2 if ≤8, else 3), item from the chosen packs, first asker random; `endsAt = now + minutes`; works again from `revealed` for the next round), `POST /rooms/:code/reveal` → state `revealed`, `POST /rooms/:code/lobby` → back to lobby, round cleared.
+- `POST /rooms/:code/invite { userIds }` → 204; only friends of the caller; each gets a notification `kind: 'game_invite'`, `actor` = inviter, `subject` = room code, `target: { type: 'room', id: code }` (new kind + target type).
+- Content: places / word pairs live in `apps/web/src/config/games/spy.ts` (Thai). The server needs the same lists (move to `packages/shared` or copy); `features/spy/logic.ts` `dealSpy` is the reference dealing rule (tested).
+- Demo note: on GitHub Pages each browser has its own mock, so two real phones cannot meet; the mock makes 4 friends join a new room by themselves, and seeds room `482913` hosted by ต้น with a "ชวนเล่น" notification.

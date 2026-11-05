@@ -19,6 +19,7 @@ function n(id: string, minutesAgo: number, read: boolean, rest: Partial<AppNotif
 
 let items: AppNotification[] = [
   n('n1', 5, false, { kind: 'meetup_invite', actor: person('u2'), gangName: 'ทีมแบดวันพุธ', subject: 'แบดเย็นพุธ', target: { type: 'meetup', id: 'm2' } }),
+  n('n0', 2, false, { kind: 'game_invite', actor: person('u2'), subject: '482913', target: { type: 'room', id: '482913' } }),
   n('n2', 40, false, { kind: 'meetup_time_changed', actor: person('u3'), gangName: 'เพื่อนมัธยม', subject: 'ข้าวมันไก่หน้ามอ', startsAt: at(3, 12, 30), target: { type: 'meetup', id: 'm4' } }),
   n('n3', 90, false, { kind: 'friend_request', actor: person('u9'), target: { type: 'friend_requests' } }),
   n('n4', 180, false, { kind: 'bill_reminder', actor: person('u4'), gangName: 'แก๊งคอม 66', subject: 'บิลชาบู', amountSatang: 18600, target: null }),

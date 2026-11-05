@@ -25,6 +25,9 @@ import { DrawPage } from '@/pages/DrawPage'
 import { CupsPage } from '@/pages/CupsPage'
 import { DicePage } from '@/pages/DicePage'
 import { GamesPage } from '@/pages/GamesPage'
+import { RoomNewPage } from '@/pages/RoomNewPage'
+import { RoomPage } from '@/pages/RoomPage'
+import { RoomsPage } from '@/pages/RoomsPage'
 import { SpyPage } from '@/pages/SpyPage'
 import { TabooPage } from '@/pages/TabooPage'
 import { MostLikelyPage, NeverHavePage } from '@/pages/PartyGamePages'
@@ -101,6 +104,9 @@ export const router = createRouter([
       { path: 'games/draw', element: <DrawPage /> },
       { path: 'games/dice', element: <DicePage /> },
       { path: 'games/cups', element: <CupsPage /> },
+      { path: 'games/rooms', element: <RoomsPage /> },
+      { path: 'games/rooms/new', element: <RoomNewPage /> },
+      { path: 'games/rooms/:code', element: <RoomPage /> },
       { path: 'head-guess', element: <HeadsUpPage /> },
       { path: 'flashcards', element: <FlashcardsPage /> },
       { path: 'lucky-color', element: <LuckyColorPage /> },

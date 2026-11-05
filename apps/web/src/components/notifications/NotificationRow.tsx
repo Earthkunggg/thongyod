@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Award, Bell, CalendarClock, CalendarPlus, CalendarX, Receipt, Settings2, UserCheck, UserPlus, type LucideIcon } from 'lucide-react'
+import { Award, Bell, Gamepad2, CalendarClock, CalendarPlus, CalendarX, Receipt, Settings2, UserCheck, UserPlus, type LucideIcon } from 'lucide-react'
 import type { AppNotification, NotificationKind } from '@/api/types'
 import { Avatar } from '@/components/common/Avatar'
 import { formatTimeAgo } from '@/lib/date'
@@ -17,6 +17,7 @@ const KIND: Record<NotificationKind, { icon: LucideIcon; tone: Tone }> = {
   bill_reminder: { icon: Receipt, tone: 'warning' },
   title_earned: { icon: Award, tone: 'accent' },
   gang_settings_changed: { icon: Settings2, tone: 'neutral' },
+  game_invite: { icon: Gamepad2, tone: 'accent' },
 }
 
 // One notification: who (avatar + small kind icon), the sentence, time ago, and a dot while unread.

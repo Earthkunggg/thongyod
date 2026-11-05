@@ -13,5 +13,7 @@ export function targetPath(item: AppNotification): string | null {
       return `/gangs/${target.id}`
     case 'friend_requests':
       return '/gangs/friends'
+    case 'room':
+      return `/games/rooms/${target.id}`
   }
 }

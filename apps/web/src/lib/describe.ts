@@ -71,5 +71,7 @@ export function notificationText(item: AppNotification, now: Date = new Date()):
       return i18n.t('notifications.kinds.titleEarned', values)
     case 'gang_settings_changed':
       return i18n.t('notifications.kinds.gangSettingsChanged', values)
+    case 'game_invite':
+      return i18n.t('notifications.kinds.gameInvite', values)
   }
 }

@@ -21,25 +21,13 @@ import { useGameSound } from '@/lib/soundPrefs'
 import { tintClass } from '@/lib/tones'
 import { useCountdown } from '@/lib/useCountdown'
 import { cn } from '@/lib/utils'
-import { MINUTES, clampPlayers, dealSpy, maxSpies, type SpyMinutes, type SpyMode, type SpyRound } from './logic'
+import { MINUTES, dealSpy, maxSpies, type SpyMinutes, type SpyMode, type SpyRound } from './logic'
+import { SPY_DEFAULTS, fixSpySettings, type SpySettings } from './settings'
 import '@/components/games/games.css'
 
-type Settings = { players: number; spies: number; mode: SpyMode; places: string[]; pairs: string[]; minutes: SpyMinutes }
-const DEFAULTS: Settings = { players: 5, spies: 1, mode: 'places', places: SPY_PLACES.map((p) => p.id), pairs: SPY_PAIRS.map((p) => p.id), minutes: 5 }
-
-function fix(raw: Partial<Settings>): Settings {
-  const players = clampPlayers(raw.players ?? DEFAULTS.players)
-  const places = (raw.places ?? []).filter((id) => SPY_PLACES.some((p) => p.id === id))
-  const pairs = (raw.pairs ?? []).filter((id) => SPY_PAIRS.some((p) => p.id === id))
-  return {
-    players,
-    spies: Math.max(1, Math.min(raw.spies ?? 1, maxSpies(players))),
-    mode: raw.mode === 'pairs' ? 'pairs' : 'places',
-    places: places.length ? places : DEFAULTS.places,
-    pairs: pairs.length ? pairs : DEFAULTS.pairs,
-    minutes: MINUTES.includes(raw.minutes as SpyMinutes) ? (raw.minutes as SpyMinutes) : 5,
-  }
-}
+type Settings = SpySettings
+const DEFAULTS = SPY_DEFAULTS
+const fix = fixSpySettings
 
 type Stage = { kind: 'setup' } | { kind: 'pass'; player: number } | { kind: 'look'; player: number; open: boolean } | { kind: 'talk' } | { kind: 'reveal' }
 
