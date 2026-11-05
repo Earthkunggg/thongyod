@@ -654,7 +654,7 @@ Built and pushed to `main` while Earth was away (each commit = one feature, lint
 - Pet only on Home header + pet tab; layered pet removed (DECISIONS #72). `PetSummary.species` is no longer used by the UI (harmless if Codex keeps it null).
 - Games category (#73): `/games` hub + Explore "เกม" section. Built (all one phone, device only, no API): ใครน่าจะ…, ไม่เคย…, สายลับ, ระเบิดเวลา, คำต้องห้าม, วาดแล้วทาย, ลูกเต๋า & ปั่นขวด, ขนมอยู่ไหน. Content never repeats until a pool is used up (#74, `lib/deck.ts`). Every game has a "วิธีเล่น" tutorial (? button).
 - Notifications bottom sheet + slim sticky Home bar (#75).
-- Multi-device rooms (#76): `/games/rooms` zone, `/games/rooms/new?game=spy`, `/games/rooms/:code` (also the join link + QR). สายลับ works in rooms. Game cards show tags เครื่องเดียว / หลายเครื่อง; a game with both asks which way.
+- Multi-device rooms (#76, mock area `rooms` in `VITE_API_MOCKS`): `/games/rooms` zone, `/games/rooms/new?game=spy`, `/games/rooms/:code` (also the join link + QR). สายลับ works in rooms. Game cards show tags เครื่องเดียว / หลายเครื่อง; a game with both asks which way.
 
 ### Frontend request for Codex — game rooms (PROVISIONAL, please confirm or counter-propose)
 
