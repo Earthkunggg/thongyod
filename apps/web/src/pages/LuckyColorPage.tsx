@@ -5,13 +5,11 @@ import type { LuckyColorKey } from '@thongyod/shared'
 import { SegmentedChoice } from '@/components/common/SegmentedChoice'
 import { SectionHeader } from '@/components/common/SectionHeader'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { Pet } from '@/components/pet/Pet'
 import { buttonVariants } from '@/components/ui/button'
 import { LUCKY_HEX } from '@/config/luckyColors'
 import { markDone } from '@/features/daily/daily'
 import { loadBirthDay, saveBirthDay } from '@/features/lucky-color/storage'
 import { bangkokDay, colorsFor, type TaksaDay, type Topic } from '@/features/lucky-color/taksa'
-import { getMyPet } from '@/features/onboarding/storage'
 import { appUrl, lineShareUrl } from '@/lib/share'
 import { TONE_CLASS } from '@/lib/tones'
 import { cn } from '@/lib/utils'
@@ -30,7 +28,6 @@ export function LuckyColorPage() {
   const today = bangkokDay(now)
   const [birth, setBirth] = useState<TaksaDay | null>(loadBirthDay)
   const [mode, setMode] = useState<Mode>(() => (loadBirthDay() ? 'birth' : 'today'))
-  const [species] = useState(() => getMyPet()?.species ?? 'dragon')
   const start = mode === 'birth' && birth ? birth : today
   const colors = colorsFor(start)
   useEffect(() => markDone('tool'), [])
@@ -84,11 +81,10 @@ export function LuckyColorPage() {
         </section>
       )}
 
-      {/* The pet stands on today's study/work color (spec: the pet wears today's color). */}
-      <div className="relative mx-auto mt-2 flex size-52 items-center justify-center">
-        <span className="absolute inset-4 rounded-full opacity-90" style={{ backgroundColor: LUCKY_HEX[colors.study] }} aria-hidden="true" />
-        <span className="absolute inset-0 rounded-full border-8 opacity-50" style={{ borderColor: LUCKY_HEX[colors.money] }} aria-hidden="true" />
-        <Pet species={species} size={190} />
+      {/* Today's two main colors as one big swatch (study inside, money as the ring). Pets live only on Home and the pet tab (#72). */}
+      <div className="relative mx-auto mt-2 size-44 motion-safe:animate-in motion-safe:zoom-in-90 motion-safe:fade-in-0 motion-safe:duration-500" aria-hidden="true">
+        <span className="absolute inset-0 rounded-full border-[14px] shadow-sm" style={{ borderColor: LUCKY_HEX[colors.money] }} />
+        <span className="absolute inset-[14px] rounded-full shadow-inner" style={{ backgroundColor: LUCKY_HEX[colors.study] }} />
       </div>
       <p className="text-center text-sm text-muted-foreground">{t('luckyColor.for', { day: t(`luckyColor.days.${start}`) })}</p>
 

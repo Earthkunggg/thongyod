@@ -651,3 +651,4 @@ Built and pushed to `main` while Earth was away (each commit = one feature, lint
 - Fixed (DECISIONS #71): fullscreen ✕ during ใบ้บนหัว, bigger auto-fit words, pet clipped while moving (frame check on 3 device sizes).
 - Layered pet = **experiment only** (`/pet/lab`, labelled ทดลอง). Earth prefers the current pet; do not replace it without asking.
 - Next in this round: games category + all party games (big word banks), multi-device game rooms (friends / QR / link / room code), new เซียมซี art with more and longer fortunes, flashcard flip animation, animation pass.
+- Pet only on Home header + pet tab; layered pet removed (DECISIONS #72). `PetSummary.species` is no longer used by the UI (harmless if Codex keeps it null).

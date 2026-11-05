@@ -32,7 +32,6 @@ import { NotFoundPage } from '@/pages/NotFoundPage'
 import { NotificationSettingsPage } from '@/pages/NotificationSettingsPage'
 import { NotificationsPage } from '@/pages/NotificationsPage'
 import { PendingPage } from '@/pages/PendingPage'
-import { PetLabPage } from '@/pages/PetLabPage'
 import { MyRestaurantsPage } from '@/pages/MyRestaurantsPage'
 import { RandomRestaurantPage } from '@/pages/RandomRestaurantPage'
 import { RestaurantVotePage } from '@/pages/RestaurantVotePage'
@@ -87,7 +86,6 @@ export const router = createRouter([
       { path: 'wheel', element: <WheelPage /> },
       { path: 'head-guess', element: <HeadsUpPage /> },
       { path: 'flashcards', element: <FlashcardsPage /> },
-      { path: 'pet/lab', element: <PetLabPage /> },
       { path: 'lucky-color', element: <LuckyColorPage /> },
       { path: 'random-restaurant', element: <RandomRestaurantPage /> },
       { path: 'restaurants', element: <MyRestaurantsPage /> },

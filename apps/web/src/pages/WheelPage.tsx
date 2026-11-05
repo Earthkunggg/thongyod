@@ -5,13 +5,11 @@ import { HandCoins, Plus, RotateCw, Utensils, Vote, X } from 'lucide-react'
 import { SpinWheel } from '@/components/common/SpinWheel'
 import { SuggestionChips } from '@/components/common/SuggestionChips'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { Pet, type PetHandle } from '@/components/pet/Pet'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { celebrate } from '@/lib/celebrate'
 import { markDone } from '@/features/daily/daily'
-import { getMyPet } from '@/features/onboarding/storage'
 import { MAX_OPTION_LENGTH, MAX_OPTIONS, MIN_OPTIONS, canSpin, normalizeOptions, spin, tickTimes } from '@/features/wheel/logic'
 import { SoundToggle } from '@/components/common/SoundToggle'
 import { playSound, unlockSound } from '@/lib/sound'
@@ -41,11 +39,9 @@ export function WheelPage() {
   const [duration, setDuration] = useState(SPIN_MS)
   const [phase, setPhase] = useState<Phase>('idle')
   const [winner, setWinner] = useState<number | null>(null)
-  const pet = useRef<PetHandle>(null)
   /** Id of the spin waiting for its result (0 = none). Makes sure each result shows exactly once. */
   const pending = useRef(0)
   const spinCount = useRef(0)
-  const [species] = useState(() => getMyPet()?.species ?? 'dragon')
   const sound = useGameSound('wheel')
   /** Pending tick sounds of the current spin (cleared on skip / leave). */
   const ticks = useRef<number[]>([])
@@ -101,7 +97,6 @@ export function WheelPage() {
     markDone('tool')
     celebrate()
     navigator.vibrate?.(30)
-    window.setTimeout(() => pet.current?.run('tap'), 150)
   }
 
   function addOption(e: FormEvent) {
@@ -208,7 +203,6 @@ export function WheelPage() {
 
       <Dialog open={phase === 'result'} onOpenChange={(open) => !open && setPhase('idle')}>
         <DialogContent title={t('wheel.resultTitle')} className="items-center text-center">
-          <Pet ref={pet} species={species} size={170} />
           <p className="text-3xl font-medium break-words" role="status">
             {winner !== null ? options[winner] : ''}
           </p>

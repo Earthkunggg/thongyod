@@ -7,8 +7,6 @@ import { Avatar } from '@/components/common/Avatar'
 import { AvatarStack } from '@/components/common/AvatarStack'
 import { SectionHeader } from '@/components/common/SectionHeader'
 import { SeeAllLink } from '@/components/common/SeeAllLink'
-import { PetCard } from '@/components/home/PetCard'
-import { getMyPet } from '@/features/onboarding/storage'
 import { MeetupRow } from '@/components/meetup/MeetupRow'
 import { Card } from '@/components/ui/card'
 import { formatMonthYear } from '@/lib/date'
@@ -29,7 +27,6 @@ export function ProfileView({ profile, actions }: ProfileViewProps) {
   const { t } = useTranslation()
   const isSelf = profile.relationship === 'self'
   const limited = !isSelf && profile.stats === null
-  const myPet = isSelf ? getMyPet() : null
 
   return (
     <div className="flex flex-col gap-3 pb-6">
@@ -152,12 +149,6 @@ export function ProfileView({ profile, actions }: ProfileViewProps) {
         </section>
       )}
 
-      {/* My pet lives on this device until the pet API exists (#48), so self shows it from there. */}
-      {(profile.pet || (isSelf && myPet)) && (
-        <section className="px-3">
-          <PetCard pet={profile.pet ?? { name: null, mood: 'happy' }} luckyColor={null} to={isSelf ? '/pet' : null} species={isSelf ? (myPet?.species ?? null) : undefined} />
-        </section>
-      )}
     </div>
   )
 }
