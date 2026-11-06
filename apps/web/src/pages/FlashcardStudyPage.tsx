@@ -11,6 +11,9 @@ import { applyRound, studyOrder, type Card } from '@/features/flashcards/logic'
 import { getDeck, saveDeck, useDecks } from '@/features/flashcards/storage'
 import { celebrate } from '@/lib/celebrate'
 import { TONE_CLASS } from '@/lib/tones'
+import { FitText } from '@/components/common/FitText'
+import { FlipCard } from '@/components/games/FlipCard'
+import { tintClass } from '@/lib/tones'
 import { cn } from '@/lib/utils'
 
 // /flashcards/:deckId/study[?only=unknown][&shuffle=1] — swipe right = รู้แล้ว, left = ยังไม่รู้, tap = flip.
@@ -159,16 +162,28 @@ function Round({ deckId, title, cards, onAgain }: { deckId: string; title: strin
         tall
         onSwipe={(card, dir) => answer(card, dir === 'right')}
         onOpen={(card) => setFlipped((f) => (f === card.id ? null : card.id))}
+        bare
         renderCard={(card) => {
           const showBack = flipped === card.id
+          const face = 'flex size-full flex-col items-center justify-center gap-3 rounded-2xl border p-6 text-center shadow-sm'
           return (
-            <div className="flex h-full flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
-              <span className="text-xs text-muted-foreground">{showBack ? t('flashcards.back') : t('flashcards.front')}</span>
-              <p key={showBack ? 'b' : 'f'} className={cn('font-heading break-words motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95', showBack ? 'text-2xl' : 'text-3xl font-medium')}>
-                {showBack ? card.back : card.front}
-              </p>
-              {!showBack && <span className="mt-4 text-xs text-muted-foreground">{t('flashcards.tapToFlip')}</span>}
-            </div>
+            <FlipCard
+              flipped={showBack}
+              className="h-[58dvh] w-full"
+              front={
+                <div className={cn(face, 'bg-card')}>
+                  <span className="text-xs text-muted-foreground">{t('flashcards.front')}</span>
+                  <FitText text={card.front} max={44} min={20} maxLines={6} className="min-h-0 w-full flex-1 font-heading font-medium" />
+                  <span className="text-xs text-muted-foreground">{t('flashcards.tapToFlip')}</span>
+                </div>
+              }
+              back={
+                <div className={cn(face, tintClass(5))}>
+                  <span className="text-xs opacity-80">{t('flashcards.back')}</span>
+                  <FitText text={card.back} max={36} min={18} maxLines={8} className="min-h-0 w-full flex-1 font-heading" />
+                </div>
+              }
+            />
           )
         }}
       />

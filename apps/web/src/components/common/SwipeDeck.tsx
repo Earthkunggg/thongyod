@@ -26,6 +26,8 @@ type SwipeDeckProps<T> = {
   label: string
   /** Full-page deck: taller cards. */
   tall?: boolean
+  /** renderCard draws its own card surface (e.g. a 3D flip card); the deck adds no border/background. */
+  bare?: boolean
 }
 
 /** Commit when dragged past this share of the card, or flung faster than this (px/ms). */
@@ -52,7 +54,7 @@ function rubber(d: number, limit: number): number {
 
 // A stack of cards answered by swiping or with the buttons below (UX_GUIDELINES §3, DECISIONS #57).
 // No library: pointer events + CSS transforms (transform/opacity only).
-export function SwipeDeck<T>({ items, getKey, renderCard, actions, onSwipe, onOpen, label, tall }: SwipeDeckProps<T>) {
+export function SwipeDeck<T>({ items, getKey, renderCard, actions, onSwipe, onOpen, label, tall, bare }: SwipeDeckProps<T>) {
   const [drag, setDrag] = useState({ x: 0, y: 0, active: false, w: 300, h: 300 })
   const [flying, setFlying] = useState<SwipeDir | null>(null)
   const start = useRef({ x: 0, y: 0, t: 0, moved: 0 })
@@ -156,7 +158,7 @@ export function SwipeDeck<T>({ items, getKey, renderCard, actions, onSwipe, onOp
                 key={getKey(item)}
                 aria-hidden="true"
                 inert
-                className="absolute inset-x-0 overflow-hidden rounded-2xl border bg-card shadow-sm"
+                className={cn('absolute inset-x-0 flex flex-col overflow-hidden rounded-2xl', !bare && 'border bg-card shadow-sm')}
                 style={{
                   top: 0,
                   bottom: BEHIND * 10,
@@ -178,7 +180,7 @@ export function SwipeDeck<T>({ items, getKey, renderCard, actions, onSwipe, onOp
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
-          className={cn('relative z-10 flex touch-none flex-col rounded-2xl border bg-card shadow-sm select-none', onOpen && 'cursor-pointer', tall && 'min-h-[58dvh]')}
+          className={cn('relative z-10 flex touch-none flex-col rounded-2xl select-none', !bare && 'border bg-card shadow-sm', onOpen && 'cursor-pointer', tall && 'min-h-[58dvh]')}
           style={{
             transform,
             opacity: flying ? 0 : 1,
@@ -191,7 +193,7 @@ export function SwipeDeck<T>({ items, getKey, renderCard, actions, onSwipe, onOp
               key={a.dir}
               aria-hidden="true"
               className={cn(
-                'pointer-events-none absolute top-5 rounded-lg border-4 bg-card/70 px-3 py-0.5 text-lg font-bold tracking-wide',
+                'pointer-events-none absolute top-5 z-10 rounded-lg border-4 bg-card/70 px-3 py-0.5 text-lg font-bold tracking-wide',
                 a.dir === 'right' && 'left-5 -rotate-12',
                 a.dir === 'left' && 'right-5 rotate-12',
                 a.dir === 'up' && 'left-1/2 -translate-x-1/2',
