@@ -12,6 +12,7 @@ cp image/13-dragon-poses.png $PET_WORK/dragon-sheet.png
 cp image/14-fish-poses.png   $PET_WORK/fish-sheet.png
 python3 tools/pet-art/segment.py   # 12 poses per sheet, alpha cleaned, sizes printed
 python3 tools/pet-art/place.py     # one shared canvas per species: same scale, same baseline, centred on the body
+python3 tools/pet-art/fix_dragon_eat.py   # remove the extra small mouth in the dragon eat pose (looked like a nose)
 python3 tools/pet-art/trace.py dragon:main dragon:happy …   # trace ×4 → render 720 px → out-<species>-<pose>.webp
 ```
 

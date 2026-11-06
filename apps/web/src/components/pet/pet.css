@@ -1,3 +1,7 @@
+/* No iOS "save image" / text-select callout when holding the pet (hold = hug). Images never take the touch. */
+.pet { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+.pet img { pointer-events: none; -webkit-touch-callout: none; -webkit-user-drag: none; }
+
 /* Pet motion (DECISIONS #47, #80). Transform/opacity only. One-shot moves run through Web Animations (features/pet/motions.ts). */
 .pet-alive, .pet-move { transform-origin: 50% 100%; will-change: transform; }
 .pet-layer { will-change: opacity; -webkit-user-drag: none; }

@@ -244,7 +244,7 @@ export function Pet({ species, size = 240, ref, className, onTap: onTapProp }: P
     onTapProp?.()
   }
 
-  const [mx, my] = spec.anchors.mouth
+  const [mx, my] = spec.anchors.mouthIn?.[pose] ?? spec.anchors.mouth
   const [hx, hy] = spec.anchors.head
   const at = (x: number, y: number): CSSProperties => ({ left: `${x * 100}%`, top: `${y * 100}%` })
   const airborne = spec.alive === 'float' && !asleep
@@ -296,9 +296,10 @@ export function Pet({ species, size = 240, ref, className, onTap: onTapProp }: P
               className="pet-layer absolute inset-0 size-full"
               style={{ opacity: blink && pose === 'main' ? 1 : 0, zIndex: 3, transition: 'opacity 45ms linear' }}
             />
+            {/* Inside the move layer, so puffs, bubbles and hearts start from the mouth / head wherever the body goes. */}
+            <PetOverlay key={overlay.key} name={asleep ? 'z' : overlay.name} mouth={at(mx, my)} head={at(hx, hy)} />
           </span>
         </span>
-        <PetOverlay key={overlay.key} name={asleep ? 'z' : overlay.name} mouth={at(mx, my)} head={at(hx, hy)} />
       </span>
     </button>
   )
@@ -310,7 +311,7 @@ function PetOverlay({ name, mouth, head }: { name: Overlay; mouth: CSSProperties
   const star = 'M12 0 L15 9 L24 12 L15 15 L12 24 L9 15 L0 12 L9 9 Z'
   const heart = 'M12 21 C6 16 1 12.5 1 7.5 C1 4 3.7 1.5 7 1.5 C9.2 1.5 11 2.7 12 4.5 C13 2.7 14.8 1.5 17 1.5 C20.3 1.5 23 4 23 7.5 C23 12.5 18 16 12 21 Z'
   return (
-    <span aria-hidden="true" className="pointer-events-none absolute inset-0">
+    <span aria-hidden="true" className="pointer-events-none absolute inset-0 z-[4]">
       {name === 'sparks' &&
         [-1.6, 0.2, 1.8].map((dx, i) => (
           <svg key={i} viewBox="0 0 24 24" className="pet-fx pet-spark absolute size-[0.9em]" style={{ ...head, marginLeft: `${dx}em`, marginTop: `${-0.4 - (i % 2) * 0.5}em`, animationDelay: `${i * 0.1}s` }}>

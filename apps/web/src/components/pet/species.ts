@@ -43,7 +43,7 @@ export type PetSpecies = {
   /** What the three play poses do. */
   moves: SpeciesMoves
   /** Where little drawings start: mouth (puff, bubbles, crumbs), top of the head (hearts, sparks, z). */
-  anchors: { mouth: At; head: At }
+  anchors: { mouth: At; head: At; /** Poses whose mouth is somewhere else (tilted drawings). */ mouthIn?: Partial<Record<PoseId, At>> }
 }
 
 export const PET_SPECIES: Record<PetSpeciesId, PetSpecies> = {
@@ -57,7 +57,7 @@ export const PET_SPECIES: Record<PetSpeciesId, PetSpecies> = {
       play2: { motion: 'turn', overlay: 'none', ms: 1500 },
       play3: { motion: 'sneeze', overlay: 'puff', ms: 1500 },
     },
-    anchors: { mouth: [0.3, 0.62], head: [0.42, 0.08] },
+    anchors: { mouth: [0.34, 0.74], head: [0.42, 0.08] },
   },
   fish: {
     id: 'fish',
@@ -69,6 +69,6 @@ export const PET_SPECIES: Record<PetSpeciesId, PetSpecies> = {
       play2: { motion: 'turn', overlay: 'none', ms: 1500 },
       play3: { motion: 'jump', overlay: 'bubbles', ms: 1600 },
     },
-    anchors: { mouth: [0.3, 0.62], head: [0.48, 0.1] },
+    anchors: { mouth: [0.32, 0.62], head: [0.48, 0.1], mouthIn: { play1: [0.22, 0.71], play3: [0.33, 0.35], eat: [0.33, 0.7] } },
   },
 }
