@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from 'react'
 import { addDays } from '@/lib/date'
 import { bangkokDayKey } from '@/features/fortune/logic'
+import { requestCelebration } from '@/features/pet/celebrate'
 import { loadDraw } from '@/features/fortune/storage'
 
 export type MissionId = 'fortune' | 'pet' | 'tool'
@@ -45,6 +46,8 @@ export function markDone(id: MissionId, now: Date = new Date()): void {
     // Storage blocked: still counts for this visit.
   }
   listeners.forEach((l) => l())
+  // That was the last mission of the day: the pet dances (once).
+  if (MISSIONS.every((m) => doneToday(log, now).includes(m))) requestCelebration(now)
 }
 
 /** Missions done today. The fortune mission also counts a stick drawn before this feature existed. */

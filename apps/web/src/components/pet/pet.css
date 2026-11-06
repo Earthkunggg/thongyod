@@ -1,53 +1,39 @@
-/* Pet animations (DECISIONS #47, docs/UX_GUIDELINES.md §2). Transform/opacity only. */
-.pet-body { transform-origin: 50% 94%; will-change: transform; }
-.pet-breathe { animation: pet-breathe 2.6s ease-in-out infinite; }
-.pet-sleeping { animation: pet-breathe 4.4s ease-in-out infinite; }
-.pet-squish { animation: pet-squish 0.45s ease-out; }
-.pet-fly { animation: pet-fly 1.9s ease-in-out; }
-.pet-swim { animation: pet-swim 1.9s ease-in-out; }
+/* Pet motion (DECISIONS #47, #80). Transform/opacity only. One-shot moves run through Web Animations (features/pet/motions.ts). */
+.pet-alive, .pet-move { transform-origin: 50% 100%; will-change: transform; }
+.pet-layer { will-change: opacity; -webkit-user-drag: none; }
+.pet-breathe { animation: pet-breathe 2.8s ease-in-out infinite; }
+.pet-sleeping { animation: pet-breathe 4.6s ease-in-out infinite; }
 .pet-float { animation: pet-float 3.2s ease-in-out infinite; }
-.pet-land { animation: pet-land 0.4s ease-out; }
-.pet-shadow { transform-origin: 50% 50%; transition: transform 0.3s ease, opacity 0.3s ease; }
+.pet-shadow-wrap { transform-origin: 50% 50%; }
+.pet-shadow { transform-origin: 50% 50%; }
 .pet-shadow-float { animation: pet-shadow-float 3.2s ease-in-out infinite; }
-.pet-puff circle { animation: pet-puff 1.6s ease-out forwards; transform-box: fill-box; transform-origin: center; }
-.pet-puff circle:nth-child(2) { animation-delay: 0.15s; }
-.pet-puff circle:nth-child(3) { animation-delay: 0.3s; }
-.pet-bubbles circle { animation: pet-bubble 1.8s ease-out forwards; transform-box: fill-box; transform-origin: center; opacity: 0; }
-.pet-bubbles circle:nth-child(2) { animation-delay: 0.25s; }
-.pet-bubbles circle:nth-child(3) { animation-delay: 0.5s; }
-.pet-z { animation: pet-z 2.4s ease-in-out infinite; opacity: 0; }
-.pet-z:nth-child(2) { animation-delay: 0.8s; }
-.pet-z:nth-child(3) { animation-delay: 1.6s; }
-.pet-spark { animation: pet-spark 0.7s ease-out forwards; transform-box: fill-box; transform-origin: center; }
-
-@keyframes pet-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.025, 0.97); } }
-@keyframes pet-squish {
-  0% { transform: scale(1, 1); } 30% { transform: scale(1.14, 0.84); }
-  60% { transform: scale(0.95, 1.07); } 100% { transform: scale(1, 1); }
-}
-@keyframes pet-fly {
-  0% { transform: translateY(0) scale(1, 1); } 12% { transform: translateY(2%) scale(1.08, 0.9); }
-  30% { transform: translateY(-20%) rotate(-4deg); } 45% { transform: translateY(-8%) rotate(3deg); }
-  62% { transform: translateY(-24%) rotate(-3deg); } 85% { transform: translateY(-4%); }
-  100% { transform: translateY(0); }
-}
-@keyframes pet-shadow-float { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.82); opacity: 0.6; } }
+@keyframes pet-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.022, 0.972); } }
 @keyframes pet-float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-5%) rotate(-1.5deg); } }
-@keyframes pet-swim {
-  0% { transform: translate(0, 0) rotate(0deg); } 25% { transform: translate(-14%, -10%) rotate(-8deg); }
-  50% { transform: translate(0, -18%) rotate(0deg); } 75% { transform: translate(14%, -10%) rotate(8deg); }
-  100% { transform: translate(0, 0) rotate(0deg); }
-}
-@keyframes pet-bubble { 0% { opacity: 0; transform: translate(0, 0) scale(0.5); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(-30px, -160px) scale(1.2); } }
-@keyframes pet-land { 0% { transform: scale(1.18, 0.8); } 60% { transform: scale(0.96, 1.05); } 100% { transform: scale(1, 1); } }
-@keyframes pet-puff { 0% { opacity: 0; transform: translate(0, 0) scale(0.4); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(-40px, -70px) scale(1.4); } }
-@keyframes pet-z { 0% { opacity: 0; transform: translate(0, 0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(40px, -90px); } }
-@keyframes pet-spark { 0% { opacity: 0; transform: scale(0.2); } 40% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0; transform: scale(0.8); } }
+@keyframes pet-shadow-float { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.84); opacity: 0.65; } }
+
+/* Little drawings (positioned at the mouth / head anchor, then moved by their own animation). */
+.pet-fx { opacity: 0; translate: -50% -50%; }
+.pet-spark { animation: pet-spark 0.8s ease-out forwards; }
+.pet-heart { animation: pet-heart 1.5s ease-out forwards; }
+.pet-puff { animation: pet-puff 1.1s ease-out forwards; }
+.pet-bubble { animation: pet-bubble 1.6s ease-out forwards; }
+.pet-crumb { animation: pet-crumb 0.8s ease-in forwards; }
+.pet-confetti { animation: pet-confetti 1.6s cubic-bezier(0.2, 0.7, 0.4, 1) forwards; }
+.pet-z { animation: pet-z 2.4s ease-in-out infinite; }
+@keyframes pet-spark { 0% { opacity: 0; transform: scale(0.2) rotate(0); } 40% { opacity: 1; transform: scale(1.2) rotate(20deg); } 100% { opacity: 0; transform: scale(0.8) rotate(40deg); } }
+@keyframes pet-heart { 0% { opacity: 0; transform: translateY(0) scale(0.4); } 25% { opacity: 1; transform: translateY(-0.4em) scale(1.1); } 100% { opacity: 0; transform: translateY(-2.2em) scale(0.9); } }
+@keyframes pet-puff { 0% { opacity: 0; transform: translate(0, 0) scale(0.3); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(-2em, -0.8em) scale(1.4); } }
+@keyframes pet-bubble { 0% { opacity: 0; transform: translate(0, 0) scale(0.4); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(-0.8em, -2.6em) scale(1.15); } }
+@keyframes pet-crumb { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(1.4em); } }
+@keyframes pet-confetti { 0% { opacity: 1; transform: translate(0, 0) rotate(0); } 100% { opacity: 0; transform: translate(var(--dx), 2.6em) rotate(var(--rot)); } }
+@keyframes pet-z { 0% { opacity: 0; transform: translate(0, 0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(1em, -2em); } }
 
 .pet-paused, .pet-paused * { animation-play-state: paused !important; }
 
 @media (prefers-reduced-motion: reduce) {
-  .pet-breathe, .pet-sleeping, .pet-squish, .pet-fly, .pet-swim, .pet-float, .pet-land, .pet-shadow-float { animation: none; }
+  .pet-breathe, .pet-sleeping, .pet-float, .pet-shadow-float, .pet-spark, .pet-heart, .pet-puff, .pet-bubble, .pet-crumb, .pet-confetti { animation: none; }
+  .pet-fx { opacity: 0; }
+  .pet-z { animation: none; opacity: 0.8; }
 }
 
 /* Eggs (first hatch) */

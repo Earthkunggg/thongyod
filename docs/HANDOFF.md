@@ -679,3 +679,4 @@ Many phones in one game. Only the server knows everyone's role; each phone gets 
 - `round.votedIds` = who answered (not what), `round.myVote` = the caller's own answer.
 - ไม่เคย…: `fingers` per player starts at 5; each `have` folds one when the result shows (never below 0); `POST /lobby` clears fingers. Rules + tests: `apps/web/src/features/party/roomLogic.ts`.
 - Mock: `apps/web/src/mocks/rooms.ts` (mock friends answer by themselves; seeded room 305117 = ใครน่าจะ…).
+- New pet (#80): 12 poses per species from Earth's sheets, moves + triggers, ให้ขนม button, "ลองดูทุกท่า" panel on the pet page (dev + demo site). Art pipeline: `tools/pet-art/README.md`.

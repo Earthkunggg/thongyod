@@ -1,102 +1,74 @@
-// Pet species config (DECISIONS #47). Art = our vector traces of image/*-sheet-v1.png
-// (vtracer, MIT; optimized with svgo, MIT). Overlay coordinates use each species' main-pose viewBox.
-import dragonHop from '@/assets/pets/dragon/hop.svg'
-import dragonLie from '@/assets/pets/dragon/lie.svg'
-import dragonStand from '@/assets/pets/dragon/stand.svg'
-import fishMain from '@/assets/pets/fish/main.svg'
-import fishSleep from '@/assets/pets/fish/sleep.svg'
-import fishSwim from '@/assets/pets/fish/swim.svg'
+// Pet species (DECISIONS #47, #80). Art: Earth's pose sheets (image/13-dragon-poses.png, image/14-fish-poses.png),
+// cut into 12 poses each, placed on ONE canvas per species (same scale, same baseline, centred on the body),
+// traced (vtracer, MIT) and rendered to WebP at 720 px wide. Every pose image has the same size, so switching
+// poses can never make the pet bigger, smaller or jump sideways. Re-run the pipeline in docs/HANDOFF.md for new art.
+import dragonMain from '@/assets/pets/v2/dragon/main.webp'
+import dragonBlink from '@/assets/pets/v2/dragon/blink.webp'
+import dragonHappy from '@/assets/pets/v2/dragon/happy.webp'
+import dragonWave from '@/assets/pets/v2/dragon/wave.webp'
+import dragonShy from '@/assets/pets/v2/dragon/shy.webp'
+import dragonPlay1 from '@/assets/pets/v2/dragon/play1.webp'
+import dragonPlay2 from '@/assets/pets/v2/dragon/play2.webp'
+import dragonPlay3 from '@/assets/pets/v2/dragon/play3.webp'
+import dragonSleep from '@/assets/pets/v2/dragon/sleep.webp'
+import dragonEat from '@/assets/pets/v2/dragon/eat.webp'
+import dragonCelebrate from '@/assets/pets/v2/dragon/celebrate.webp'
+import dragonYawn from '@/assets/pets/v2/dragon/yawn.webp'
+import fishMain from '@/assets/pets/v2/fish/main.webp'
+import fishBlink from '@/assets/pets/v2/fish/blink.webp'
+import fishHappy from '@/assets/pets/v2/fish/happy.webp'
+import fishWave from '@/assets/pets/v2/fish/wave.webp'
+import fishShy from '@/assets/pets/v2/fish/shy.webp'
+import fishPlay1 from '@/assets/pets/v2/fish/play1.webp'
+import fishPlay2 from '@/assets/pets/v2/fish/play2.webp'
+import fishPlay3 from '@/assets/pets/v2/fish/play3.webp'
+import fishSleep from '@/assets/pets/v2/fish/sleep.webp'
+import fishEat from '@/assets/pets/v2/fish/eat.webp'
+import fishCelebrate from '@/assets/pets/v2/fish/celebrate.webp'
+import fishYawn from '@/assets/pets/v2/fish/yawn.webp'
+import type { PoseId, SpeciesMoves } from '@/features/pet/behavior'
 
 export type PetSpeciesId = 'dragon' | 'fish'
 
-/** One pose image; `width` is relative to the main pose box so the pet keeps its size. */
-type PoseImage = { src: string; width: string }
+/** A point on the art, as a share of its width / height (0–1). */
+type At = [number, number]
 
 export type PetSpecies = {
   id: PetSpeciesId
-  /** Main pose canvas (overlays are drawn in these coordinates). */
-  box: { w: number; h: number }
-  poses: { main: PoseImage; tap: PoseImage; mid: PoseImage; sleep: PoseImage | null }
-  /** Always-on motion: breathing (on the ground) or floating (in the air). */
+  /** Art canvas width / height (all poses share it). */
+  aspect: number
+  poses: Record<PoseId, string>
+  /** Always-on motion: breathing on the ground, or floating. */
   alive: 'breathe' | 'float'
-  /** 30 s idle action. */
-  mid: 'fly' | 'swim'
-  /** 15 s idle overlay. */
-  short: 'puff' | 'bubbles'
-  /** Eyelids drawn over the main pose for blinking (and sleeping when there is no sleep pose). */
-  lids: { fill: string; stroke: string; width: number; ellipses: [number, number, number, number][]; lines: string[] }
-  /** Where idle overlays start. */
-  anchors: { short: [number, number]; z: [number, number]; sparks: [number, number, number][] }
+  /** What the three play poses do. */
+  moves: SpeciesMoves
+  /** Where little drawings start: mouth (puff, bubbles, crumbs), top of the head (hearts, sparks, z). */
+  anchors: { mouth: At; head: At }
 }
 
 export const PET_SPECIES: Record<PetSpeciesId, PetSpecies> = {
   dragon: {
     id: 'dragon',
-    box: { w: 1160, h: 800 },
-    poses: {
-      main: { src: dragonLie, width: '100%' },
-      tap: { src: dragonStand, width: '70%' },
-      mid: { src: dragonHop, width: '74%' },
-      sleep: null,
-    },
+    aspect: 306 / 247,
+    poses: { main: dragonMain, blink: dragonBlink, happy: dragonHappy, wave: dragonWave, shy: dragonShy, play1: dragonPlay1, play2: dragonPlay2, play3: dragonPlay3, sleep: dragonSleep, eat: dragonEat, celebrate: dragonCelebrate, yawn: dragonYawn },
     alive: 'breathe',
-    mid: 'fly',
-    short: 'puff',
-    lids: {
-      fill: '#FC8E99',
-      stroke: '#8E2F3B',
-      width: 14,
-      ellipses: [
-        [300, 460, 104, 76],
-        [624, 482, 128, 74],
-      ],
-      lines: ['M215 470 Q300 510 385 470', 'M515 492 Q622 532 728 488'],
+    moves: {
+      play1: { motion: 'fly', overlay: 'none', ms: 1900 },
+      play2: { motion: 'turn', overlay: 'none', ms: 1500 },
+      play3: { motion: 'sneeze', overlay: 'puff', ms: 1500 },
     },
-    anchors: {
-      short: [170, 190],
-      z: [760, 150],
-      sparks: [
-        [160, 120, 28],
-        [900, 140, 21],
-        [980, 300, 16],
-      ],
-    },
+    anchors: { mouth: [0.3, 0.62], head: [0.42, 0.08] },
   },
   fish: {
     id: 'fish',
-    box: { w: 1016, h: 870 },
-    poses: {
-      main: { src: fishMain, width: '100%' },
-      tap: { src: fishSwim, width: '74%' },
-      mid: { src: fishSwim, width: '74%' },
-      sleep: { src: fishSleep, width: '76%' },
-    },
+    aspect: 314 / 275,
+    poses: { main: fishMain, blink: fishBlink, happy: fishHappy, wave: fishWave, shy: fishShy, play1: fishPlay1, play2: fishPlay2, play3: fishPlay3, sleep: fishSleep, eat: fishEat, celebrate: fishCelebrate, yawn: fishYawn },
     alive: 'float',
-    mid: 'swim',
-    short: 'bubbles',
-    lids: {
-      fill: '#FDF1E5',
-      stroke: '#7A4560',
-      width: 12,
-      ellipses: [
-        [170, 472, 62, 52],
-        [463, 484, 80, 56],
-      ],
-      lines: ['M118 482 Q176 512 234 482', 'M392 494 Q462 526 534 494'],
+    moves: {
+      play1: { motion: 'dash', overlay: 'bubbles', ms: 1700 },
+      play2: { motion: 'turn', overlay: 'none', ms: 1500 },
+      play3: { motion: 'jump', overlay: 'bubbles', ms: 1600 },
     },
-    anchors: {
-      short: [300, 470],
-      z: [700, 260],
-      sparks: [
-        [120, 300, 26],
-        [820, 160, 20],
-        [880, 620, 16],
-      ],
-    },
+    anchors: { mouth: [0.3, 0.62], head: [0.48, 0.1] },
   },
-}
-
-/** Narrow an unknown species string from the API (null = not one we can draw). */
-export function asSpecies(value: string | null | undefined): PetSpeciesId | null {
-  return value === 'dragon' || value === 'fish' ? value : null
 }
