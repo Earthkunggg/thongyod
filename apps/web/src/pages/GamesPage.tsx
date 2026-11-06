@@ -32,7 +32,7 @@ export function GamesPage() {
         return (
           <section key={mode}>
             <SectionHeader title={t(`games.modes.${mode}`)} />
-            <div className="grid grid-cols-2 gap-2 px-3">
+            <div className="stagger grid grid-cols-2 gap-2 px-3">
               {list.map((g) => (
                 <GameTile key={g.id} game={g} />
               ))}

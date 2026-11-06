@@ -13,7 +13,7 @@ const GAME_PREVIEW = 4
 
 function ToolGrid({ tools }: { tools: Tool[] }) {
   return (
-    <div className="grid grid-cols-2 gap-2 px-3">
+    <div className="stagger grid grid-cols-2 gap-2 px-3">
       {tools.map((tool) => (
         <ToolTile key={tool.id} tool={tool} />
       ))}
@@ -47,7 +47,7 @@ export function ExplorePage() {
 
       <section>
         <SectionHeader title={t('games.title')} action={<SeeAllLink to="/games" />} />
-        <div className="grid grid-cols-2 gap-2 px-3">
+        <div className="stagger grid grid-cols-2 gap-2 px-3">
           {GAMES.filter((g) => g.status === 'ready')
             .slice(0, GAME_PREVIEW)
             .map((g) => (

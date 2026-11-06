@@ -367,3 +367,37 @@
         animation: none;
     }
 }
+
+/* Motion pass (DECISIONS #78). Opacity only on pages: a transform there would break position:fixed bars inside. */
+.page-enter {
+    animation: page-enter 0.2s ease-out both;
+}
+@keyframes page-enter {
+    from {
+        opacity: 0;
+    }
+}
+/* Grid children rise in one after another (tiles on Explore / เกม). */
+.stagger > * {
+    animation: stagger-rise 0.36s cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+}
+.stagger > :nth-child(2) { animation-delay: 40ms; }
+.stagger > :nth-child(3) { animation-delay: 80ms; }
+.stagger > :nth-child(4) { animation-delay: 120ms; }
+.stagger > :nth-child(5) { animation-delay: 160ms; }
+.stagger > :nth-child(6) { animation-delay: 200ms; }
+.stagger > :nth-child(7) { animation-delay: 240ms; }
+.stagger > :nth-child(8) { animation-delay: 280ms; }
+.stagger > :nth-child(n + 9) { animation-delay: 320ms; }
+@keyframes stagger-rise {
+    from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.96);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .page-enter,
+    .stagger > * {
+        animation: none;
+    }
+}
