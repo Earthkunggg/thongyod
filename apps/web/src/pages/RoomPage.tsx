@@ -11,6 +11,7 @@ import { LoadingState } from '@/components/common/LoadingState'
 import { GameHeaderActions } from '@/components/games/HowToPlay'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
+import { PartyRoom } from '@/features/rooms/PartyRoom'
 import { SpyRoom } from '@/features/rooms/SpyRoom'
 import { showErrorToast } from '@/lib/toast'
 import { tintClass } from '@/lib/tones'
@@ -28,6 +29,7 @@ export function RoomPage() {
   const join = useJoinRoom(code)
   const leave = useLeaveRoom(code)
 
+  const onLeave = () => leave.mutate(undefined, { onSuccess: () => void navigate('/games/rooms', { replace: true }), onError: () => showErrorToast(t('common.saveError')) })
   const title = t('rooms.roomTitle', { code })
   let body
   if (room.isPending) body = <LoadingState rows={4} />
@@ -71,17 +73,13 @@ export function RoomPage() {
     )
   } else if (room.data && me.data) {
     body = (
-      <SpyRoom
-        room={room.data}
-        meId={me.data.userId}
-        onLeave={() => leave.mutate(undefined, { onSuccess: () => void navigate('/games/rooms', { replace: true }), onError: () => showErrorToast(t('common.saveError')) })}
-      />
+      room.data.game === 'spy' ? <SpyRoom room={room.data} meId={me.data.userId} onLeave={onLeave} /> : <PartyRoom room={room.data} meId={me.data.userId} onLeave={onLeave} />
     )
   } else body = <LoadingState rows={3} />
 
   return (
     <>
-      <PageHeader title={title} subtitle={room.data ? t(`games.list.${room.data.game}.title`) : undefined} backTo="/games/rooms" action={<GameHeaderActions game="spy" />} />
+      <PageHeader title={title} subtitle={room.data ? t(`games.list.${room.data.game}.title`) : undefined} backTo="/games/rooms" action={<GameHeaderActions game={room.data?.game ?? 'spy'} />} />
       {body}
     </>
   )

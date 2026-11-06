@@ -1,7 +1,7 @@
 // Game rooms: each friend plays on their own phone (PROVISIONAL contract, DECISIONS #76, docs/HANDOFF.md).
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiFetch } from './client'
-import type { Room, RoomGame, SpyRoomSettings } from './types'
+import type { PartyRoomSettings, Room, RoomGame, SpyRoomSettings } from './types'
 
 export const roomKeys = { room: (code: string) => ['rooms', code] as const }
 
@@ -40,7 +40,7 @@ function useRoomAction<V = void>(code: string, path: (v: V) => { url: string; bo
 
 export function useCreateRoom() {
   return useMutation({
-    mutationFn: (body: { game: RoomGame; settings: Partial<SpyRoomSettings> }) => apiFetch<Room>('/rooms', { method: 'POST', body: JSON.stringify(body) }),
+    mutationFn: (body: { game: RoomGame; settings: Partial<SpyRoomSettings> | Partial<PartyRoomSettings> }) => apiFetch<Room>('/rooms', { method: 'POST', body: JSON.stringify(body) }),
   })
 }
 
@@ -50,7 +50,9 @@ export const useStartRound = (code: string) => useRoomAction(code, () => ({ url:
 export const useRevealRound = (code: string) => useRoomAction(code, () => ({ url: `/rooms/${code}/reveal` }))
 export const useBackToLobby = (code: string) => useRoomAction(code, () => ({ url: `/rooms/${code}/lobby` }))
 export const useRoomSettings = (code: string) =>
-  useRoomAction<Partial<SpyRoomSettings>>(code, (settings) => ({ url: `/rooms/${code}/settings`, method: 'PATCH', body: settings }))
+  useRoomAction<Partial<SpyRoomSettings> | Partial<PartyRoomSettings>>(code, (settings) => ({ url: `/rooms/${code}/settings`, method: 'PATCH', body: settings }))
+/** Answer the current party card (ใครน่าจะ…: a player id, ไม่เคย…: 'have' | 'never'). */
+export const useRoomVote = (code: string) => useRoomAction<string>(code, (choice) => ({ url: `/rooms/${code}/vote`, body: { choice } }))
 
 /** Invite friends: they get a "ชวนเล่น" notification that opens the room. */
 export function useInviteToRoom(code: string) {

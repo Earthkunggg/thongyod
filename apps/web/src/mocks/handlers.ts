@@ -221,8 +221,8 @@ export const handlers = [
   http.post('/api/rooms', async ({ request }) => {
     await delay(LATENCY_MS)
     const body = (await request.json().catch(() => null)) as { game?: string; settings?: Record<string, unknown> } | null
-    if (body?.game !== 'spy') return invalid('game')
-    return replyRoom(rooms.createRoom('spy', body.settings))
+    if (typeof body?.game !== 'string') return invalid('game')
+    return replyRoom(rooms.createRoom(body.game, body.settings))
   }),
   http.get('/api/rooms/:code', async ({ params }) => replyRoom(rooms.getRoom(String(params.code)))),
   http.post('/api/rooms/:code/join', async ({ params }) => {
@@ -239,6 +239,10 @@ export const handlers = [
     return replyRoom(rooms.startRound(String(params.code)))
   }),
   http.post('/api/rooms/:code/reveal', async ({ params }) => replyRoom(rooms.revealRound(String(params.code)))),
+  http.post('/api/rooms/:code/vote', async ({ params, request }) => {
+    const body = (await request.json().catch(() => null)) as { choice?: unknown } | null
+    return replyRoom(rooms.vote(String(params.code), body?.choice))
+  }),
   http.post('/api/rooms/:code/lobby', async ({ params }) => replyRoom(rooms.backToLobby(String(params.code)))),
   http.post('/api/rooms/:code/invite', async ({ params, request }) => {
     await delay(LATENCY_MS)

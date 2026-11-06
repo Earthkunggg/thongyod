@@ -670,3 +670,12 @@ Many phones in one game. Only the server knows everyone's role; each phone gets 
 - Demo note: on GitHub Pages each browser has its own mock, so two real phones cannot meet; the mock makes 4 friends join a new room by themselves, and seeds room `482913` hosted by ต้น with a "ชวนเล่น" notification.
 - เซียมซี redone with Earth's art, 40 sticks, longer fortunes (#77). Fortune text is now Thai-only content in `config/fortunes.ts`.
 - Flashcards flip in 3D; page fade-in + staggered tiles (#78).
+
+### Addendum for Codex — party games in rooms (#79, PROVISIONAL)
+
+- `RoomGame` is now `'spy' | 'mostLikely' | 'neverHave'`; `Room` is a union on `game` (`SpyRoomData` | `PartyRoomData`, see `apps/web/src/api/types.ts`). Party settings: `{ packs: string[] }` (pack ids in `apps/web/src/config/games/party.ts`).
+- `POST /rooms/:code/start` for party games deals the next card from the chosen packs, without repeats inside the room until all were used. Needs ≥ 3 players (ใครน่าจะ…) or ≥ 2 (ไม่เคย…).
+- New: `POST /rooms/:code/vote { choice }` → `Room`. ใครน่าจะ…: choice = a player's userId in the room (anonymous: never return who voted for whom, only `result.tally`). ไม่เคย…: `'have' | 'never'`. Can change the answer until the result shows. When every player answered, the server shows the result by itself (`state: 'revealed'`); the host can also `POST /reveal` early.
+- `round.votedIds` = who answered (not what), `round.myVote` = the caller's own answer.
+- ไม่เคย…: `fingers` per player starts at 5; each `have` folds one when the result shows (never below 0); `POST /lobby` clears fingers. Rules + tests: `apps/web/src/features/party/roomLogic.ts`.
+- Mock: `apps/web/src/mocks/rooms.ts` (mock friends answer by themselves; seeded room 305117 = ใครน่าจะ…).

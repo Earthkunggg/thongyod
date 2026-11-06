@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Crown, Eye, EyeOff, Hourglass, LogOut, MapPin, Play, RotateCcw, VenetianMask } from 'lucide-react'
+import { Eye, EyeOff, MapPin, RotateCcw, VenetianMask } from 'lucide-react'
 import { useBackToLobby, useRevealRound, useRoomSettings, useStartRound } from '@/api/rooms'
-import type { Room } from '@/api/types'
-import { Avatar } from '@/components/common/Avatar'
+import type { SpyRoomData } from '@/api/types'
 import { NumberStepper } from '@/components/common/NumberStepper'
 import { SegmentedChoice } from '@/components/common/SegmentedChoice'
 import { FlipCard } from '@/components/games/FlipCard'
@@ -16,28 +15,13 @@ import { useGameSound } from '@/lib/soundPrefs'
 import { showErrorToast } from '@/lib/toast'
 import { tintClass } from '@/lib/tones'
 import { cn } from '@/lib/utils'
-import { RoomShare } from './RoomShare'
+import { PlayerList, RoomLobby } from './RoomParts'
 import { useSecondsLeft } from './useSecondsLeft'
 import '@/components/games/games.css'
 
 const MIN_PLAYERS = 3
 
-type Props = { room: Room; meId: string; onLeave: () => void }
-
-function PlayerList({ room, highlight }: { room: Room; highlight?: string[] }) {
-  const { t } = useTranslation()
-  return (
-    <ul className="grid grid-cols-2 gap-2" aria-label={t('rooms.players', { count: room.players.length })}>
-      {room.players.map((p) => (
-        <li key={p.userId} className={cn('game-card-in flex items-center gap-2 rounded-2xl border bg-card px-3 py-2', highlight?.includes(p.userId) && 'border-foreground bg-foreground text-background')}>
-          <Avatar name={p.displayName} src={p.avatarUrl} className="size-8" />
-          <span className="min-w-0 flex-1 truncate text-sm font-medium">{p.displayName}</span>
-          {p.isHost && <Crown className="size-4 shrink-0 text-tone-warning-foreground" aria-label={t('rooms.host')} />}
-        </li>
-      ))}
-    </ul>
-  )
-}
+type Props = { room: SpyRoomData; meId: string; onLeave: () => void }
 
 // สายลับ with each friend on their own phone: lobby → everyone sees only their own role → host reveals.
 export function SpyRoom({ room, meId, onLeave }: Props) {
@@ -61,70 +45,44 @@ export function SpyRoom({ room, meId, onLeave }: Props) {
   }
 
   if (room.state === 'lobby') {
-    const enough = room.players.length >= MIN_PLAYERS
     return (
-      <div className="flex flex-col gap-4 px-4 pb-8">
-        <RoomShare code={room.code} exclude={room.players.map((p) => p.userId)} />
-        <section className="flex flex-col gap-2">
-          <h2 className="flex items-center justify-between text-sm font-medium">
-            {t('rooms.players', { count: room.players.length })}
-            <span className="text-xs text-muted-foreground">{t('rooms.max', { count: room.maxPlayers })}</span>
-          </h2>
-          <PlayerList room={room} />
-        </section>
-        {isHost ? (
-          <section className="flex flex-col gap-3 rounded-3xl border bg-card p-4">
-            <SegmentedChoice<'places' | 'pairs'>
-              label={t('games.spy.modeTitle')}
-              value={room.settings.mode}
-              onChange={(mode) => settings.mutate({ mode }, { onError })}
-              options={[
-                { value: 'places', label: t('games.spy.modes.places'), icon: MapPin },
-                { value: 'pairs', label: t('games.spy.modes.pairs'), icon: VenetianMask },
-              ]}
-            />
-            <SegmentedChoice<string>
-              label={t('games.spy.minutesTitle')}
-              value={`${room.settings.minutes}`}
-              onChange={(v) => settings.mutate({ minutes: Number(v) as SpyMinutes }, { onError })}
-              options={MINUTES.map((m) => ({ value: `${m}`, label: t('games.minutes', { count: m }) }))}
-            />
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">{t('games.spy.spies')}</span>
-              <NumberStepper
-                label={t('games.spy.spies')}
-                value={Math.min(room.settings.spies, maxSpies(Math.max(MIN_PLAYERS, room.players.length)))}
-                min={1}
-                max={maxSpies(Math.max(MIN_PLAYERS, room.players.length))}
-                onChange={(spies) => settings.mutate({ spies }, { onError })}
-              />
-            </div>
-          </section>
-        ) : (
-          <p className="flex items-center justify-center gap-2 rounded-2xl bg-muted p-4 text-sm">
-            <Hourglass className="game-breathe size-4" aria-hidden="true" />
-            {t('rooms.waitHost', { name: name(room.hostId) })}
-          </p>
-        )}
-        {isHost && (
-          <Button
-            size="lg"
-            className="h-14 text-lg"
-            disabled={!enough || start.isPending}
-            onClick={() => {
-              unlockSound()
-              start.mutate(undefined, { onError })
-            }}
-          >
-            <Play data-icon="inline-start" />
-            {enough ? t('rooms.start') : t('rooms.needPlayers', { count: MIN_PLAYERS })}
-          </Button>
-        )}
-        <Button variant="ghost" onClick={onLeave}>
-          <LogOut data-icon="inline-start" />
-          {t('rooms.leave')}
-        </Button>
-      </div>
+      <RoomLobby
+        room={room}
+        isHost={isHost}
+        minPlayers={MIN_PLAYERS}
+        starting={start.isPending}
+        onStart={() => {
+          unlockSound()
+          start.mutate(undefined, { onError })
+        }}
+        onLeave={onLeave}
+      >
+        <SegmentedChoice<'places' | 'pairs'>
+          label={t('games.spy.modeTitle')}
+          value={room.settings.mode}
+          onChange={(mode) => settings.mutate({ mode }, { onError })}
+          options={[
+            { value: 'places', label: t('games.spy.modes.places'), icon: MapPin },
+            { value: 'pairs', label: t('games.spy.modes.pairs'), icon: VenetianMask },
+          ]}
+        />
+        <SegmentedChoice<string>
+          label={t('games.spy.minutesTitle')}
+          value={`${room.settings.minutes}`}
+          onChange={(v) => settings.mutate({ minutes: Number(v) as SpyMinutes }, { onError })}
+          options={MINUTES.map((m) => ({ value: `${m}`, label: t('games.minutes', { count: m }) }))}
+        />
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">{t('games.spy.spies')}</span>
+          <NumberStepper
+            label={t('games.spy.spies')}
+            value={Math.min(room.settings.spies, maxSpies(Math.max(MIN_PLAYERS, room.players.length)))}
+            min={1}
+            max={maxSpies(Math.max(MIN_PLAYERS, room.players.length))}
+            onChange={(spies) => settings.mutate({ spies }, { onError })}
+          />
+        </div>
+      </RoomLobby>
     )
   }
 
