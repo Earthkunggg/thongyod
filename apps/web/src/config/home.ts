@@ -1,5 +1,5 @@
-// Order of the sections on Home (decisions #35, #54). The user can show/hide and reorder them in Settings;
-// this is the default. New sections are inserted at their default position for existing users.
-export type HomeSectionId = 'waiting' | 'highlights' | 'tools' | 'missions' | 'agenda' | 'pending' | 'feed' | 'discover'
+// Home is four clear zones (decision #83, was 8 loose sections in #35/#54). The user can show/hide and
+// reorder the zones in Settings; this is the default. Unknown ids from older versions are dropped on load.
+export type HomeSectionId = 'today' | 'friends' | 'pet' | 'tools'
 
-export const DEFAULT_HOME_SECTIONS: HomeSectionId[] = ['waiting', 'highlights', 'tools', 'missions', 'agenda', 'pending', 'feed', 'discover']
+export const DEFAULT_HOME_SECTIONS: HomeSectionId[] = ['today', 'friends', 'pet', 'tools']

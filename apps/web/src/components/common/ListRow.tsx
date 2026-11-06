@@ -13,10 +13,12 @@ type ListRowProps = {
   to?: string
   /** Right side: e.g. buttons. Never inside the link. */
   trailing?: ReactNode
+  /** Router state for the link, e.g. SHOW_BACK so the page opened from here shows a back button. */
+  linkState?: unknown
 }
 
 // One row inside a list card. Rows separate themselves with a top border.
-export function ListRow({ leading, title, subtitle, to, trailing }: ListRowProps) {
+export function ListRow({ leading, title, subtitle, to, trailing, linkState }: ListRowProps) {
   const main = (
     <>
       {leading}
@@ -30,7 +32,7 @@ export function ListRow({ leading, title, subtitle, to, trailing }: ListRowProps
 
   if (to && !trailing) {
     return (
-      <Link to={to} className={cn(row, 'active:opacity-70')}>
+      <Link to={to} state={linkState} className={cn(row, 'active:opacity-70')}>
         {main}
         <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
       </Link>
@@ -39,7 +41,7 @@ export function ListRow({ leading, title, subtitle, to, trailing }: ListRowProps
   return (
     <div className={row}>
       {to ? (
-        <Link to={to} className="flex min-w-0 flex-1 items-center gap-3 active:opacity-70">
+        <Link to={to} state={linkState} className="flex min-w-0 flex-1 items-center gap-3 active:opacity-70">
           {main}
         </Link>
       ) : (

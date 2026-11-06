@@ -11,7 +11,7 @@ const listeners = new Set<() => void>()
 let cached: HomeLayout | null = null
 
 /** Keeps only known ids; sections added in an app update go in at their default position. */
-function normalize(value: unknown): HomeLayout {
+export function normalizeHomeLayout(value: unknown): HomeLayout {
   const known = new Set<string>(DEFAULT_HOME_SECTIONS)
   const raw = (value ?? {}) as Partial<HomeLayout>
   const order = (Array.isArray(raw.order) ? raw.order : []).filter((id): id is HomeSectionId => known.has(id))
@@ -28,7 +28,7 @@ export function getHomeLayout(): HomeLayout {
   if (cached) return cached
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    cached = stored ? normalize(JSON.parse(stored)) : DEFAULT_LAYOUT
+    cached = stored ? normalizeHomeLayout(JSON.parse(stored)) : DEFAULT_LAYOUT
   } catch {
     cached = DEFAULT_LAYOUT
   }
@@ -36,7 +36,7 @@ export function getHomeLayout(): HomeLayout {
 }
 
 export function setHomeLayout(layout: HomeLayout): void {
-  cached = normalize(layout)
+  cached = normalizeHomeLayout(layout)
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cached))
   } catch {

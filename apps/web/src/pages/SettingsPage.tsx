@@ -16,14 +16,10 @@ import { getLanguage, setLanguage, type Language } from '@/i18n'
 import { getMode, getTheme, setMode, setTheme, type Mode, type Theme } from '@/lib/theme'
 
 const SECTION_LABEL = {
-  waiting: 'settings.home.waiting',
-  highlights: 'settings.home.highlights',
+  today: 'settings.home.today',
+  friends: 'settings.home.friends',
+  pet: 'settings.home.pet',
   tools: 'settings.home.tools',
-  missions: 'settings.home.missions',
-  agenda: 'settings.home.agenda',
-  pending: 'settings.home.pending',
-  feed: 'settings.home.feed',
-  discover: 'settings.home.discover',
 } as const satisfies Record<HomeSectionId, string>
 
 // /settings — opened from the gear on "ฉัน" (decision #36).
