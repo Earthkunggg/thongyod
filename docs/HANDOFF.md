@@ -680,3 +680,9 @@ Many phones in one game. Only the server knows everyone's role; each phone gets 
 - ไม่เคย…: `fingers` per player starts at 5; each `have` folds one when the result shows (never below 0); `POST /lobby` clears fingers. Rules + tests: `apps/web/src/features/party/roomLogic.ts`.
 - Mock: `apps/web/src/mocks/rooms.ts` (mock friends answer by themselves; seeded room 305117 = ใครน่าจะ…).
 - New pet (#80): 12 poses per species from Earth's sheets, moves + triggers, ให้ขนม button, "ลองดูทุกท่า" panel on the pet page (dev + demo site). Art pipeline: `tools/pet-art/README.md`.
+- Game words rewritten to be guessable (#81): word packs, taboo, spy places/pairs, bomb topics. Same pack ids, so settings and seen-word memory keep working.
+
+### Parked by Earth (2026-11-06) — think before building
+- Pet should feel more alive; rapid repeated taps feel weird (each tap restarts an action). Earth said: keep for later, finish other things first.
+- Home looks cluttered ("like Shopee"). Proposal sent to Earth: group Home into clear zones (วันนี้ / เพื่อน / น้อง / ทางลัด), lists instead of side-scrolling rows. Waiting for Earth.
+- One QR scanner for everything (friend → add friend, room → room, meetup link → meetup, PromptPay → "open in your bank app"). Proposal sent, waiting for Earth.
