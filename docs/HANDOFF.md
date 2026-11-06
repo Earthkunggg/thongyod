@@ -684,5 +684,8 @@ Many phones in one game. Only the server knows everyone's role; each phone gets 
 
 ### Parked by Earth (2026-11-06) — think before building
 - Pet should feel more alive; rapid repeated taps feel weird (each tap restarts an action). Earth said: keep for later, finish other things first.
-- Home looks cluttered ("like Shopee"). Proposal sent to Earth: group Home into clear zones (วันนี้ / เพื่อน / น้อง / ทางลัด), lists instead of side-scrolling rows. Waiting for Earth.
-- One QR scanner for everything (friend → add friend, room → room, meetup link → meetup, PromptPay → "open in your bank app"). Proposal sent, waiting for Earth.
+
+### Done 2026-11-06 evening (Earth agreed)
+- One QR scanner for everything (#82): `components/scan/AppScanner` + `features/scan/route.ts`; scan button on Home next to the bell.
+- Home in 4 zones (#83), ทำอะไรดี as lists (#84), calm game cards (#85), grey see-all links (#86), คำต้องห้าม parts rule (#87).
+- Still to test on a real iPhone: the scanner camera in the dialog (Safari needs https — the demo site is https).
