@@ -761,7 +761,7 @@ export const en: Messages = {
       again: 'Again, new topic',
     },
     taboo: {
-      how: { teams: 'Split into teams and take turns', clue: 'The clue-giver holds the phone and describes the word without saying it or the 4 forbidden words', watch: 'Another team watches; if a forbidden word slips out, tap "Said it" (−1)' },
+      how: { teams: 'Split into teams and take turns', clue: 'The clue-giver holds the phone and describes the word without saying it, any part of it, or the 4 forbidden words', watch: 'Another team watches; if a forbidden word slips out, tap "Said it" (−1)' },
       teamsTitle: 'Teams',
       teamsCount: '{{count}} teams',
       timeTitle: 'Time per turn',
@@ -775,7 +775,7 @@ export const en: Messages = {
       readyHint: 'Hand the phone to the clue-giver · {{watcher}} watches',
       go: 'Go, {{seconds}} seconds',
       describe: 'Describe this',
-      forbidden: "Don't say",
+      forbidden: "Don't say (or any part of the word above)",
       saidIt: 'Said it',
       skip: 'Skip',
       correct: 'Got it!',
@@ -864,7 +864,7 @@ export const en: Messages = {
       taboo: {
         goal: 'The team with the most correct guesses wins',
         s1: { title: 'Make teams', text: 'Split into 2–4 teams that take turns' },
-        s2: { title: 'Clue without the words', text: 'Describe the word without saying it or the 4 forbidden words under it' },
+        s2: { title: 'Clue without the words', text: 'Describe the word without saying it, any part of it, or the 4 forbidden words under it' },
         s3: { title: 'Beat the clock', text: 'Get through as many words as you can; skip the hard ones' },
         s4: { title: 'Be honest', text: 'Got it +1, said a forbidden word −1. Another team watches the screen' },
         s5: { title: 'Game over', text: 'After all rounds, the team with the most points wins' },

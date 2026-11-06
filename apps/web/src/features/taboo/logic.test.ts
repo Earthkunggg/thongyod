@@ -38,6 +38,11 @@ describe('taboo', () => {
     for (const c of cards) {
       expect(c.forbidden).toHaveLength(4)
       expect(c.forbidden).not.toContain(c.word)
+      expect(new Set(c.forbidden).size).toBe(4)
+      // Parts of the word are forbidden by the rules anyway (#87): the 4 slots go to real associations.
+      for (const f of c.forbidden) {
+        expect(c.word.includes(f) || f.includes(c.word), `${c.word} / ${f}`).toBe(false)
+      }
     }
   })
 })
