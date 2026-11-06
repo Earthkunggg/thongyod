@@ -17,15 +17,15 @@ export function GamesPage() {
   return (
     <div className="flex flex-col gap-2 pb-8">
       <PageHeader title={t('games.title')} subtitle={t('games.subtitle')} backTo="/explore" />
-      <Link to="/games/rooms" state={SHOW_BACK} className={cn('mx-3 flex items-center gap-3 rounded-3xl p-4 active:scale-[0.99]', tintClass(5))}>
-        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-background/60">
+      <Link to="/games/rooms" state={SHOW_BACK} className="mx-3 flex items-center gap-3 rounded-2xl border bg-card p-4 active:scale-[0.99]">
+        <span className={cn('grid size-12 shrink-0 place-items-center rounded-2xl', tintClass(5))}>
           <Wifi className="size-6" aria-hidden="true" />
         </span>
         <span className="min-w-0 flex-1">
           <span className="block font-medium">{t('games.roomsBanner.title')}</span>
-          <span className="block text-xs opacity-80">{t('games.roomsBanner.text')}</span>
+          <span className="block text-xs text-muted-foreground">{t('games.roomsBanner.text')}</span>
         </span>
-        <ChevronRight className="size-5 shrink-0" aria-hidden="true" />
+        <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
       </Link>
       {SECTIONS.map((mode) => {
         const list = GAMES.filter((g) => g.mode === mode).sort((a, b) => Number(a.status === 'soon') - Number(b.status === 'soon'))

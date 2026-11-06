@@ -30,8 +30,8 @@ export function RoomsPage() {
       <PageHeader title={t('rooms.zoneTitle')} subtitle={t('rooms.zoneSubtitle')} backTo="/games" />
 
       <section className="px-3">
-        <div className={cn('flex items-center gap-3 rounded-3xl p-4', tintClass(5))}>
-          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-background/60">
+        <div className="flex items-center gap-3 rounded-2xl border bg-card p-4">
+          <span className={cn('grid size-12 shrink-0 place-items-center rounded-2xl', tintClass(5))}>
             <Wifi className="size-6" aria-hidden="true" />
           </span>
           <p className="text-sm">{t('rooms.zoneIntro')}</p>
@@ -74,14 +74,16 @@ export function RoomsPage() {
             <button
               type="button"
               onClick={() => void navigate(`/games/rooms/new?game=${g.id}`)}
-              className={cn('flex w-full items-center gap-3 rounded-2xl p-4 text-left active:scale-[0.99]', tintClass(g.tint))}
+              className="flex w-full items-center gap-3 rounded-2xl border bg-card p-4 text-left active:scale-[0.99]"
             >
-              <g.icon className="size-8 shrink-0" aria-hidden="true" />
+              <span className={cn('grid size-12 shrink-0 place-items-center rounded-2xl', tintClass(g.tint))}>
+                <g.icon className="size-6" aria-hidden="true" />
+              </span>
               <span className="min-w-0 flex-1">
                 <span className="block font-medium">{t(`games.list.${g.id}.title`)}</span>
-                <span className="block text-xs opacity-80">{t(`games.list.${g.id}.desc`)}</span>
+                <span className="block text-xs text-muted-foreground">{t(`games.list.${g.id}.desc`)}</span>
               </span>
-              <Plus className="size-5" aria-hidden="true" />
+              <Plus className="size-5 text-muted-foreground" aria-hidden="true" />
             </button>
           </li>
         ))}

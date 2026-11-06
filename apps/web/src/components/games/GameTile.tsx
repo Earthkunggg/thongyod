@@ -19,7 +19,8 @@ function gameTags(game: Game): Tag[] {
   return game.rooms ? ['onePhone', 'rooms'] : ['onePhone']
 }
 
-// One game card: tint, icon, name, one line, players, tags (เครื่องเดียว / หลายเครื่อง / คนเดียว).
+// One game card (#85): white card, colour only on the icon, name, one line, players, and a หลายเครื่อง tag
+// when the game can also be played on several phones (the section heading already says เครื่องเดียว / คนเดียว).
 // A game with both ways opens a sheet to choose; "เร็วๆ นี้" games are shown but not tappable.
 export function GameTile({ game, className }: { game: Game; className?: string }) {
   const { t } = useTranslation()
@@ -31,27 +32,26 @@ export function GameTile({ game, className }: { game: Game; className?: string }
   const tags = gameTags(game)
   const body = (
     <>
-      <game.icon className="size-7" aria-hidden="true" />
-      <span className="mt-1 text-sm font-medium">{t(`games.list.${game.id}.title`)}</span>
-      <span className="line-clamp-2 text-xs opacity-80">{t(`games.list.${game.id}.desc`)}</span>
-      <span className="mt-auto flex flex-wrap items-center gap-1 pt-1.5">
-        {tags.map((tag) => {
-          const Icon = TAG_ICON[tag]
-          return (
-            <span key={tag} className="flex items-center gap-1 rounded-full bg-background/60 px-2 py-0.5 text-[11px] font-medium">
-              <Icon className="size-3" aria-hidden="true" />
-              {t(`games.tags.${tag}`)}
-            </span>
-          )
-        })}
+      <span className={cn('grid size-11 place-items-center rounded-xl', tintClass(game.tint))}>
+        <game.icon className="size-6" aria-hidden="true" />
       </span>
-      <span className="flex items-center gap-1 text-[11px] opacity-80">
-        <Users className="size-3" aria-hidden="true" />
-        {game.status === 'soon' ? t('explore.soon') : players}
+      <span className="mt-1.5 text-sm font-medium">{t(`games.list.${game.id}.title`)}</span>
+      <span className="line-clamp-2 text-xs text-muted-foreground">{t(`games.list.${game.id}.desc`)}</span>
+      <span className="mt-auto flex w-full flex-wrap items-center gap-x-2 gap-y-1 pt-2 text-[11px] text-muted-foreground">
+        <span className="flex items-center gap-1">
+          <Users className="size-3" aria-hidden="true" />
+          {game.status === 'soon' ? t('explore.soon') : players}
+        </span>
+        {tags.includes('rooms') && (
+          <span className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 font-medium text-foreground">
+            <Wifi className="size-3" aria-hidden="true" />
+            {t('games.tags.rooms')}
+          </span>
+        )}
       </span>
     </>
   )
-  const classes = cn('flex min-h-40 flex-col items-start gap-0.5 rounded-2xl p-3 text-left', tintClass(game.tint), className)
+  const classes = cn('flex min-h-40 flex-col items-start gap-0.5 rounded-2xl border bg-card p-3 text-left text-card-foreground', className)
 
   if (game.status !== 'ready') {
     return (
@@ -87,15 +87,15 @@ export function GameTile({ game, className }: { game: Game; className?: string }
           ).map(({ tag, to }) => {
             const Icon = TAG_ICON[tag]
             return (
-              <button key={tag} type="button" onClick={() => go(to)} className={cn('flex items-center gap-3 rounded-2xl p-4 text-left active:scale-[0.99]', tintClass(tag === 'rooms' ? 5 : game.tint))}>
-                <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-background/60">
+              <button key={tag} type="button" onClick={() => go(to)} className="flex items-center gap-3 rounded-2xl border bg-card p-4 text-left active:scale-[0.99]">
+                <span className={cn('grid size-12 shrink-0 place-items-center rounded-2xl', tintClass(tag === 'rooms' ? 5 : game.tint))}>
                   <Icon className="size-6" aria-hidden="true" />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block font-medium">{t(`games.how.${tag}.title`)}</span>
-                  <span className="block text-xs opacity-80">{t(`games.how.${tag}.hint`)}</span>
+                  <span className="block text-xs text-muted-foreground">{t(`games.how.${tag}.hint`)}</span>
                 </span>
-                <ChevronRight className="size-5 shrink-0" aria-hidden="true" />
+                <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
               </button>
             )
           })}
