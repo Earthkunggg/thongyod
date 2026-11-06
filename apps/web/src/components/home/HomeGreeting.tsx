@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
-import { Bell, Flame } from "lucide-react";
+import { Bell, Flame, ScanLine } from "lucide-react";
 import { Egg } from "@/components/pet/Egg";
 import { Pet } from "@/components/pet/Pet";
 import type { PetSpeciesId } from "@/components/pet/species";
@@ -11,6 +11,7 @@ import { useUnreadNotifications } from "@/api/notifications";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/common/Badge";
 import { NotificationsSheet } from "@/components/notifications/NotificationsSheet";
+import { ScanDialog } from "@/components/scan/ScanDialog";
 
 type Props = {
   name: string | null;
@@ -27,12 +28,13 @@ function greetingKey(hour: number) {
   return "home.greeting.night";
 }
 
-// Top of Home: my pet (always moving, tap to play), a greeting, the streak and notifications.
+// Top of Home: my pet (always moving, tap to play), a greeting, the streak, the QR scanner (#82) and notifications.
 // Scrolled past it, a slim bar stays on top with the name, streak and bell (#75). The bell opens a bottom sheet.
 export function HomeGreeting({ name, species, streak, onPetTap, now }: Props) {
   const { t } = useTranslation();
   const unread = useUnreadNotifications();
   const [sheet, setSheet] = useState(false);
+  const [scan, setScan] = useState(false);
   const [compact, setCompact] = useState(false);
   const header = useRef<HTMLElement>(null);
 
@@ -65,6 +67,16 @@ export function HomeGreeting({ name, species, streak, onPetTap, now }: Props) {
       <CountBadge count={unread} className="top-1.5 right-1" />
     </button>
   );
+  const scanButton = (
+    <button
+      type="button"
+      onClick={() => setScan(true)}
+      className={buttonVariants({ variant: "ghost", size: "icon" })}
+      aria-label={t("scan.open")}
+    >
+      <ScanLine />
+    </button>
+  );
   const streakBadge = streak >= 2 && (
     <span title={t("home.streakHint")}>
       <Badge tone="warning" icon={Flame}>
@@ -89,9 +101,11 @@ export function HomeGreeting({ name, species, streak, onPetTap, now }: Props) {
           {name ?? " "}
         </p>
         {streakBadge}
+        {scanButton}
         {bell}
       </div>
       <NotificationsSheet open={sheet} onOpenChange={setSheet} />
+      <ScanDialog open={scan} onOpenChange={setScan} />
       <header
         ref={header}
         className="flex items-center gap-3 px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)]"
@@ -119,6 +133,7 @@ export function HomeGreeting({ name, species, streak, onPetTap, now }: Props) {
           <h1 className="truncate text-xl font-medium">{name ?? " "}</h1>
         </div>
         {streakBadge}
+        {scanButton}
         {bell}
       </header>
     </>

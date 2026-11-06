@@ -191,7 +191,6 @@ export const en: Messages = {
     codeAria: 'Room code {{code}}',
     join: 'Join',
     scanQr: 'Scan room QR',
-    scanHint: "Point the camera at the QR on your friend's phone",
     joinHint: 'Or just tap the link a friend sent, or the "invited you" notification',
     createTitle: 'New room',
     moreSoon: 'More games will work on many phones soon',
@@ -303,6 +302,13 @@ export const en: Messages = {
     newVote: 'New vote',
     done: 'Done',
   },
+  scan: {
+    title: 'Scan QR',
+    hint: 'Friend, game room or meetup QR — just point the camera',
+    open: 'Scan QR',
+    payment: 'This is a payment QR — open it in your bank app',
+    unknown: 'This QR is not from Thongyod — try another one',
+  },
   friends: {
     tabsLabel: 'Gangs and friends',
     tabGangs: 'Gangs',
@@ -351,10 +357,8 @@ export const en: Messages = {
       renewText: 'Your old QR and link will stop working right away.',
       renewConfirm: 'Create new',
       shareText: 'Add me on Thongyod {{url}}',
-      scanHint: 'Point the camera at a friend’s QR. No need to take a photo.',
       cameraFailed: 'Can’t open the camera',
       cameraFailedHint: 'Allow camera access in your browser settings, then try again',
-      notOurQr: 'This QR is not a Thongyod friend link',
     },
     link: {
       title: 'Friend invite',

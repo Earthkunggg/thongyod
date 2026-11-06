@@ -2,13 +2,12 @@ import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { DoorOpen, Plus, ScanLine, Smartphone, Wifi } from 'lucide-react'
-import { isRoomCode, roomCodeFrom } from '@/api/rooms'
+import { isRoomCode } from '@/api/rooms'
 import { SectionHeader } from '@/components/common/SectionHeader'
-import { QrScanner } from '@/components/friends/QrScanner'
+import { ScanDialog } from '@/components/scan/ScanDialog'
 import { GAMES } from '@/config/games'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { tintClass } from '@/lib/tones'
 import { cn } from '@/lib/utils'
@@ -92,21 +91,7 @@ export function RoomsPage() {
         {t('rooms.moreSoon')}
       </p>
 
-      <Dialog open={scan} onOpenChange={setScan}>
-        <DialogContent title={t('rooms.scanQr')} description={t('rooms.scanHint')}>
-          {scan && (
-            <QrScanner
-              onRead={(text) => {
-                const found = roomCodeFrom(text)
-                if (!found) return false
-                setScan(false)
-                void navigate(`/games/rooms/${found}`)
-                return true
-              }}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      <ScanDialog open={scan} onOpenChange={setScan} />
     </div>
   )
 }

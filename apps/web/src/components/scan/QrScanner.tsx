@@ -43,7 +43,7 @@ export function QrScanner({ onRead }: QrScannerProps) {
   const failed = state === 'failed'
   return (
     <div className="relative mx-auto aspect-square w-full max-w-72 overflow-hidden rounded-2xl bg-black">
-      <video ref={videoRef} className="size-full object-cover" muted playsInline aria-label={t('friends.qr.scanHint')} />
+      <video ref={videoRef} className="size-full object-cover" muted playsInline aria-label={t('scan.title')} />
       {!failed && (
         // Frame guide in the middle of the camera view.
         <div aria-hidden="true" className="pointer-events-none absolute inset-10 rounded-xl border-2 border-white/80" />

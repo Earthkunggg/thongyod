@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router'
+import { useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Copy, RefreshCw, Send } from 'lucide-react'
 import { useMyFriendLink, useRegenerateFriendLink } from '@/api/friends'
@@ -7,17 +7,17 @@ import { ErrorState } from '@/components/common/ErrorState'
 import { LoadingState } from '@/components/common/LoadingState'
 import { SegmentedChoice } from '@/components/common/SegmentedChoice'
 import { QrCodeCard } from '@/components/friends/QrCodeCard'
-import { QrScanner } from '@/components/friends/QrScanner'
+import { AppScanner } from '@/components/scan/AppScanner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog'
-import { friendLinkUrl, parseFriendLink } from '@/features/friends/link'
+import { friendLinkUrl } from '@/features/friends/link'
 import { lineShareUrl } from '@/lib/share'
 import { showErrorToast, toastManager } from '@/lib/toast'
 
 type Mode = 'mine' | 'scan'
 
-// /friends/qr — show my friend QR (share in LINE, copy, renew) or scan a friend's QR live.
+// /friends/qr — show my friend QR (share in LINE, copy, renew) or scan any QR live (the one app scanner, #82).
 export function FriendQrPage() {
   const { t } = useTranslation()
   const [params, setParams] = useSearchParams()
@@ -102,30 +102,9 @@ function MyQr() {
 }
 
 function ScanQr() {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
-  const [wrongQr, setWrongQr] = useState(false)
-
-  // Valid friend link → open it at once. Anything else → short notice, keep scanning.
-  const onRead = useCallback(
-    (text: string) => {
-      const code = parseFriendLink(text)
-      if (!code) {
-        setWrongQr(true)
-        return false
-      }
-      void navigate(`/add/${encodeURIComponent(code)}`)
-      return true
-    },
-    [navigate],
-  )
-
   return (
-    <div className="flex flex-col gap-3 px-3">
-      <QrScanner onRead={onRead} />
-      <p className="text-center text-sm text-muted-foreground" aria-live="polite">
-        {wrongQr ? t('friends.qr.notOurQr') : t('friends.qr.scanHint')}
-      </p>
+    <div className="px-3">
+      <AppScanner />
     </div>
   )
 }
