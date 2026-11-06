@@ -668,3 +668,4 @@ Many phones in one game. Only the server knows everyone's role; each phone gets 
 - `POST /rooms/:code/invite { userIds }` → 204; only friends of the caller; each gets a notification `kind: 'game_invite'`, `actor` = inviter, `subject` = room code, `target: { type: 'room', id: code }` (new kind + target type).
 - Content: places / word pairs live in `apps/web/src/config/games/spy.ts` (Thai). The server needs the same lists (move to `packages/shared` or copy); `features/spy/logic.ts` `dealSpy` is the reference dealing rule (tested).
 - Demo note: on GitHub Pages each browser has its own mock, so two real phones cannot meet; the mock makes 4 friends join a new room by themselves, and seeds room `482913` hosted by ต้น with a "ชวนเล่น" notification.
+- เซียมซี redone with Earth's art, 40 sticks, longer fortunes (#77). Fortune text is now Thai-only content in `config/fortunes.ts`.

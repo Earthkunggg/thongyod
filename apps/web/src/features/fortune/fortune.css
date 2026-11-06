@@ -1,32 +1,136 @@
-.cup {
-  transform-origin: 50% 90%;
+/* เซียมซี with Earth's art (image/12-fortune.png → src/assets/fortune). DECISIONS #77.
+   The cup shakes as one picture with smooth transforms; one stick slides out of the cup mouth and drops in front. */
+
+.fortune-stage {
+  position: relative;
+  width: 13rem;
+  height: 21rem;
 }
-.cup-shake {
-  animation: cup-shake 0.7s ease-in-out;
+.fortune-cup {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 2.4rem;
+  margin-inline: auto;
+  width: 11rem;
+  z-index: 2;
+  transform-origin: 50% 92%;
+  filter: drop-shadow(0 10px 12px rgb(0 0 0 / 0.18));
 }
-@keyframes cup-shake {
-  0%, 100% { transform: rotate(0); }
-  15% { transform: rotate(-10deg) translateX(-4px); }
-  30% { transform: rotate(9deg) translateX(4px); }
-  45% { transform: rotate(-8deg) translateX(-3px); }
-  60% { transform: rotate(7deg) translateX(3px); }
-  75% { transform: rotate(-4deg); }
+.fortune-cup.is-idle { animation: fortune-sway 3.2s ease-in-out infinite; }
+.fortune-cup.is-shaking { animation: fortune-rattle 1.1s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+.fortune-cup.is-out { animation: fortune-tip 0.9s cubic-bezier(0.3, 1.3, 0.5, 1) both; }
+
+@keyframes fortune-sway {
+  0%, 100% { transform: rotate(-1.5deg); }
+  50% { transform: rotate(1.5deg) translateY(-2px); }
 }
-.stick-pop {
-  animation: stick-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+@keyframes fortune-rattle {
+  0% { transform: rotate(0); }
+  10% { transform: rotate(-13deg) translate(-6px, -4px); }
+  20% { transform: rotate(11deg) translate(6px, -8px); }
+  30% { transform: rotate(-12deg) translate(-5px, -3px); }
+  40% { transform: rotate(10deg) translate(5px, -9px); }
+  50% { transform: rotate(-11deg) translate(-6px, -4px); }
+  60% { transform: rotate(9deg) translate(4px, -8px); }
+  70% { transform: rotate(-8deg) translate(-3px, -3px); }
+  80% { transform: rotate(6deg) translate(2px, -5px); }
+  90% { transform: rotate(-3deg); }
+  100% { transform: rotate(0); }
 }
-@keyframes stick-pop {
-  from { transform: translateY(70px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+/* The cup tips forward so the stick can slide out, then rocks back. */
+@keyframes fortune-tip {
+  0% { transform: rotate(0); }
+  35% { transform: rotate(-24deg) translateX(-6px); }
+  70% { transform: rotate(4deg); }
+  100% { transform: rotate(0); }
 }
-.fortune-card {
-  animation: fortune-flip 0.4s ease-out both;
+
+/* The chosen stick: starts hidden inside the cup (behind it), slides out, falls in front, bounces. */
+.fortune-stick {
+  position: absolute;
+  left: 50%;
+  bottom: 36%;
+  width: 2.2rem;
+  margin-left: -1.1rem;
+  z-index: 1;
+  transform-origin: 50% 50%;
+  opacity: 0;
+}
+.fortune-stick img { display: block; width: 100%; filter: drop-shadow(0 4px 4px rgb(0 0 0 / 0.2)); }
+.fortune-stick-no {
+  position: absolute;
+  inset-inline: 0;
+  top: 41%;
+  height: 22%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #5a3a12;
+  /* Turned so it reads level when the stick lies on the floor. */
+  transform: rotate(90deg);
+  white-space: nowrap;
+}
+.fortune-stick.is-out { animation: fortune-drop 1.25s cubic-bezier(0.25, 0.8, 0.3, 1) 0.2s both; }
+.fortune-stick.is-rest { opacity: 1; transform: translate(-1rem, 11.55rem) rotate(-82deg); z-index: 3; }
+
+@keyframes fortune-drop {
+  0% { opacity: 1; transform: translate(0, 2rem) rotate(0); z-index: 1; }
+  30% { opacity: 1; transform: translate(-1.4rem, -5.5rem) rotate(-25deg); z-index: 1; }
+  45% { transform: translate(-2.6rem, -4.6rem) rotate(-50deg); z-index: 3; }
+  78% { transform: translate(-1rem, 11.9rem) rotate(-84deg); z-index: 3; }
+  88% { transform: translate(-1rem, 11.2rem) rotate(-80deg); z-index: 3; }
+  100% { opacity: 1; transform: translate(-1rem, 11.55rem) rotate(-82deg); z-index: 3; }
+}
+
+/* Sparkles burst where the stick lands. */
+.fortune-sparkle {
+  position: absolute;
+  width: 1.6rem;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+}
+.fortune-sparkle.is-out { animation: fortune-sparkle 0.9s ease-out both; }
+@keyframes fortune-sparkle {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.2) rotate(0); }
+  35% { opacity: 1; transform: translate(calc(var(--dx) * 0.6), calc(var(--dy) * 0.6)) scale(1.15) rotate(30deg); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.6) rotate(60deg); }
+}
+
+/* The fortune paper (colors from the art, the same in light and dark: it is a piece of paper). */
+.fortune-paper {
+  --paper: #fff6e3;
+  --paper-ink: #4a2f12;
+  --paper-soft: #7a5a32;
+  --paper-red: #d6403b;
+  --paper-gold: #f2b632;
+  position: relative;
+  background: var(--paper);
+  color: var(--paper-ink);
+  border-radius: 1.25rem;
+  padding: 2.25rem 1.25rem 1.5rem;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.15), inset 0 0 0 6px var(--paper), inset 0 0 0 8px var(--paper-red), inset 0 0 0 11px var(--paper), inset 0 0 0 12px var(--paper-gold);
   transform-origin: 50% 0;
+  animation: fortune-unfold 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
 }
-@keyframes fortune-flip {
-  from { transform: perspective(800px) rotateX(-70deg); opacity: 0; }
-  to { transform: none; opacity: 1; }
+.fortune-paper-flower { position: absolute; top: -1.2rem; left: 50%; width: 2.6rem; margin-left: -1.3rem; filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.15)); }
+.fortune-paper .paper-soft { color: var(--paper-soft); }
+.fortune-paper .paper-line { border-color: color-mix(in oklab, var(--paper-red) 35%, transparent); }
+.fortune-paper .paper-chip { background: color-mix(in oklab, var(--paper-gold) 22%, var(--paper)); }
+@keyframes fortune-unfold {
+  0% { opacity: 0; transform: perspective(900px) rotateX(-85deg) scaleY(0.6); }
+  60% { opacity: 1; transform: perspective(900px) rotateX(8deg) scaleY(1.02); }
+  100% { transform: none; }
 }
+/* Lines of the verse appear one after another. */
+.fortune-paper .verse-line { animation: verse-in 0.5s ease-out both; }
+@keyframes verse-in {
+  from { opacity: 0; transform: translateY(6px); filter: blur(2px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .cup-shake, .stick-pop, .fortune-card { animation: none; }
+  .fortune-cup.is-idle, .fortune-cup.is-shaking, .fortune-cup.is-out, .fortune-sparkle.is-out, .fortune-paper, .fortune-paper .verse-line { animation: none; }
+  .fortune-stick.is-out { animation: none; opacity: 1; transform: translate(-1rem, 11.55rem) rotate(-82deg); z-index: 3; }
 }

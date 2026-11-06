@@ -7,7 +7,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { FortuneCard } from '@/features/fortune/FortuneCard'
 import { FortuneCup } from '@/features/fortune/FortuneCup'
-import { bangkokDayKey, drawForToday, levelOf, type Draw } from '@/features/fortune/logic'
+import { bangkokDayKey, drawForToday, fortuneOf, levelOf, type Draw } from '@/features/fortune/logic'
 import { loadDraw, saveDraw } from '@/features/fortune/storage'
 import { useShake } from '@/features/fortune/useShake'
 import { celebrate } from '@/lib/celebrate'
@@ -18,6 +18,9 @@ import { appUrl, lineShareUrl } from '@/lib/share'
 import { cn } from '@/lib/utils'
 
 type Phase = 'ready' | 'shaking' | 'stick' | 'card'
+/** Match fortune.css: the rattle, then the stick sliding out and landing. */
+const SHAKE_MS = 1100
+const STICK_MS = 1900
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 // เซียมซี (DECISIONS #51): shake (or tap) → the cup shakes → a stick pops out → the fortune card.
@@ -60,30 +63,34 @@ export function FortunePage() {
     }
     setPhase('shaking')
     // Rattle while the cup shakes, a pop when the stick jumps out (sound on by default, #46).
-    const rattle = sound ? [0, 110, 220, 330, 440, 550].map((ms) => window.setTimeout(() => playSound('tick', 1.6), ms)) : []
+    const rattle = sound ? [0, 110, 220, 330, 440, 550, 660, 770, 880].map((ms) => window.setTimeout(() => playSound('roll', 0.9), ms)) : []
     timers.current = [
       ...rattle,
       window.setTimeout(() => {
         setPhase('stick')
-        if (sound) playSound('pop')
-      }, 700),
-      window.setTimeout(() => reveal(next), 1150),
+        if (sound) playSound('flip')
+      }, SHAKE_MS),
+      // The stick lands: a soft clack and sparkles.
+      window.setTimeout(() => sound && playSound('pop'), SHAKE_MS + 1100),
+      window.setTimeout(() => reveal(next), SHAKE_MS + STICK_MS),
     ]
   }
 
   const { support, requestPermission } = useShake(shake, phase === 'ready')
 
-  const shareText = draw
-    ? t('fortune.shareText', {
-        n: draw.stick,
-        level: t(`fortune.levels.${levelOf(draw.stick)}`),
-        poem1: t(`fortune.sticks.s${draw.stick}.poem1` as 'fortune.sticks.s1.poem1'),
-        poem2: t(`fortune.sticks.s${draw.stick}.poem2` as 'fortune.sticks.s1.poem2'),
-        study: t(`fortune.sticks.s${draw.stick}.study` as 'fortune.sticks.s1.study'),
-        money: t(`fortune.sticks.s${draw.stick}.money` as 'fortune.sticks.s1.money'),
-        love: t(`fortune.sticks.s${draw.stick}.love` as 'fortune.sticks.s1.love'),
-      })
-    : ''
+  const fortune = draw ? fortuneOf(draw.stick) : undefined
+  const shareText =
+    draw && fortune
+      ? t('fortune.shareText', {
+          n: draw.stick,
+          level: t(`fortune.levels.${levelOf(draw.stick)}`),
+          poem: fortune.poem.join(' '),
+          study: fortune.study,
+          money: fortune.money,
+          love: fortune.love,
+          lucky: fortune.lucky,
+        })
+      : ''
 
   return (
     <>
@@ -106,7 +113,7 @@ export function FortunePage() {
         {phase !== 'card' ? (
           <>
             <button type="button" onClick={shake} aria-label={t('fortune.cylinder')} className="mt-4 touch-manipulation">
-              <FortuneCup state={phase === 'shaking' ? 'shaking' : phase === 'stick' ? 'out' : 'idle'} stick={draw?.stick} className="h-72" />
+              <FortuneCup state={phase === 'shaking' ? 'shaking' : phase === 'stick' ? 'out' : 'idle'} stick={draw?.stick} />
             </button>
             <Button size="lg" className="w-full" onClick={shake}>
               <Vibrate data-icon="inline-start" />
@@ -123,9 +130,9 @@ export function FortunePage() {
         ) : (
           draw && (
             <>
-              <FortuneCup state="out" stick={draw.stick} className="h-44" />
+              <FortuneCup state="rest" stick={draw.stick} className="-my-12 scale-[0.6]" />
               {alreadyToday && <p className="-mt-2 text-sm font-medium">{t('fortune.todayTitle')}</p>}
-              <div className="w-full">
+              <div className="mt-3 w-full">
                 <FortuneCard stick={draw.stick} />
               </div>
               <p className="text-sm text-muted-foreground">{t('fortune.comeBack')}</p>

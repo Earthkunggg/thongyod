@@ -8,7 +8,22 @@ describe('levels', () => {
       if (!isStickNo(n)) throw new Error('bad stick')
       count[levelOf(n)]++
     }
-    expect(count).toEqual({ great: 6, good: 10, fair: 7, careful: 5 })
+    expect(STICK_COUNT).toBe(40)
+    expect(count).toEqual({ great: 9, good: 15, fair: 9, careful: 7 })
+  })
+
+  it('keeps the levels of the first 28 sticks (saved history refers to them)', () => {
+    const first = Array.from({ length: 28 }, (_, i) => levelOf(i + 1))
+    expect(first.filter((l) => l === 'great')).toHaveLength(6)
+    expect([levelOf(1), levelOf(4), levelOf(26), levelOf(28)]).toEqual(['great', 'careful', 'great', 'careful'])
+  })
+
+  it('every fortune is complete', async () => {
+    const { FORTUNES } = await import('@/config/fortunes')
+    for (const f of FORTUNES) {
+      expect(f.poem.every((line) => line.trim().length > 0)).toBe(true)
+      for (const field of [f.meaning, f.study, f.money, f.love, f.friends, f.lucky]) expect(field.trim().length).toBeGreaterThan(3)
+    }
   })
 })
 
@@ -21,7 +36,7 @@ describe('bangkokDayKey', () => {
 
 describe('drawForToday', () => {
   const now = new Date('2026-11-04T05:00:00Z')
-  it('draws a new stick (1–28) when nothing is saved', () => {
+  it('draws a new stick (1–40) when nothing is saved', () => {
     const r = drawForToday(now, null, () => 11)
     expect(r).toEqual({ draw: { day: '2026-11-04', stick: 12 }, isNew: true })
   })

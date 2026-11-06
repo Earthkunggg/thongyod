@@ -1,27 +1,21 @@
 // เซียมซี (DECISIONS #51). Pure logic: no React, no DOM.
-// 28 sticks with our own student-life fortunes (text in i18n: fortune.sticks.s1 … s28).
+// 40 sticks with our own student-life fortunes (content in config/fortunes.ts, DECISIONS #77).
 // One draw per day (Bangkok calendar day); drawing again the same day shows the same stick.
 
+import { FORTUNES } from '@/config/fortunes'
 import { secureRandomInt } from '@/lib/random'
 
-export const STICK_COUNT = 28
+export const STICK_COUNT = FORTUNES.length
 
-// prettier-ignore
-export type StickNo = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28
+/** Stick number, 1 … STICK_COUNT. */
+export type StickNo = number
 export type Level = 'great' | 'good' | 'fair' | 'careful'
 
-/** Level of each stick (index 0 = stick 1): 6 great, 10 good, 7 fair, 5 careful. */
-// prettier-ignore
-const LEVELS: Level[] = [
-  'great', 'good', 'fair', 'careful', 'good', 'great', 'fair',
-  'good', 'careful', 'good', 'great', 'fair', 'good', 'careful',
-  'good', 'great', 'fair', 'good', 'fair', 'good', 'great',
-  'careful', 'good', 'fair', 'good', 'great', 'fair', 'careful',
-]
-
 export function levelOf(stick: StickNo): Level {
-  return LEVELS[stick - 1]
+  return FORTUNES[stick - 1]?.level ?? 'fair'
 }
+
+export const fortuneOf = (stick: StickNo) => FORTUNES[stick - 1]
 
 export function isStickNo(n: unknown): n is StickNo {
   return Number.isInteger(n) && (n as number) >= 1 && (n as number) <= STICK_COUNT
@@ -47,7 +41,7 @@ export function addToHistory(history: Draw[], draw: Draw, keep: number = HISTORY
 export function drawForToday(now: Date, saved: Draw | null, random: (max: number) => number = secureRandomInt): { draw: Draw; isNew: boolean } {
   const day = bangkokDayKey(now)
   if (saved && saved.day === day && isStickNo(saved.stick)) return { draw: saved, isNew: false }
-  return { draw: { day, stick: (random(STICK_COUNT) + 1) as StickNo }, isNew: true }
+  return { draw: { day, stick: random(STICK_COUNT) + 1 }, isNew: true }
 }
 
 /**
