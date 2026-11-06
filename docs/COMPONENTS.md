@@ -81,7 +81,7 @@
 | ProfileView | `src/components/profile/ProfileView.tsx` | ours | Facebook-style profile (cover, avatar, name, title, bio, stats, titles, pet) | profile, actions | Same view for me (`/me`) and others (`/u/:userId`) — decision #36. |
 | OptionList | `src/components/common/OptionList.tsx` | ours | Pick one item from a vertical list (radio list in a card), e.g. choose a gang | options {value,label,description?}, value, onChange, label | For 2-4 short options in a row use SegmentedChoice. |
 | SuggestionChips | `src/components/common/SuggestionChips.tsx` | ours | Small tappable suggestions that fill a field | items, onPick, label | |
-| ToolTile | `src/components/explore/ToolTile.tsx` | ours | Tool card on Explore; locked style for status 'soon' | tool | Tools are defined in `src/config/tools.ts` |
+| ToolRow | `src/components/explore/ToolRow.tsx` | ours | One tool on Explore as a ListRow (IconTile accent = with friends, neutral = solo; 'soon' = lock, not tappable) | tool | Was ToolTile (2-column tiles) until #84. |
 | FeaturedAction | `src/components/explore/FeaturedAction.tsx` | ours | Big highlighted card for a group's main action (ชวนนัด) | tool | |
 | NumberStepper | `src/components/common/NumberStepper.tsx` | ours | − value + for small whole numbers | value, onChange, min, max, label | |
 | Quick vote screens | `src/features/quick-vote/*.tsx` | ours | SetupForm, VoteScreen, HandoffScreen, ResultView, TieDialog | — | Feature-only; logic in `logic.ts` (tested) |

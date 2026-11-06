@@ -162,6 +162,8 @@ export const th = {
     },
   },
   explore: {
+    gamesRow: 'เกมทั้งหมด {{count}} เกม',
+    gamesRowHint: '{{names}} และอื่นๆ',
     withFriends: 'กับเพื่อน',
     solo: 'คนเดียว',
     soon: 'เร็วๆ นี้',

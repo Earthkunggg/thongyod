@@ -161,6 +161,8 @@ export const en: Messages = {
     },
   },
   explore: {
+    gamesRow: 'All {{count}} games',
+    gamesRowHint: '{{names}} and more',
     withFriends: 'With friends',
     solo: 'On your own',
     soon: 'Coming soon',
